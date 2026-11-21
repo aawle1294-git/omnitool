@@ -1,0 +1,17 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# FFmpeg SharedArrayBuffer를 위한 필수 보안 헤더
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Embedder-Policy = "require-corp"
+    Cross-Origin-Resource-Policy = "cross-origin"
+
+# SPA 라우팅 (새로고침 시 404 방지)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

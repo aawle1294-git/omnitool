@@ -1,0 +1,506 @@
+import { SoftwareApp, Category } from '../types';
+
+export const APP_CATEGORIES: { id: Category; label: string; icon: string; count?: number }[] = [
+  { id: 'browser', label: '웹 브라우저', icon: 'Globe' },
+  { id: 'dev', label: '개발 & 프로그래밍', icon: 'Code2' },
+  { id: 'communication', label: '메신저 & 협업', icon: 'MessageSquare' },
+  { id: 'utility', label: '필수 유틸리티', icon: 'Wrench' },
+  { id: 'media', label: '미디어 & 그래픽', icon: 'Film' },
+  { id: 'office', label: '문서 & 생산성', icon: 'FileText' },
+  { id: 'security', label: '보안 & 클라우드', icon: 'ShieldCheck' },
+  { id: 'gaming', label: '게임 & 런처', icon: 'Gamepad2' },
+];
+
+export const SOFTWARE_APPS: SoftwareApp[] = [
+  // --- 브라우저 ---
+  {
+    id: 'chrome',
+    name: 'Google Chrome',
+    nameKo: '구글 크롬',
+    category: 'browser',
+    description: 'The world\'s most popular web browser by Google',
+    descriptionKo: '가장 빠르고 대중적인 구글의 대표 웹 브라우저',
+    wingetId: 'Google.Chrome',
+    officialUrl: 'https://www.google.com/chrome/',
+    directDownloadUrl: 'https://dl.google.com/chrome/install/ChromeSetup.exe',
+    icon: 'Chrome',
+    popular: true,
+    recommended: true
+  },
+  {
+    id: 'brave',
+    name: 'Brave Browser',
+    nameKo: '브레이브 브라우저',
+    category: 'browser',
+    description: 'Privacy-focused browser with built-in ad blocker',
+    descriptionKo: '광고 및 추적기 자동 차단, 강력한 개인정보 보호 브라우저',
+    wingetId: 'Brave.Brave',
+    officialUrl: 'https://brave.com/',
+    directDownloadUrl: 'https://laptop-updates.brave.com/latest/winx64',
+    icon: 'Shield',
+    recommended: true,
+    isOpenSource: true
+  },
+  {
+    id: 'firefox',
+    name: 'Mozilla Firefox',
+    nameKo: '파이어폭스',
+    category: 'browser',
+    description: 'Independent, open source, privacy-respecting browser',
+    descriptionKo: '오픈소스 기반의 자유롭고 안전한 웹 브라우저',
+    wingetId: 'Mozilla.Firefox',
+    officialUrl: 'https://www.mozilla.org/firefox/',
+    directDownloadUrl: 'https://download.mozilla.org/?product=firefox-latest&os=win64&lang=ko',
+    icon: 'Flame',
+    isOpenSource: true
+  },
+  {
+    id: 'edge',
+    name: 'Microsoft Edge',
+    nameKo: '마이크로소프트 엣지',
+    category: 'browser',
+    description: 'Fast, secure browser powered by Chromium with Copilot AI',
+    descriptionKo: '윈도우에 최적화된 크로미움 기반 AI Copilot 내장 브라우저',
+    wingetId: 'Microsoft.Edge',
+    officialUrl: 'https://www.microsoft.com/edge',
+    icon: 'Compass'
+  },
+  {
+    id: 'opera-gx',
+    name: 'Opera GX',
+    nameKo: '오페라 GX',
+    category: 'browser',
+    description: 'Gaming browser with CPU/RAM limiters and Discord integration',
+    descriptionKo: 'CPU/RAM 사용량 제어 기능과 게임 테마의 게이밍 브라우저',
+    wingetId: 'Opera.OperaGX',
+    officialUrl: 'https://www.opera.com/gx',
+    icon: 'Gamepad'
+  },
+
+  // --- 개발 & 프로그래밍 ---
+  {
+    id: 'vscode',
+    name: 'Visual Studio Code',
+    nameKo: 'VS Code',
+    category: 'dev',
+    description: 'Code editor redefined, optimized for building modern web & cloud apps',
+    descriptionKo: '전 세계 개발자가 가장 사랑하는 마이크로소프트의 코드 에디터',
+    wingetId: 'Microsoft.VisualStudioCode',
+    officialUrl: 'https://code.visualstudio.com/',
+    directDownloadUrl: 'https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user',
+    icon: 'Code',
+    popular: true,
+    recommended: true,
+    isOpenSource: true
+  },
+  {
+    id: 'git',
+    name: 'Git for Windows',
+    nameKo: '깃 (Git SCM)',
+    category: 'dev',
+    description: 'Distributed version control system and Git Bash',
+    descriptionKo: '분산 버전 관리 시스템 및 Git Bash 터미널 도구',
+    wingetId: 'Git.Git',
+    officialUrl: 'https://git-scm.com/',
+    directDownloadUrl: 'https://git-scm.com/download/win',
+    icon: 'GitBranch',
+    recommended: true,
+    isOpenSource: true
+  },
+  {
+    id: 'nodejs',
+    name: 'Node.js (LTS)',
+    nameKo: '노드JS (LTS)',
+    category: 'dev',
+    description: 'JavaScript runtime built on Chrome\'s V8 JavaScript engine',
+    descriptionKo: '안정적인 최신 장기 지원 버전의 자바스크립트 런타임 환경',
+    wingetId: 'OpenJS.NodeJS.LTS',
+    officialUrl: 'https://nodejs.org/',
+    directDownloadUrl: 'https://nodejs.org/dist/v20.18.0/node-v20.18.0-x64.msi',
+    icon: 'Server',
+    isOpenSource: true
+  },
+  {
+    id: 'python',
+    name: 'Python 3',
+    nameKo: '파이썬 3',
+    category: 'dev',
+    description: 'Powerful interpreted programming language for AI and scripting',
+    descriptionKo: '인공지능, 데이터 분석, 자동화에 필수적인 프로그래밍 언어',
+    wingetId: 'Python.Python.3.12',
+    officialUrl: 'https://www.python.org/',
+    directDownloadUrl: 'https://www.python.org/downloads/',
+    icon: 'Terminal',
+    popular: true,
+    recommended: true,
+    isOpenSource: true
+  },
+  {
+    id: 'docker',
+    name: 'Docker Desktop',
+    nameKo: '도커 데스크톱',
+    category: 'dev',
+    description: 'Build, share, and run container applications locally',
+    descriptionKo: '컨테이너 가상화 환경 구축 및 관리의 필수 도구',
+    wingetId: 'Docker.DockerDesktop',
+    officialUrl: 'https://www.docker.com/products/docker-desktop/',
+    icon: 'Box'
+  },
+  {
+    id: 'cursor',
+    name: 'Cursor AI Editor',
+    nameKo: '커서 AI 에디터',
+    category: 'dev',
+    description: 'The AI Code Editor built for pair-programming with AI',
+    descriptionKo: 'AI와 함께 코딩하는 차세대 지능형 코드 편집기',
+    wingetId: 'Anysphere.Cursor',
+    officialUrl: 'https://www.cursor.com/',
+    icon: 'Sparkles',
+    popular: true
+  },
+  {
+    id: 'postman',
+    name: 'Postman',
+    nameKo: '포스트맨',
+    category: 'dev',
+    description: 'Complete API development and testing platform',
+    descriptionKo: 'REST 및 GraphQL API 테스트 및 문서화 플랫폼',
+    wingetId: 'Postman.Postman',
+    officialUrl: 'https://www.postman.com/',
+    icon: 'Send'
+  },
+  {
+    id: 'windows-terminal',
+    name: 'Windows Terminal',
+    nameKo: '윈도우 터미널',
+    category: 'dev',
+    description: 'Modern, fast, efficient terminal application from Microsoft',
+    descriptionKo: '탭 지원, GPU 가속, 테마 지원 마이크로소프트 공식 최신 터미널',
+    wingetId: 'Microsoft.WindowsTerminal',
+    officialUrl: 'https://github.com/microsoft/terminal',
+    icon: 'Terminal',
+    isOpenSource: true
+  },
+
+  // --- 메신저 & 협업 ---
+  {
+    id: 'kakaotalk',
+    name: 'KakaoTalk',
+    nameKo: '카카오톡',
+    category: 'communication',
+    description: 'Korea\'s No.1 mobile and desktop messenger',
+    descriptionKo: '대한민국 국민 메신저 PC 버전',
+    wingetId: 'Kakao.KakaoTalk',
+    officialUrl: 'https://www.kakaocorp.com/page/service/service/KakaoTalk',
+    directDownloadUrl: 'https://www.kakaocorp.com/page/service/service/KakaoTalk',
+    icon: 'MessageCircle',
+    popular: true,
+    recommended: true
+  },
+  {
+    id: 'discord',
+    name: 'Discord',
+    nameKo: '디스코드',
+    category: 'communication',
+    description: 'All-in-one voice and text chat for gamers and communities',
+    descriptionKo: '게이머와 커뮤니티를 위한 고음질 음성 및 텍스트 채팅 플랫폼',
+    wingetId: 'Discord.Discord',
+    officialUrl: 'https://discord.com/',
+    directDownloadUrl: 'https://discord.com/api/download?platform=win',
+    icon: 'Headphones',
+    popular: true,
+    recommended: true
+  },
+  {
+    id: 'slack',
+    name: 'Slack',
+    nameKo: '슬랙',
+    category: 'communication',
+    description: 'Team communication and workspace collaboration tool',
+    descriptionKo: '전 세계 IT 기업들이 사용하는 비즈니스 협업 메신저',
+    wingetId: 'SlackTechnologies.Slack',
+    officialUrl: 'https://slack.com/',
+    icon: 'Hash'
+  },
+  {
+    id: 'telegram',
+    name: 'Telegram Desktop',
+    nameKo: '텔레그램',
+    category: 'communication',
+    description: 'Fast and secure desktop messaging app',
+    descriptionKo: '속도가 빠르고 보안과 대용량 파일 전송에 뛰어난 메신저',
+    wingetId: 'Telegram.TelegramDesktop',
+    officialUrl: 'https://desktop.telegram.org/',
+    icon: 'Send',
+    isOpenSource: true
+  },
+  {
+    id: 'zoom',
+    name: 'Zoom Workplace',
+    nameKo: '줌 (Zoom)',
+    category: 'communication',
+    description: 'Video conferencing, online meetings, and chat',
+    descriptionKo: '원격 화상 회의 및 온라인 수업 표준 프로그램',
+    wingetId: 'Zoom.Zoom',
+    officialUrl: 'https://zoom.us/',
+    icon: 'Video'
+  },
+
+  // --- 필수 유틸리티 ---
+  {
+    id: 'bandizip',
+    name: 'Bandizip',
+    nameKo: '반디집',
+    category: 'utility',
+    description: 'Fast and lightweight all-in-one archiver for Windows',
+    descriptionKo: '한국에서 가장 인기 있는 빠르고 가벼운 압축 프로그램',
+    wingetId: 'Bandisoft.Bandizip',
+    officialUrl: 'https://kr.bandisoft.com/bandizip/',
+    directDownloadUrl: 'https://dl.bandisoft.com/bandizip.std/BANDIZIP-SETUP-STD-X64.EXE',
+    icon: 'Archive',
+    popular: true,
+    recommended: true
+  },
+  {
+    id: '7zip',
+    name: '7-Zip',
+    nameKo: '7-집 (7-Zip)',
+    category: 'utility',
+    description: 'High compression ratio open source file archiver',
+    descriptionKo: '높은 압축률을 자랑하는 완전 무료 오픈소스 압축 도구',
+    wingetId: '7zip.7zip',
+    officialUrl: 'https://www.7-zip.org/',
+    directDownloadUrl: 'https://www.7-zip.org/a/7z2408-x64.exe',
+    icon: 'FolderArchive',
+    isOpenSource: true
+  },
+  {
+    id: 'everything',
+    name: 'Everything',
+    nameKo: '에브리띵 (초고속 파일검색)',
+    category: 'utility',
+    description: 'Locate files and folders by name instantly on Windows',
+    descriptionKo: '수백만 개의 파일을 0.1초 만에 찾아내는 초고속 파일 검색기',
+    wingetId: 'voidtools.Everything',
+    officialUrl: 'https://www.voidtools.com/',
+    icon: 'Search',
+    popular: true,
+    recommended: true
+  },
+  {
+    id: 'sharex',
+    name: 'ShareX',
+    nameKo: '쉐어X (화면 캡처/녹화)',
+    category: 'utility',
+    description: 'Screen capture, file sharing and productivity tool',
+    descriptionKo: '화면 캡처, GIF/동영상 녹화, 이미지 편집까지 가능한 강력한 무료 캡처 도구',
+    wingetId: 'ShareX.ShareX',
+    officialUrl: 'https://getsharex.com/',
+    icon: 'Camera',
+    isOpenSource: true,
+    recommended: true
+  },
+  {
+    id: 'powertoys',
+    name: 'Microsoft PowerToys',
+    nameKo: '마이크로소프트 파워토이',
+    category: 'utility',
+    description: 'System utilities for Windows power users from Microsoft',
+    descriptionKo: '창 분할(FancyZones), 일괄 리사이즈, 색상 추출기 등 MS 공식 파워 유저 도구',
+    wingetId: 'Microsoft.PowerToys',
+    officialUrl: 'https://github.com/microsoft/PowerToys',
+    icon: 'Sliders',
+    popular: true,
+    recommended: true,
+    isOpenSource: true
+  },
+  {
+    id: 'rufus',
+    name: 'Rufus',
+    nameKo: '루퍼스 (부팅 USB 제작)',
+    category: 'utility',
+    description: 'Create bootable USB drives the easy way',
+    descriptionKo: '윈도우 및 리눅스 부팅 USB를 가장 빠르고 간편하게 제작하는 유틸리티',
+    wingetId: 'Rufus.Rufus',
+    officialUrl: 'https://rufus.ie/',
+    icon: 'HardDrive',
+    isOpenSource: true
+  },
+  {
+    id: 'geek-uninstaller',
+    name: 'Geek Uninstaller',
+    nameKo: '긱 언인스톨러 (프로그램 삭제)',
+    category: 'utility',
+    description: 'Clean removal of stubborn programs and registry leftovers',
+    descriptionKo: '남은 찌꺼기 파일과 레지스트리까지 깔끔하게 제거해주는 무료 삭제기',
+    wingetId: 'GeekUninstaller.GeekUninstaller',
+    officialUrl: 'https://geekuninstaller.com/',
+    icon: 'Trash2'
+  },
+
+  // --- 미디어 & 엔터테인먼트 ---
+  {
+    id: 'vlc',
+    name: 'VLC Media Player',
+    nameKo: 'VLC 미디어 플레이어',
+    category: 'media',
+    description: 'Free, open source cross-platform multimedia player',
+    descriptionKo: '코덱 걱정 없이 모든 동영상과 음악을 재생하는 오픈소스 플레이어',
+    wingetId: 'VideoLAN.VLC',
+    officialUrl: 'https://www.videolan.org/vlc/',
+    icon: 'PlayCircle',
+    isOpenSource: true,
+    popular: true
+  },
+  {
+    id: 'potplayer',
+    name: 'PotPlayer',
+    nameKo: '팟플레이어',
+    category: 'media',
+    description: 'Feature-rich media player with hardware acceleration',
+    descriptionKo: '국내에서 가장 널리 쓰이는 고화질 하드웨어 가속 동영상 재생기',
+    wingetId: 'Kakao.PotPlayer',
+    officialUrl: 'https://tv.kakao.com/guide/potplayer',
+    icon: 'Tv',
+    popular: true,
+    recommended: true
+  },
+  {
+    id: 'spotify',
+    name: 'Spotify',
+    nameKo: '스포티파이',
+    category: 'media',
+    description: 'Digital music, podcast, and video service',
+    descriptionKo: '전 세계 수억 곡의 음악과 팟캐스트 스트리밍 앱',
+    wingetId: 'Spotify.Spotify',
+    officialUrl: 'https://www.spotify.com/',
+    icon: 'Music',
+    popular: true
+  },
+  {
+    id: 'obs',
+    name: 'OBS Studio',
+    nameKo: 'OBS 스튜디오',
+    category: 'media',
+    description: 'Free and open source software for video recording and live streaming',
+    descriptionKo: '유튜브/트위치 방송 및 화면 녹화의 글로벌 표준 소프트웨어',
+    wingetId: 'OBSProject.OBSStudio',
+    officialUrl: 'https://obsproject.com/',
+    icon: 'Radio',
+    isOpenSource: true
+  },
+  {
+    id: 'handbrake',
+    name: 'HandBrake',
+    nameKo: '핸드브레이크 (동영상 인코더)',
+    category: 'media',
+    description: 'Open source video transcoder for converting video files',
+    descriptionKo: '고화질 동영상 용량 축소 및 포맷 변환 무료 오픈소스 인코더',
+    wingetId: 'HandBrake.HandBrake',
+    officialUrl: 'https://handbrake.fr/',
+    icon: 'Film',
+    isOpenSource: true
+  },
+
+  // --- 문서 & 생산성 ---
+  {
+    id: 'notion',
+    name: 'Notion',
+    nameKo: '노션',
+    category: 'office',
+    description: 'Connected workspace for your notes, tasks, and wikis',
+    descriptionKo: '메모, 문서 작성, 프로젝트 관리 올인원 워크스페이스',
+    wingetId: 'Notion.Notion',
+    officialUrl: 'https://www.notion.so/',
+    icon: 'BookOpen',
+    popular: true,
+    recommended: true
+  },
+  {
+    id: 'obsidian',
+    name: 'Obsidian',
+    nameKo: '옵시디언',
+    category: 'office',
+    description: 'A second brain, for you, forever. Markdown note-taking app',
+    descriptionKo: '로컬 마크다운 기반의 지식 연결 및 제2의 뇌 메모 앱',
+    wingetId: 'Obsidian.Obsidian',
+    officialUrl: 'https://obsidian.md/',
+    icon: 'Network',
+    isOpenSource: false,
+    recommended: true
+  },
+  {
+    id: 'adobe-reader',
+    name: 'Adobe Acrobat Reader',
+    nameKo: '어도비 애크로뱃 리더',
+    category: 'office',
+    description: 'The free global standard for reliably viewing and printing PDFs',
+    descriptionKo: 'PDF 문서 열람, 주석 달기, 인쇄의 글로벌 표준 뷰어',
+    wingetId: 'Adobe.Acrobat.Reader.64-bit',
+    officialUrl: 'https://get.adobe.com/reader/',
+    icon: 'FileCheck'
+  },
+  {
+    id: 'figma',
+    name: 'Figma Desktop',
+    nameKo: '피그마 데스크톱',
+    category: 'office',
+    description: 'The collaborative interface design tool',
+    descriptionKo: 'UI/UX 디자인 및 프로토타이핑을 위한 최고의 디자인 툴',
+    wingetId: 'Figma.Figma',
+    officialUrl: 'https://www.figma.com/',
+    icon: 'PenTool'
+  },
+
+  // --- 보안 & 클라우드 ---
+  {
+    id: 'bitwarden',
+    name: 'Bitwarden',
+    nameKo: '비트워든 (비밀번호 관리)',
+    category: 'security',
+    description: 'Open source password manager for all your devices',
+    descriptionKo: '종단간 암호화로 안전하게 비밀번호를 관리해주는 최고의 오픈소스 금고',
+    wingetId: 'Bitwarden.Bitwarden',
+    officialUrl: 'https://bitwarden.com/',
+    icon: 'Key',
+    isOpenSource: true,
+    recommended: true
+  },
+  {
+    id: 'googledrive',
+    name: 'Google Drive for Desktop',
+    nameKo: '구글 드라이브 PC',
+    category: 'security',
+    description: 'Back up and access your files from any device with Google Drive',
+    descriptionKo: 'PC 내 폴더를 구글 클라우드와 실시간 양방향 동기화',
+    wingetId: 'Google.GoogleDrive',
+    officialUrl: 'https://www.google.com/drive/download/',
+    icon: 'Cloud'
+  },
+
+  // --- 게임 & 런처 ---
+  {
+    id: 'steam',
+    name: 'Steam',
+    nameKo: '스팀 (Steam)',
+    category: 'gaming',
+    description: 'The ultimate entertainment platform for playing PC games',
+    descriptionKo: '전 세계 최대 규모의 PC 게임 유통 플랫폼 및 런처',
+    wingetId: 'Valve.Steam',
+    officialUrl: 'https://store.steampowered.com/',
+    icon: 'Gamepad2',
+    popular: true
+  },
+  {
+    id: 'epic-games',
+    name: 'Epic Games Launcher',
+    nameKo: '에픽게임즈 런처',
+    category: 'gaming',
+    description: 'Play Fortnite and get free games weekly',
+    descriptionKo: '매주 무료 게임 제공 및 언리얼 엔진 / 게임 런처',
+    wingetId: 'EpicGames.EpicGamesLauncher',
+    officialUrl: 'https://store.epicgames.com/',
+    icon: 'Sparkle'
+  }
+];
+
