@@ -480,7 +480,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
               </div>
 
               {/* App List Tree style */}
-              <div className="h-64 max-h-72 overflow-y-auto space-y-1 pr-1 border border-[#e9e9e7] dark:border-[#2f2f2f] rounded-xl p-2 bg-[#faf9f6]/40 dark:bg-[#1b1b1b] scroll-smooth">
+              <div className="h-48 max-h-56 overflow-y-auto space-y-1 pr-1 border border-[#e9e9e7] dark:border-[#2f2f2f] rounded-xl p-2 bg-[#faf9f6]/40 dark:bg-[#1b1b1b] scroll-smooth">
                 {SOFTWARE_APPS.filter(
                   (a) => activeCategory === 'all' || a.category === activeCategory
                 ).map((app) => {
@@ -524,9 +524,39 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                 })}
               </div>
 
-              <p className="text-[11px] text-[#787774]">
-                선택된 프로그램: <span className="font-bold text-black dark:text-white">{selectedApps.length}개</span>
-              </p>
+              {/* Step 2 Summary & In-page Next Action */}
+              <div className="flex items-center justify-between p-3 rounded-xl bg-[#f7f6f3] dark:bg-[#202020] border border-[#e9e9e7] dark:border-[#2e2e2e]">
+                <div className="text-xs text-[#787774]">
+                  선택된 프로그램: <strong className="text-black dark:text-white font-bold">{selectedApps.length}개</strong>
+                  {selectedApps.length === 0 ? (
+                    <span className="text-amber-600 dark:text-amber-400 ml-2 text-[11px] font-semibold">
+                      (원하는 프로그램을 체크해주세요)
+                    </span>
+                  ) : (
+                    <span className="text-emerald-600 dark:text-emerald-400 ml-2 text-[11px] font-semibold">
+                      ✓ 3단계 이동 준비 완료
+                    </span>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => {
+                    if (selectedApps.length === 0) {
+                      alert('목록에서 설치하고 싶은 프로그램을 최소 1개 이상 체크해 주세요!');
+                      return;
+                    }
+                    setCurrentStep('options');
+                  }}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-xs ${
+                    selectedApps.length > 0
+                      ? 'bg-black dark:bg-white text-white dark:text-black hover:opacity-90'
+                      : 'bg-black/20 dark:bg-white/20 text-[#787774] dark:text-[#aaa] cursor-pointer'
+                  }`}
+                >
+                  <span>3단계 옵션으로 이동</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           )}
 
@@ -679,22 +709,20 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
           )}
 
           {/* ============================================================== */}
-          {/* BOTTOM NAVIGATION ACTIONS (Always visible, Back & Next side by side) */}
+          {/* BOTTOM NAVIGATION ACTIONS (Always visible & compact) */}
           {/* ============================================================== */}
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-3 mt-4 border-t border-[#e9e9e7] dark:border-[#2f2f2f] shrink-0">
-            {/* Left: Step Info & Selection Count */}
-            <div className="text-xs text-[#787774] flex items-center gap-2">
-              <span className="font-semibold text-[#37352f] dark:text-[#d3d3d3]">
-                {currentStep === 'welcome' && '1단계: 시작 안내'}
-                {currentStep === 'components' && `2단계: 프로그램 선택 (${selectedApps.length}개 선택됨)`}
-                {currentStep === 'options' && '3단계: 설치 옵션 설정'}
-                {currentStep === 'installing' && '4단계: 자동 설치 진행 중'}
-                {currentStep === 'complete' && '5단계: 설치 완료'}
-              </span>
+          <div className="flex items-center justify-between gap-2 pt-3 mt-3 border-t border-[#e9e9e7] dark:border-[#2f2f2f] shrink-0">
+            {/* Left: Compact Step Indicator */}
+            <div className="text-[11px] text-[#787774] truncate">
+              {currentStep === 'welcome' && '1 / 5 시작 안내'}
+              {currentStep === 'components' && `2 / 5 선택 (${selectedApps.length}개)`}
+              {currentStep === 'options' && '3 / 5 옵션 설정'}
+              {currentStep === 'installing' && '4 / 5 설치 진행'}
+              {currentStep === 'complete' && '5 / 5 완료'}
             </div>
 
-            {/* Right: Actions Group (Back & Next side by side, shrink-0) */}
-            <div className="flex items-center gap-2 shrink-0">
+            {/* Right: Actions Group (Never wraps, Back & Next side by side) */}
+            <div className="flex items-center gap-1.5 shrink-0">
               {/* [Back Button] */}
               {currentStep !== 'welcome' && currentStep !== 'installing' && currentStep !== 'complete' && (
                 <button
@@ -702,10 +730,10 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                     if (currentStep === 'components') setCurrentStep('welcome');
                     else if (currentStep === 'options') setCurrentStep('components');
                   }}
-                  className="shrink-0 whitespace-nowrap flex items-center gap-1 px-3.5 py-2 text-xs font-semibold text-[#37352f] dark:text-white bg-[#f0f0ee] dark:bg-[#282828] hover:bg-[#e4e3e0] dark:hover:bg-[#333] rounded-lg transition"
+                  className="shrink-0 whitespace-nowrap flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-[#37352f] dark:text-white bg-[#f0f0ee] dark:bg-[#282828] hover:bg-[#e4e3e0] dark:hover:bg-[#333] rounded-lg transition"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" />
-                  <span>이전 (Back)</span>
+                  <span>이전</span>
                 </button>
               )}
 
@@ -713,9 +741,9 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
               {currentStep === 'welcome' && (
                 <button
                   onClick={() => setCurrentStep('components')}
-                  className="shrink-0 whitespace-nowrap flex items-center gap-1.5 px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-sm"
+                  className="shrink-0 whitespace-nowrap flex items-center gap-1 px-4 py-1.5 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-sm"
                 >
-                  <span>다음 단계 (Next)</span>
+                  <span>다음 단계</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -725,19 +753,18 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                 <button
                   onClick={() => {
                     if (selectedApps.length === 0) {
-                      alert('목록에서 설치하고 싶은 프로그램을 최소 1개 이상 체크해 주세요!');
+                      alert('설치할 프로그램을 최소 1개 이상 체크해 주세요!');
                       return;
                     }
                     setCurrentStep('options');
                   }}
-                  className={`shrink-0 whitespace-nowrap flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition shadow-sm ${
+                  className={`shrink-0 whitespace-nowrap flex items-center gap-1 px-4 py-1.5 rounded-lg text-xs font-bold transition shadow-sm ${
                     selectedApps.length > 0
                       ? 'bg-black dark:bg-white text-white dark:text-black hover:opacity-90'
-                      : 'bg-[#efefed] dark:bg-[#2a2a2a] text-[#787774] dark:text-[#aaa] border border-[#dcdad5] dark:border-[#383838]'
+                      : 'bg-black/20 dark:bg-white/20 text-[#787774] dark:text-[#aaa] border border-[#dcdad5] dark:border-[#383838]'
                   }`}
-                  title={selectedApps.length === 0 ? '프로그램을 1개 이상 선택해야 3단계로 이동할 수 있습니다' : '3단계 설치 옵션으로 이동'}
                 >
-                  <span>다음 단계 (Next)</span>
+                  <span>다음 단계</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -746,9 +773,9 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
               {currentStep === 'options' && (
                 <button
                   onClick={startInstallation}
-                  className="shrink-0 whitespace-nowrap flex items-center gap-1.5 px-5 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-md"
+                  className="shrink-0 whitespace-nowrap flex items-center gap-1.5 px-4 py-1.5 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-md"
                 >
-                  <span>설치 시작 (Install)</span>
+                  <span>설치 시작</span>
                   <Sparkles className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -760,7 +787,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                     if (onClose) onClose();
                     else setCurrentStep('welcome');
                   }}
-                  className="shrink-0 whitespace-nowrap px-5 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-sm"
+                  className="shrink-0 whitespace-nowrap px-4 py-1.5 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-sm"
                 >
                   마침 (Finish)
                 </button>
