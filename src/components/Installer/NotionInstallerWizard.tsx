@@ -423,11 +423,16 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-bold text-[#37352f] dark:text-white">
-                    설치할 구성 요소 (프로그램) 선택
+                  <h3 className="text-base font-bold text-[#37352f] dark:text-white flex items-center gap-2">
+                    <span>설치할 구성 요소 (프로그램) 선택</span>
+                    {selectedApps.length === 0 && (
+                      <span className="text-[10px] font-normal px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                        1개 이상 체크 필요
+                      </span>
+                    )}
                   </h3>
                   <p className="text-xs text-[#787774]">
-                    설치하고 싶은 프로그램의 체크박스를 선택하세요.
+                    설치하고 싶은 프로그램의 체크박스를 선택하세요. (현재 <strong>{selectedApps.length}개</strong> 선택됨)
                   </p>
                 </div>
 
@@ -475,7 +480,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
               </div>
 
               {/* App List Tree style */}
-              <div className="h-72 max-h-80 overflow-y-auto space-y-1 pr-1 border border-[#e9e9e7] dark:border-[#2f2f2f] rounded-xl p-2 bg-[#faf9f6]/40 dark:bg-[#1b1b1b] scroll-smooth">
+              <div className="h-64 max-h-72 overflow-y-auto space-y-1 pr-1 border border-[#e9e9e7] dark:border-[#2f2f2f] rounded-xl p-2 bg-[#faf9f6]/40 dark:bg-[#1b1b1b] scroll-smooth">
                 {SOFTWARE_APPS.filter(
                   (a) => activeCategory === 'all' || a.category === activeCategory
                 ).map((app) => {
@@ -674,85 +679,88 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
           )}
 
           {/* ============================================================== */}
-          {/* BOTTOM NAVIGATION ACTIONS (Back & Next grouped together) */}
+          {/* BOTTOM NAVIGATION ACTIONS (Always visible, Back & Next side by side) */}
           {/* ============================================================== */}
-          <div className="flex items-center justify-between pt-4 mt-6 border-t border-[#e9e9e7] dark:border-[#2f2f2f]">
-            {/* Left: Step Info Status */}
-            <div className="text-xs text-[#787774] flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-3 mt-4 border-t border-[#e9e9e7] dark:border-[#2f2f2f] shrink-0">
+            {/* Left: Step Info & Selection Count */}
+            <div className="text-xs text-[#787774] flex items-center gap-2">
               <span className="font-semibold text-[#37352f] dark:text-[#d3d3d3]">
-                {currentStep === 'welcome' && '1단계: 환영 및 안내'}
-                {currentStep === 'components' && '2단계: 프로그램 선택'}
+                {currentStep === 'welcome' && '1단계: 시작 안내'}
+                {currentStep === 'components' && `2단계: 프로그램 선택 (${selectedApps.length}개 선택됨)`}
                 {currentStep === 'options' && '3단계: 설치 옵션 설정'}
                 {currentStep === 'installing' && '4단계: 자동 설치 진행 중'}
                 {currentStep === 'complete' && '5단계: 설치 완료'}
               </span>
             </div>
 
-            {/* Right: Actions Group (Back & Next side by side) */}
-            <div className="flex items-center gap-2">
-              {/* Optional Cancel button */}
-              {onClose && currentStep !== 'installing' && (
-                <button
-                  onClick={onClose}
-                  className="px-3 py-1.5 text-xs text-[#787774] hover:text-[#37352f] dark:hover:text-white rounded-lg transition"
-                >
-                  취소 (Cancel)
-                </button>
-              )}
-
-              {/* [Back Button] placed immediately NEXT to [Next Button] */}
+            {/* Right: Actions Group (Back & Next side by side, shrink-0) */}
+            <div className="flex items-center gap-2 shrink-0">
+              {/* [Back Button] */}
               {currentStep !== 'welcome' && currentStep !== 'installing' && currentStep !== 'complete' && (
                 <button
                   onClick={() => {
                     if (currentStep === 'components') setCurrentStep('welcome');
                     else if (currentStep === 'options') setCurrentStep('components');
                   }}
-                  className="flex items-center gap-1 px-3.5 py-2 text-xs font-semibold text-[#37352f] dark:text-white bg-[#f0f0ee] dark:bg-[#282828] hover:bg-[#e4e3e0] dark:hover:bg-[#333] rounded-lg transition"
+                  className="shrink-0 whitespace-nowrap flex items-center gap-1 px-3.5 py-2 text-xs font-semibold text-[#37352f] dark:text-white bg-[#f0f0ee] dark:bg-[#282828] hover:bg-[#e4e3e0] dark:hover:bg-[#333] rounded-lg transition"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" />
                   <span>이전 (Back)</span>
                 </button>
               )}
 
-              {/* [Next / Start / Finish Button] */}
+              {/* [Next Button: Step 1 -> Step 2] */}
               {currentStep === 'welcome' && (
                 <button
                   onClick={() => setCurrentStep('components')}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-sm"
+                  className="shrink-0 whitespace-nowrap flex items-center gap-1.5 px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-sm"
                 >
                   <span>다음 단계 (Next)</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               )}
 
+              {/* [Next Button: Step 2 -> Step 3] ALWAYS VISIBLE! */}
               {currentStep === 'components' && (
                 <button
-                  onClick={() => setCurrentStep('options')}
-                  disabled={selectedApps.length === 0}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-black dark:bg-white disabled:opacity-40 text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-sm"
+                  onClick={() => {
+                    if (selectedApps.length === 0) {
+                      alert('목록에서 설치하고 싶은 프로그램을 최소 1개 이상 체크해 주세요!');
+                      return;
+                    }
+                    setCurrentStep('options');
+                  }}
+                  className={`shrink-0 whitespace-nowrap flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition shadow-sm ${
+                    selectedApps.length > 0
+                      ? 'bg-black dark:bg-white text-white dark:text-black hover:opacity-90'
+                      : 'bg-[#efefed] dark:bg-[#2a2a2a] text-[#787774] dark:text-[#aaa] border border-[#dcdad5] dark:border-[#383838]'
+                  }`}
+                  title={selectedApps.length === 0 ? '프로그램을 1개 이상 선택해야 3단계로 이동할 수 있습니다' : '3단계 설치 옵션으로 이동'}
                 >
                   <span>다음 단계 (Next)</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               )}
 
+              {/* [Start Button: Step 3 -> Step 4] */}
               {currentStep === 'options' && (
                 <button
                   onClick={startInstallation}
-                  className="flex items-center gap-1.5 px-5 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-md"
+                  className="shrink-0 whitespace-nowrap flex items-center gap-1.5 px-5 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-md"
                 >
                   <span>설치 시작 (Install)</span>
                   <Sparkles className="w-3.5 h-3.5" />
                 </button>
               )}
 
+              {/* [Finish Button: Step 5] */}
               {currentStep === 'complete' && (
                 <button
                   onClick={() => {
                     if (onClose) onClose();
                     else setCurrentStep('welcome');
                   }}
-                  className="px-5 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-sm"
+                  className="shrink-0 whitespace-nowrap px-5 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-sm"
                 >
                   마침 (Finish)
                 </button>
