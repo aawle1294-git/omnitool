@@ -237,7 +237,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
               </div>
             </div>
 
-            {/* Steps list */}
+            {/* Steps list (Indicator only - sequential flow enforcement) */}
             <nav className="space-y-1">
               {stepsList.map((s) => {
                 const isActive = currentStep === s.id;
@@ -246,22 +246,18 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                   stepsList.findIndex((item) => item.id === s.id);
 
                 return (
-                  <button
+                  <div
                     key={s.id}
-                    disabled={currentStep === 'installing'}
-                    onClick={() => {
-                      if (currentStep !== 'installing') setCurrentStep(s.id);
-                    }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition text-left ${
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium select-none ${
                       isActive
                         ? 'bg-[#efefed] dark:bg-[#2c2c2c] text-[#37352f] dark:text-[#ffffff] font-bold shadow-xs'
                         : isPassed
-                        ? 'text-[#787774] hover:bg-[#f0f0ee] dark:hover:bg-[#252525]'
-                        : 'text-[#9b9a97] opacity-60'
+                        ? 'text-[#787774] dark:text-[#999]'
+                        : 'text-[#9b9a97] opacity-50'
                     }`}
                   >
                     <span
-                      className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                      className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
                         isActive
                           ? 'bg-black dark:bg-white text-white dark:text-black'
                           : isPassed
@@ -271,8 +267,8 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                     >
                       {isPassed ? <Check className="w-2.5 h-2.5" /> : s.num}
                     </span>
-                    <span>{s.label}</span>
-                  </button>
+                    <span className="truncate">{s.label}</span>
+                  </div>
                 );
               })}
             </nav>
@@ -638,42 +634,53 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
           )}
 
           {/* ============================================================== */}
-          {/* BOTTOM NAVIGATION ACTIONS */}
+          {/* BOTTOM NAVIGATION ACTIONS (Back & Next grouped together) */}
           {/* ============================================================== */}
           <div className="flex items-center justify-between pt-4 mt-6 border-t border-[#e9e9e7] dark:border-[#2f2f2f]">
-            {/* Left Back / Cancel */}
-            <div>
+            {/* Left: Step Info Status */}
+            <div className="text-xs text-[#787774] flex items-center gap-1.5">
+              <span className="font-semibold text-[#37352f] dark:text-[#d3d3d3]">
+                {currentStep === 'welcome' && '1단계: 환영 및 안내'}
+                {currentStep === 'components' && '2단계: 프로그램 선택'}
+                {currentStep === 'options' && '3단계: 설치 옵션 설정'}
+                {currentStep === 'installing' && '4단계: 자동 설치 진행 중'}
+                {currentStep === 'complete' && '5단계: 설치 완료'}
+              </span>
+            </div>
+
+            {/* Right: Actions Group (Back & Next side by side) */}
+            <div className="flex items-center gap-2">
+              {/* Optional Cancel button */}
+              {onClose && currentStep !== 'installing' && (
+                <button
+                  onClick={onClose}
+                  className="px-3 py-1.5 text-xs text-[#787774] hover:text-[#37352f] dark:hover:text-white rounded-lg transition"
+                >
+                  취소 (Cancel)
+                </button>
+              )}
+
+              {/* [Back Button] placed immediately NEXT to [Next Button] */}
               {currentStep !== 'welcome' && currentStep !== 'installing' && currentStep !== 'complete' && (
                 <button
                   onClick={() => {
                     if (currentStep === 'components') setCurrentStep('welcome');
                     else if (currentStep === 'options') setCurrentStep('components');
                   }}
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs text-[#787774] hover:text-[#37352f] dark:hover:text-white rounded-lg hover:bg-[#f7f6f3] dark:hover:bg-[#222] transition"
+                  className="flex items-center gap-1 px-3.5 py-2 text-xs font-semibold text-[#37352f] dark:text-white bg-[#f0f0ee] dark:bg-[#282828] hover:bg-[#e4e3e0] dark:hover:bg-[#333] rounded-lg transition"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" />
-                  이전 (Back)
-                </button>
-              )}
-            </div>
-
-            {/* Right Next / Start / Finish */}
-            <div className="flex items-center gap-2">
-              {onClose && currentStep !== 'installing' && (
-                <button
-                  onClick={onClose}
-                  className="px-3.5 py-1.5 text-xs text-[#787774] hover:text-[#37352f] rounded-lg transition"
-                >
-                  취소 (Cancel)
+                  <span>이전 (Back)</span>
                 </button>
               )}
 
+              {/* [Next / Start / Finish Button] */}
               {currentStep === 'welcome' && (
                 <button
                   onClick={() => setCurrentStep('components')}
                   className="flex items-center gap-1.5 px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-sm"
                 >
-                  다음 단계 (Next)
+                  <span>다음 단계 (Next)</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -684,7 +691,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                   disabled={selectedApps.length === 0}
                   className="flex items-center gap-1.5 px-4 py-2 bg-black dark:bg-white disabled:opacity-40 text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-sm"
                 >
-                  다음 단계 (Next)
+                  <span>다음 단계 (Next)</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -694,7 +701,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                   onClick={startInstallation}
                   className="flex items-center gap-1.5 px-5 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-md"
                 >
-                  설치 시작 (Install)
+                  <span>설치 시작 (Install)</span>
                   <Sparkles className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -705,7 +712,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                     if (onClose) onClose();
                     else setCurrentStep('welcome');
                   }}
-                  className="px-5 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition"
+                  className="px-5 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-sm"
                 >
                   마침 (Finish)
                 </button>
