@@ -16,47 +16,51 @@ const coepPlugin = () => ({
   },
 });
 
-export default defineConfig({
-  plugins: [
-    react(),
-    coepPlugin(),
-    {
-      name: 'installer-bridge',
-      configureServer(server) {
-        server.middlewares.use('/api/launch-installer', (req, res) => {
-          const wizardPath = path.resolve(__dirname, 'installer_wizard.pyw');
-          try {
-            const child = spawn('pythonw.exe', [wizardPath], {
-              detached: true,
-              stdio: 'ignore'
-            });
-            child.unref();
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({ success: true, message: 'Installer launched' }));
-          } catch (err: any) {
-            res.statusCode = 500;
-            res.end(JSON.stringify({ success: false, error: err.message }));
-          }
-        });
+export default defineConfig(({ command }) => {
+  const isDev = command === 'serve';
 
-        // Register native in-app media downloader bridge
-        registerMediaBridge(server);
+  return {
+    plugins: [
+      react(),
+      isDev && coepPlugin(),
+      isDev && {
+        name: 'installer-bridge',
+        configureServer(server: any) {
+          server.middlewares.use('/api/launch-installer', (req: any, res: any) => {
+            const wizardPath = path.resolve(__dirname, 'installer_wizard.pyw');
+            try {
+              const child = spawn('pythonw.exe', [wizardPath], {
+                detached: true,
+                stdio: 'ignore'
+              });
+              child.unref();
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: true, message: 'Installer launched' }));
+            } catch (err: any) {
+              res.statusCode = 500;
+              res.end(JSON.stringify({ success: false, error: err.message }));
+            }
+          });
+
+          // Register native in-app media downloader bridge
+          registerMediaBridge(server);
+        }
       }
-    }
-  ],
-  server: {
-    port: 3000,
-    host: true,
-  },
-  build: {
-    chunkSizeWarningLimit: 1600,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'pdf-engine': ['pdfjs-dist', 'pdf-lib'],
-          'vendor': ['react', 'react-dom', 'jszip', 'file-saver', 'qrcode']
+    ].filter(Boolean),
+    server: {
+      port: 3000,
+      host: true,
+    },
+    build: {
+      chunkSizeWarningLimit: 1600,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'pdf-engine': ['pdfjs-dist', 'pdf-lib'],
+            'vendor': ['react', 'react-dom', 'jszip', 'file-saver', 'qrcode']
+          }
         }
       }
     }
-  }
+  };
 });

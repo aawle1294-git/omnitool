@@ -39,23 +39,29 @@ interface TaskInfo {
 
 const tasks = new Map<string, TaskInfo>();
 
-// Clean old files every 30 mins
-setInterval(() => {
-  const now = Date.now();
-  for (const [id, task] of tasks.entries()) {
-    if (now - task.createdAt > 1000 * 60 * 60) { // 1 hour old
-      try {
-        const taskDir = path.join(TEMP_BASE_DIR, id);
-        if (fs.existsSync(taskDir)) {
-          fs.rmSync(taskDir, { recursive: true, force: true });
-        }
-      } catch {}
-      tasks.delete(id);
+let cleanupTimer: NodeJS.Timeout | null = null;
+
+function ensureCleanupTimer() {
+  if (cleanupTimer) return;
+  cleanupTimer = setInterval(() => {
+    const now = Date.now();
+    for (const [id, task] of tasks.entries()) {
+      if (now - task.createdAt > 1000 * 60 * 60) { // 1 hour old
+        try {
+          const taskDir = path.join(TEMP_BASE_DIR, id);
+          if (fs.existsSync(taskDir)) {
+            fs.rmSync(taskDir, { recursive: true, force: true });
+          }
+        } catch {}
+        tasks.delete(id);
+      }
     }
-  }
-}, 1000 * 60 * 30);
+  }, 1000 * 60 * 30);
+  cleanupTimer.unref(); // Node 프로세스 종료를 블로킹하지 않음
+}
 
 export function registerMediaBridge(server: any) {
+  ensureCleanupTimer();
   // 1. Start download task: POST /api/media-download/start
   server.middlewares.use('/api/media-download/start', (req: any, res: any) => {
     if (req.method !== 'POST') {

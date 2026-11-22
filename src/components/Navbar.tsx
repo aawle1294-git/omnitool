@@ -1,11 +1,11 @@
 import React from 'react';
-import { 
-  Zap, 
-  FileArchive, 
-  RefreshCw, 
-  DownloadCloud, 
-  Wrench, 
-  Sun, 
+import {
+  Zap,
+  FileArchive,
+  RefreshCw,
+  DownloadCloud,
+  Wrench,
+  Sun,
   Moon,
   Laptop
 } from 'lucide-react';
@@ -30,9 +30,9 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'home', label: '홈', icon: <Zap className="w-4 h-4" /> },
     { id: 'compressor', label: '용량 압축기', icon: <FileArchive className="w-4 h-4" /> },
     { id: 'converter', label: '파일 변환기', icon: <RefreshCw className="w-4 h-4" /> },
-    { 
-      id: 'installer', 
-      label: '프로그램 인스톨러', 
+    {
+      id: 'installer',
+      label: '프로그램 인스톨러',
       icon: <DownloadCloud className="w-4 h-4" />,
       badge: selectedAppsCount > 0 ? selectedAppsCount : undefined
     },
@@ -41,10 +41,10 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-며새 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div 
+          <div
             onClick={() => setActiveTab('home')}
             className="flex items-center gap-3 cursor-pointer group select-none"
           >
@@ -72,11 +72,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-sm font-medium transition-all ${
-                    isActive
+                  className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-sm font-medium transition-all ${isActive
                       ? 'bg-white dark:bg-slate-900 text-brand-600 dark:text-brand-400 shadow-sm'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-700/40'
-                  }`}
+                    }`}
                 >
                   {item.icon}
                   <span>{item.label}</span>
@@ -103,18 +102,17 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Mobile Navigation bar */}
-        <div className="flex md:hidden overflow-x-auto py-2 gap-1.5 no-scrollbar border-t border-slate-200 dark:border-slate-800">
+        <div className="flex md:hidden overflow-x-며새 py-2 gap-1.5 no-scrollbar border-t border-slate-200 dark:border-slate-800">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  isActive
+                className={`whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${isActive
                     ? 'bg-brand-600 text-white shadow'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                }`}
+                  }`}
               >
                 {item.icon}
                 <span>{item.label}</span>
