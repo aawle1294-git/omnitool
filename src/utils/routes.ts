@@ -11,6 +11,9 @@ export const tabToPath: Record<ActiveTab, string> = {
   tools: '/tools',
   fun: '/fun',
   installer: '/installer',
+  privacy: '/privacy',
+  terms: '/terms',
+  about: '/about',
 };
 
 export const pathToTab = (pathname: string): ActiveTab => {
@@ -76,6 +79,17 @@ export const pathToTab = (pathname: string): ActiveTab => {
   // Installer
   if (clean === '/installer' || clean === '/install' || clean === '/설치' || clean === '/마법사') {
     return 'installer';
+  }
+
+  // Legal & Policy Pages (Google AdSense Requirements)
+  if (clean === '/privacy' || clean === '/개인정보' || clean === '/개인정보처리방침') {
+    return 'privacy';
+  }
+  if (clean === '/terms' || clean === '/이용약관' || clean === '/약관') {
+    return 'terms';
+  }
+  if (clean === '/about' || clean === '/소개' || clean === '/문의' || clean === '/contact') {
+    return 'about';
   }
 
   return 'home';

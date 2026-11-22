@@ -8,7 +8,10 @@ export type ActiveTab =
   | 'media'
   | 'fun'
   | 'installer'
-  | 'tools';
+  | 'tools'
+  | 'privacy'
+  | 'terms'
+  | 'about';
 
 export interface ProcessedFile {
   id: string;

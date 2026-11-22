@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Google AdSense Crawler
+User-agent: Mediapartners-Google
+Allow: /
+
+# Google Search Console Crawler
+User-agent: Googlebot
+Allow: /
+
+Sitemap: https://alldesk.netlify.app/sitemap.xml

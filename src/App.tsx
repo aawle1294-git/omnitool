@@ -10,6 +10,10 @@ import { AppInstallerView } from './components/Installer/AppInstallerView';
 import { ExtraToolsView } from './components/ExtraTools/ExtraToolsView';
 import { FileEditorView } from './components/Editor/FileEditorView';
 import { EditorHubView } from './components/Editor/EditorHubView';
+import { PrivacyPolicyView } from './components/Legal/PrivacyPolicyView';
+import { TermsView } from './components/Legal/TermsView';
+import { AboutView } from './components/Legal/AboutView';
+import { AdBanner } from './components/AdSense/AdBanner';
 import { NotionInstallerWizard } from './components/Installer/NotionInstallerWizard';
 import { launchNativeInstaller } from './utils/installerBridge';
 import { tabToPath, pathToTab } from './utils/routes';
@@ -66,6 +70,9 @@ export const App: React.FC = () => {
       tools: '스마트 생산성 도구 - AllDesk',
       fun: '재미 도구함 - AllDesk',
       installer: '프로그램 설치 마법사 - AllDesk',
+      privacy: '개인정보처리방침 - AllDesk',
+      terms: '서비스 이용약관 - AllDesk',
+      about: 'AllDesk 소개 및 문의 - AllDesk',
     };
     document.title = titles[activeTab] || 'AllDesk';
   }, [activeTab]);
@@ -157,11 +164,17 @@ export const App: React.FC = () => {
             />
           )}
           {activeTab === 'tools' && <ExtraToolsView />}
+          {activeTab === 'privacy' && <PrivacyPolicyView setActiveTab={setActiveTab} />}
+          {activeTab === 'terms' && <TermsView setActiveTab={setActiveTab} />}
+          {activeTab === 'about' && <AboutView setActiveTab={setActiveTab} />}
+
+          {/* AdSense Banner Unit (Auto-responsive & Safe) */}
+          <AdBanner className="mt-8" />
         </main>
 
         {/* Notion Minimalist Footer */}
         <footer className="border-t border-[#e9e9e7] dark:border-[#2f2f2f] py-6 px-6 text-xs text-[#9b9a97] transition-colors">
-          <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <span className="w-5 h-5 rounded bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-[10px]">
                 N
@@ -172,14 +185,34 @@ export const App: React.FC = () => {
               <span>— 올인원 데스크 & 설치 마법사</span>
             </div>
 
-            <div className="flex items-center gap-4">
+            {/* Mandatory Policy Links for Google AdSense Approval */}
+            <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] text-[#787774] dark:text-[#a0a0a0]">
+              <button
+                onClick={() => setActiveTab('privacy')}
+                className="hover:text-black dark:hover:text-white transition underline underline-offset-2"
+              >
+                개인정보처리방침
+              </button>
+              <span>•</span>
+              <button
+                onClick={() => setActiveTab('terms')}
+                className="hover:text-black dark:hover:text-white transition underline underline-offset-2"
+              >
+                서비스 이용약관
+              </button>
+              <span>•</span>
+              <button
+                onClick={() => setActiveTab('about')}
+                className="hover:text-black dark:hover:text-white transition underline underline-offset-2"
+              >
+                서비스 소개 및 문의
+              </button>
+            </div>
+
+            <div className="flex items-center gap-4 text-[11px]">
               <span className="flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                 100% 브라우저 로컬 안전 처리
-              </span>
-              <span>•</span>
-              <span className="flex items-center gap-1">
-                Windows winget 공식 지원
               </span>
             </div>
           </div>

@@ -2,12 +2,12 @@
   command = "npm run build"
   publish = "dist"
 
-# FFmpeg SharedArrayBuffer를 위한 필수 보안 헤더
+# Google AdSense 광고 스크립트와 충돌하지 않도록 미디어 변환기 전용으로 스코프 지정
 [[headers]]
-  for = "/*"
+  for = "/media*"
   [headers.values]
     Cross-Origin-Opener-Policy = "same-origin"
-    Cross-Origin-Embedder-Policy = "require-corp"
+    Cross-Origin-Embedder-Policy = "credentialless"
     Cross-Origin-Resource-Policy = "cross-origin"
 
 # SPA 라우팅 (새로고침 시 404 방지)

@@ -39,6 +39,9 @@ export const NotionTopBar: React.FC<NotionTopBarProps> = ({
     media: { title: '영상 · 음악 변환기', icon: '🎬' },
     fun: { title: '재미 도구함', icon: '🐾' },
     tools: { title: '스마트 생산성 도구함', icon: '🛠️' },
+    privacy: { title: '개인정보처리방침', icon: '🛡️' },
+    terms: { title: '서비스 이용약관', icon: '📜' },
+    about: { title: 'AllDesk 소개', icon: '✨' },
   };
 
   const current = titles[activeTab] || titles['home'];
