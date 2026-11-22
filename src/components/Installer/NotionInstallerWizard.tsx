@@ -321,25 +321,55 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                 </div>
               </div>
 
-              {/* Quick Presets */}
-              <div className="space-y-2">
-                <p className="text-xs font-semibold text-[#787774]">
-                  자주 사용하는 추천 프리셋으로 빠른 시작:
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              {/* Quick Presets & Custom Start */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-[#787774]">
+                    추천 시작팩 선택 또는 직접 선택:
+                  </span>
+                  <span className="text-[11px] text-[#999]">(시작팩 없이도 바로 다음 단계로 이동 가능)</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                  {/* Custom direct start button */}
+                  <button
+                    onClick={() => {
+                      setSelectedApps([]); // Start fresh with empty selection
+                      setCurrentStep('components');
+                    }}
+                    className="p-3 text-left rounded-xl border-2 border-dashed border-[#dcdad5] dark:border-[#383838] hover:border-black dark:hover:border-white hover:bg-[#faf9f6] dark:hover:bg-[#222] transition group flex flex-col justify-between"
+                  >
+                    <div>
+                      <p className="text-xs font-bold text-[#37352f] dark:text-white flex items-center gap-1.5">
+                        <span>🎯</span> 직접 하나씩 선택
+                      </p>
+                      <p className="text-[11px] text-[#787774] mt-1 line-clamp-2">
+                        시작팩 없이 30+개 전체 프로그램 목록에서 직접 골라 담기
+                      </p>
+                    </div>
+                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold mt-2 group-hover:underline">
+                      빈 상태로 시작 ➔
+                    </span>
+                  </button>
+
                   <button
                     onClick={() => {
                       applyPreset('essential');
                       setCurrentStep('components');
                     }}
-                    className="p-3 text-left rounded-xl border border-[#e9e9e7] dark:border-[#2e2e2e] hover:border-black dark:hover:border-white hover:bg-[#faf9f6] dark:hover:bg-[#222] transition group"
+                    className="p-3 text-left rounded-xl border border-[#e9e9e7] dark:border-[#2e2e2e] hover:border-black dark:hover:border-white hover:bg-[#faf9f6] dark:hover:bg-[#222] transition group flex flex-col justify-between"
                   >
-                    <p className="text-xs font-bold text-[#37352f] dark:text-white flex items-center gap-1.5">
-                      <span>✨</span> 새 PC 필수팩
-                    </p>
-                    <p className="text-[11px] text-[#787774] mt-1 line-clamp-1">
-                      크롬, 반디집, 카톡, 팟플레이어...
-                    </p>
+                    <div>
+                      <p className="text-xs font-bold text-[#37352f] dark:text-white flex items-center gap-1.5">
+                        <span>✨</span> 새 PC 필수팩
+                      </p>
+                      <p className="text-[11px] text-[#787774] mt-1 line-clamp-2">
+                        크롬, 반디집, 카톡, 팟플레이어...
+                      </p>
+                    </div>
+                    <span className="text-[10px] text-[#787774] font-medium mt-2">
+                      추천 4개 자동 담기
+                    </span>
                   </button>
 
                   <button
@@ -347,14 +377,19 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                       applyPreset('dev');
                       setCurrentStep('components');
                     }}
-                    className="p-3 text-left rounded-xl border border-[#e9e9e7] dark:border-[#2e2e2e] hover:border-black dark:hover:border-white hover:bg-[#faf9f6] dark:hover:bg-[#222] transition group"
+                    className="p-3 text-left rounded-xl border border-[#e9e9e7] dark:border-[#2e2e2e] hover:border-black dark:hover:border-white hover:bg-[#faf9f6] dark:hover:bg-[#222] transition group flex flex-col justify-between"
                   >
-                    <p className="text-xs font-bold text-[#37352f] dark:text-white flex items-center gap-1.5">
-                      <span>💻</span> 개발자 스타터팩
-                    </p>
-                    <p className="text-[11px] text-[#787774] mt-1 line-clamp-1">
-                      VS Code, Git, Python, Docker...
-                    </p>
+                    <div>
+                      <p className="text-xs font-bold text-[#37352f] dark:text-white flex items-center gap-1.5">
+                        <span>💻</span> 개발자 스타터팩
+                      </p>
+                      <p className="text-[11px] text-[#787774] mt-1 line-clamp-2">
+                        VS Code, Git, Python, Terminal...
+                      </p>
+                    </div>
+                    <span className="text-[10px] text-[#787774] font-medium mt-2">
+                      개발 도구 4개 자동 담기
+                    </span>
                   </button>
 
                   <button
@@ -362,14 +397,19 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                       applyPreset('media');
                       setCurrentStep('components');
                     }}
-                    className="p-3 text-left rounded-xl border border-[#e9e9e7] dark:border-[#2e2e2e] hover:border-black dark:hover:border-white hover:bg-[#faf9f6] dark:hover:bg-[#222] transition group"
+                    className="p-3 text-left rounded-xl border border-[#e9e9e7] dark:border-[#2e2e2e] hover:border-black dark:hover:border-white hover:bg-[#faf9f6] dark:hover:bg-[#222] transition group flex flex-col justify-between"
                   >
-                    <p className="text-xs font-bold text-[#37352f] dark:text-white flex items-center gap-1.5">
-                      <span>🎬</span> 미디어 & 유틸팩
-                    </p>
-                    <p className="text-[11px] text-[#787774] mt-1 line-clamp-1">
-                      팟플레이어, VLC, OBS, ShareX...
-                    </p>
+                    <div>
+                      <p className="text-xs font-bold text-[#37352f] dark:text-white flex items-center gap-1.5">
+                        <span>🎬</span> 미디어 & 유틸팩
+                      </p>
+                      <p className="text-[11px] text-[#787774] mt-1 line-clamp-2">
+                        팟플레이어, VLC, Everything, ShareX...
+                      </p>
+                    </div>
+                    <span className="text-[10px] text-[#787774] font-medium mt-2">
+                      유틸리티 4개 자동 담기
+                    </span>
                   </button>
                 </div>
               </div>
