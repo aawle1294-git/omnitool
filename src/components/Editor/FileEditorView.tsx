@@ -59,8 +59,24 @@ type EditorTool =
 
 type CanvasBackgroundMode = 'checkerboard' | 'white' | 'dark';
 
-export const FileEditorView: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<EditorTab>('image');
+interface FileEditorViewProps {
+  activeSubTab?: 'image' | 'pdf';
+  setActiveSubTab?: (tab: 'image' | 'pdf') => void;
+}
+
+export const FileEditorView: React.FC<FileEditorViewProps> = ({
+  activeSubTab,
+  setActiveSubTab,
+}) => {
+  const [localTab, setLocalTab] = useState<EditorTab>('image');
+  const activeTab = activeSubTab ?? localTab;
+  const setActiveTab = (tab: EditorTab) => {
+    if (setActiveSubTab) {
+      setActiveSubTab(tab);
+    } else {
+      setLocalTab(tab);
+    }
+  };
 
   // ==============================================================
   // 1. IMAGE & PNG EDITOR STATE
@@ -719,31 +735,74 @@ export const FileEditorView: React.FC = () => {
         ]}
       />
 
-      {/* Mode Selector Tabs */}
-      <div className="flex overflow-x-auto no-scrollbar items-center gap-1.5 border-b border-[#e9e9e7] dark:border-[#2f2f2f] pb-3 text-xs">
-        <button
-          onClick={() => setActiveTab('image')}
-          className={`shrink-0 whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition ${
-            activeTab === 'image'
-              ? 'bg-black dark:bg-white text-white dark:text-black shadow-2xs'
-              : 'text-[#787774] hover:bg-[#efefed] dark:hover:bg-[#2c2c2c]'
-          }`}
-        >
-          <Crop className="w-3.5 h-3.5 shrink-0" />
-          <span>PNG & 사진 편집기 (자르기 · 투명 지우개 · 도형 · 텍스트)</span>
-        </button>
+      {/* Notion Style Sub-page Navigation Directory */}
+      <div className="p-4 rounded-2xl bg-[#f7f6f3]/80 dark:bg-[#202020]/80 border border-[#e9e9e7] dark:border-[#2f2f2f] space-y-3">
+        <div className="flex items-center justify-between text-xs text-[#787774]">
+          <span className="font-bold text-[#37352f] dark:text-white flex items-center gap-1.5">
+            <span>📂</span> 하위 페이지 목록 (Sub-pages)
+          </span>
+          <span className="text-[11px] hidden sm:inline">원하는 작업 하위 페이지를 클릭하세요</span>
+        </div>
 
-        <button
-          onClick={() => setActiveTab('pdf')}
-          className={`shrink-0 whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition ${
-            activeTab === 'pdf'
-              ? 'bg-black dark:bg-white text-white dark:text-black shadow-2xs'
-              : 'text-[#787774] hover:bg-[#efefed] dark:hover:bg-[#2c2c2c]'
-          }`}
-        >
-          <FileText className="w-3.5 h-3.5 shrink-0" />
-          <span>PDF 페이지 편집 & 워터마크</span>
-        </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {/* Subpage Card 1 */}
+          <button
+            onClick={() => setActiveTab('image')}
+            className={`p-3.5 rounded-xl border text-left transition flex items-start gap-3.5 group cursor-pointer ${
+              activeTab === 'image'
+                ? 'bg-white dark:bg-[#1a1a1a] border-black dark:border-white shadow-sm ring-1 ring-black/10 dark:ring-white/20'
+                : 'bg-white/60 dark:bg-[#242424]/60 border-[#e9e9e7] dark:border-[#333] hover:bg-white dark:hover:bg-[#242424]'
+            }`}
+          >
+            <span className="text-2xl p-2 rounded-lg bg-[#f7f6f3] dark:bg-[#202020] shrink-0 group-hover:scale-105 transition-transform">
+              🖼️
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-1">
+                <p className="font-bold text-xs text-[#37352f] dark:text-white">
+                  PNG & 사진 편집기
+                </p>
+                {activeTab === 'image' && (
+                  <span className="px-1.5 py-0.5 rounded-md bg-black dark:bg-white text-white dark:text-black text-[9px] font-bold shrink-0">
+                    현재 하위 페이지
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-[#787774] mt-1 leading-snug">
+                PNG 투명 배경 유지, 투명 지우개(누끼), 사진 자르기(Crop), 도형·화살표, 텍스트 및 모자이크
+              </p>
+            </div>
+          </button>
+
+          {/* Subpage Card 2 */}
+          <button
+            onClick={() => setActiveTab('pdf')}
+            className={`p-3.5 rounded-xl border text-left transition flex items-start gap-3.5 group cursor-pointer ${
+              activeTab === 'pdf'
+                ? 'bg-white dark:bg-[#1a1a1a] border-black dark:border-white shadow-sm ring-1 ring-black/10 dark:ring-white/20'
+                : 'bg-white/60 dark:bg-[#242424]/60 border-[#e9e9e7] dark:border-[#333] hover:bg-white dark:hover:bg-[#242424]'
+            }`}
+          >
+            <span className="text-2xl p-2 rounded-lg bg-[#f7f6f3] dark:bg-[#202020] shrink-0 group-hover:scale-105 transition-transform">
+              📄
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-1">
+                <p className="font-bold text-xs text-[#37352f] dark:text-white">
+                  PDF 문서 편집기
+                </p>
+                {activeTab === 'pdf' && (
+                  <span className="px-1.5 py-0.5 rounded-md bg-black dark:bg-white text-white dark:text-black text-[9px] font-bold shrink-0">
+                    현재 하위 페이지
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-[#787774] mt-1 leading-snug">
+                페이지별 90도 회전, 불필요한 페이지 삭제, 순서 재배치 및 맞춤 워터마크·머리글 삽입
+              </p>
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* ============================================================== */}

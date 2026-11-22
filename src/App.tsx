@@ -16,6 +16,7 @@ import { ShieldCheck } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
+  const [editorSubTab, setEditorSubTab] = useState<'image' | 'pdf'>('image');
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
   const [isWizardModalOpen, setIsWizardModalOpen] = useState<boolean>(false);
   const [selectedApps, setSelectedApps] = useState<string[]>([
@@ -52,6 +53,8 @@ export const App: React.FC = () => {
       <NotionSidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        editorSubTab={editorSubTab}
+        setEditorSubTab={setEditorSubTab}
         isOpen={sidebarOpen}
         setIsOpen={setSidebarOpen}
         darkMode={darkMode}
@@ -65,6 +68,8 @@ export const App: React.FC = () => {
         {/* Notion Top Bar */}
         <NotionTopBar
           activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          editorSubTab={editorSubTab}
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           onOpenWizard={handleOpenWizard}
@@ -82,7 +87,12 @@ export const App: React.FC = () => {
               onOpenWizard={handleOpenWizard}
             />
           )}
-          {activeTab === 'editor' && <FileEditorView />}
+          {activeTab === 'editor' && (
+            <FileEditorView
+              activeSubTab={editorSubTab}
+              setActiveSubTab={setEditorSubTab}
+            />
+          )}
           {activeTab === 'compressor' && <CompressorView />}
           {activeTab === 'converter' && <ConverterView />}
           {activeTab === 'media' && <MediaConverterView />}
