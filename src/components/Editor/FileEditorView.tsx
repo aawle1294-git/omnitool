@@ -35,6 +35,8 @@ import {
 import { saveAs } from 'file-saver';
 import { formatBytes } from '../../utils/formatters';
 
+import { ActiveTab } from '../../types';
+
 type EditorTab = 'image' | 'pdf';
 
 type CropRatio = 'free' | '1:1' | '4:3' | '16:9' | '3:4' | '9:16';
@@ -60,23 +62,15 @@ type EditorTool =
 type CanvasBackgroundMode = 'checkerboard' | 'white' | 'dark';
 
 interface FileEditorViewProps {
-  activeSubTab?: 'image' | 'pdf';
-  setActiveSubTab?: (tab: 'image' | 'pdf') => void;
+  mode: 'image' | 'pdf';
+  setActiveTab: (tab: ActiveTab) => void;
 }
 
 export const FileEditorView: React.FC<FileEditorViewProps> = ({
-  activeSubTab,
-  setActiveSubTab,
+  mode,
+  setActiveTab,
 }) => {
-  const [localTab, setLocalTab] = useState<EditorTab>('image');
-  const activeTab = activeSubTab ?? localTab;
-  const setActiveTab = (tab: EditorTab) => {
-    if (setActiveSubTab) {
-      setActiveSubTab(tab);
-    } else {
-      setLocalTab(tab);
-    }
-  };
+  const activeTab = mode;
 
   // ==============================================================
   // 1. IMAGE & PNG EDITOR STATE
@@ -721,95 +715,35 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
 
   return (
     <div className="space-y-6 pb-20">
-      {/* Notion Page Header */}
-      <NotionPageHeader
-        icon="✂️"
-        title="파일 편집기"
-        description="PNG 투명도 유지 편집과 사진 자르기(Crop), 브러시·형광펜·투명 지우개·도형·모자이크, 그리고 PDF 페이지 편집 및 워터마크를 100% 브라우저 내에서 안전하게 지원합니다."
-        tags={[
-          { label: 'PNG 투명 배경 유지 및 투명 지우개' },
-          { label: '자르기(Crop) 비율 프리셋' },
-          { label: '네모·화살표 도형 & 모자이크' },
-          { label: '실행 취소(Ctrl+Z)' },
-          { label: 'PDF 페이지 순서·회전' },
-        ]}
-      />
-
-      {/* Notion Style Sub-page Navigation Directory */}
-      <div className="p-4 rounded-2xl bg-[#f7f6f3]/80 dark:bg-[#202020]/80 border border-[#e9e9e7] dark:border-[#2f2f2f] space-y-3">
-        <div className="flex items-center justify-between text-xs text-[#787774]">
-          <span className="font-bold text-[#37352f] dark:text-white flex items-center gap-1.5">
-            <span>📂</span> 하위 페이지 목록 (Sub-pages)
-          </span>
-          <span className="text-[11px] hidden sm:inline">원하는 작업 하위 페이지를 클릭하세요</span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {/* Subpage Card 1 */}
-          <button
-            onClick={() => setActiveTab('image')}
-            className={`p-3.5 rounded-xl border text-left transition flex items-start gap-3.5 group cursor-pointer ${
-              activeTab === 'image'
-                ? 'bg-white dark:bg-[#1a1a1a] border-black dark:border-white shadow-sm ring-1 ring-black/10 dark:ring-white/20'
-                : 'bg-white/60 dark:bg-[#242424]/60 border-[#e9e9e7] dark:border-[#333] hover:bg-white dark:hover:bg-[#242424]'
-            }`}
-          >
-            <span className="text-2xl p-2 rounded-lg bg-[#f7f6f3] dark:bg-[#202020] shrink-0 group-hover:scale-105 transition-transform">
-              🖼️
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center justify-between gap-1">
-                <p className="font-bold text-xs text-[#37352f] dark:text-white">
-                  PNG & 사진 편집기
-                </p>
-                {activeTab === 'image' && (
-                  <span className="px-1.5 py-0.5 rounded-md bg-black dark:bg-white text-white dark:text-black text-[9px] font-bold shrink-0">
-                    현재 하위 페이지
-                  </span>
-                )}
-              </div>
-              <p className="text-[11px] text-[#787774] mt-1 leading-snug">
-                PNG 투명 배경 유지, 투명 지우개(누끼), 사진 자르기(Crop), 도형·화살표, 텍스트 및 모자이크
-              </p>
-            </div>
-          </button>
-
-          {/* Subpage Card 2 */}
-          <button
-            onClick={() => setActiveTab('pdf')}
-            className={`p-3.5 rounded-xl border text-left transition flex items-start gap-3.5 group cursor-pointer ${
-              activeTab === 'pdf'
-                ? 'bg-white dark:bg-[#1a1a1a] border-black dark:border-white shadow-sm ring-1 ring-black/10 dark:ring-white/20'
-                : 'bg-white/60 dark:bg-[#242424]/60 border-[#e9e9e7] dark:border-[#333] hover:bg-white dark:hover:bg-[#242424]'
-            }`}
-          >
-            <span className="text-2xl p-2 rounded-lg bg-[#f7f6f3] dark:bg-[#202020] shrink-0 group-hover:scale-105 transition-transform">
-              📄
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center justify-between gap-1">
-                <p className="font-bold text-xs text-[#37352f] dark:text-white">
-                  PDF 문서 편집기
-                </p>
-                {activeTab === 'pdf' && (
-                  <span className="px-1.5 py-0.5 rounded-md bg-black dark:bg-white text-white dark:text-black text-[9px] font-bold shrink-0">
-                    현재 하위 페이지
-                  </span>
-                )}
-              </div>
-              <p className="text-[11px] text-[#787774] mt-1 leading-snug">
-                페이지별 90도 회전, 불필요한 페이지 삭제, 순서 재배치 및 맞춤 워터마크·머리글 삽입
-              </p>
-            </div>
-          </button>
-        </div>
+      {/* Notion Back Button to Parent Page */}
+      <div>
+        <button
+          onClick={() => setActiveTab('editor')}
+          className="inline-flex items-center gap-2 text-xs font-semibold text-[#787774] hover:text-[#37352f] dark:hover:text-white transition group py-1.5 px-3 rounded-lg hover:bg-[#efefed] dark:hover:bg-[#282828] border border-[#e9e9e7] dark:border-[#333] bg-white dark:bg-[#202020] shadow-2xs"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+          <span>상위 페이지 (파일 편집소)</span>
+        </button>
       </div>
 
-      {/* ============================================================== */}
-      {/* 1. IMAGE & PNG EDITOR TAB */}
-      {/* ============================================================== */}
+      {/* 1. IMAGE & PNG SUB-PAGE */}
       {activeTab === 'image' && (
-        <div className="space-y-6">
+        <>
+          <NotionPageHeader
+            icon="🖼️"
+            title="PNG & 사진 편집기"
+            description="PNG 투명 배경 유지 및 투명 지우개(누끼), 사진 자르기(Crop), 브러시·형광펜, 도형·화살표, 텍스트 및 모자이크 편집을 100% 브라우저 내에서 안전하게 처리합니다."
+            tags={[
+              { label: '하위 페이지' },
+              { label: 'PNG 투명도 100% 유지' },
+              { label: '투명 지우개 (알파 채널 누끼)' },
+              { label: '자르기(Crop) 비율 프리셋' },
+              { label: '네모·화살표 도형' },
+              { label: '실행 취소(Ctrl+Z)' },
+            ]}
+          />
+
+          <div className="space-y-6">
           {!originalImage ? (
             /* Upload Dropzone */
             <div
@@ -1418,13 +1352,28 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
             </div>
           )}
         </div>
+        </>
       )}
 
       {/* ============================================================== */}
-      {/* 2. PDF PAGE EDITOR & WATERMARK TAB */}
+      {/* 2. PDF SUB-PAGE */}
       {/* ============================================================== */}
       {activeTab === 'pdf' && (
-        <div className="space-y-6">
+        <>
+          <NotionPageHeader
+            icon="📄"
+            title="PDF 문서 편집기"
+            description="PDF 페이지별 90도 회전, 불필요한 페이지 삭제, 순서 재배치 및 맞춤 워터마크·머리글 삽입을 브라우저 내에서 안전하게 완결합니다."
+            tags={[
+              { label: '하위 페이지' },
+              { label: 'PDF 페이지 90° 회전' },
+              { label: '불필요한 페이지 삭제' },
+              { label: '페이지 순서 재배치' },
+              { label: '워터마크 삽입' },
+            ]}
+          />
+
+          <div className="space-y-6">
           {!pdfFile ? (
             /* Upload Dropzone */
             <div
@@ -1613,6 +1562,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
             </div>
           )}
         </div>
+        </>
       )}
     </div>
   );

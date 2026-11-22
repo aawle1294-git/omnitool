@@ -8,11 +8,9 @@ import {
 import { ActiveTab } from '../../types';
 
 interface SubPage {
-  id: string;
+  id: ActiveTab;
   label: string;
   icon: string;
-  action: () => void;
-  isActive: boolean;
 }
 
 interface PageItem {
@@ -32,8 +30,6 @@ interface NotionSidebarProps {
   setDarkMode: (val: boolean) => void;
   selectedAppsCount: number;
   onOpenWizard?: () => void;
-  editorSubTab?: 'image' | 'pdf';
-  setEditorSubTab?: (tab: 'image' | 'pdf') => void;
 }
 
 export const NotionSidebar: React.FC<NotionSidebarProps> = ({
@@ -45,24 +41,16 @@ export const NotionSidebar: React.FC<NotionSidebarProps> = ({
   setDarkMode,
   selectedAppsCount,
   onOpenWizard,
-  editorSubTab = 'image',
-  setEditorSubTab,
 }) => {
-  // Collapsible state for pages with sub-pages (Notion accordion style)
+  // Collapsible state for pages with sub-pages
   const [expandedPages, setExpandedPages] = useState<Record<string, boolean>>({
     editor: true,
-    converter: false,
-    tools: false,
   });
 
-  // Auto-expand when navigating to a section
+  // Auto-expand when navigating to subpages
   useEffect(() => {
-    if (activeTab === 'editor') {
+    if (activeTab === 'editor' || activeTab === 'editor-image' || activeTab === 'editor-pdf') {
       setExpandedPages((prev) => ({ ...prev, editor: true }));
-    } else if (activeTab === 'converter' || activeTab === 'media') {
-      setExpandedPages((prev) => ({ ...prev, converter: true }));
-    } else if (activeTab === 'tools' || activeTab === 'fun') {
-      setExpandedPages((prev) => ({ ...prev, tools: true }));
     }
   }, [activeTab]);
 
@@ -85,84 +73,22 @@ export const NotionSidebar: React.FC<NotionSidebarProps> = ({
       icon: '✂️',
       subPages: [
         {
-          id: 'image',
-          label: 'PNG & 사진 편집 (투명도·도형)',
+          id: 'editor-image',
+          label: 'PNG & 사진 편집기',
           icon: '🖼️',
-          action: () => {
-            setActiveTab('editor');
-            setEditorSubTab?.('image');
-            if (window.innerWidth < 768) setIsOpen(false);
-          },
-          isActive: activeTab === 'editor' && editorSubTab === 'image'
         },
         {
-          id: 'pdf',
-          label: 'PDF 페이지 편집 & 워터마크',
+          id: 'editor-pdf',
+          label: 'PDF 문서 편집기',
           icon: '📄',
-          action: () => {
-            setActiveTab('editor');
-            setEditorSubTab?.('pdf');
-            if (window.innerWidth < 768) setIsOpen(false);
-          },
-          isActive: activeTab === 'editor' && editorSubTab === 'pdf'
         }
       ]
     },
     { id: 'compressor', label: '파일 용량 압축기', icon: '📉' },
-    { 
-      id: 'converter', 
-      label: '파일 및 미디어 변환', 
-      icon: '🔄',
-      subPages: [
-        {
-          id: 'converter-files',
-          label: '파일 형식 변환기 (PDF↔이미지)',
-          icon: '📄',
-          action: () => {
-            setActiveTab('converter');
-            if (window.innerWidth < 768) setIsOpen(false);
-          },
-          isActive: activeTab === 'converter'
-        },
-        {
-          id: 'converter-media',
-          label: '영상 · 음악 변환기 (MP4/MP3)',
-          icon: '🎬',
-          action: () => {
-            setActiveTab('media');
-            if (window.innerWidth < 768) setIsOpen(false);
-          },
-          isActive: activeTab === 'media'
-        }
-      ]
-    },
-    { 
-      id: 'tools', 
-      label: '도구 및 유틸리티', 
-      icon: '🛠️',
-      subPages: [
-        {
-          id: 'tools-smart',
-          label: '스마트 생산성 도구함',
-          icon: '⚙️',
-          action: () => {
-            setActiveTab('tools');
-            if (window.innerWidth < 768) setIsOpen(false);
-          },
-          isActive: activeTab === 'tools'
-        },
-        {
-          id: 'tools-fun',
-          label: '재미 도구함 (미니게임)',
-          icon: '🐾',
-          action: () => {
-            setActiveTab('fun');
-            if (window.innerWidth < 768) setIsOpen(false);
-          },
-          isActive: activeTab === 'fun'
-        }
-      ]
-    },
+    { id: 'converter', label: '파일 형식 변환기', icon: '🔄' },
+    { id: 'media', label: '영상 · 음악 변환기', icon: '🎬' },
+    { id: 'tools', label: '스마트 생산성 도구함', icon: '🛠️' },
+    { id: 'fun', label: '재미 도구함', icon: '🐾' },
   ];
 
   return (
@@ -241,7 +167,7 @@ export const NotionSidebar: React.FC<NotionSidebarProps> = ({
                 <p className="text-[10px] font-bold text-[#9b9a97] tracking-wider uppercase">
                   워크스페이스 페이지
                 </p>
-                <span className="text-[10px] text-[#9b9a97] font-mono">하위 페이지 지원</span>
+                <span className="text-[10px] text-[#9b9a97] font-mono">하위 페이지</span>
               </div>
             )}
 
@@ -249,18 +175,17 @@ export const NotionSidebar: React.FC<NotionSidebarProps> = ({
               {pages.map((p) => {
                 const hasSubPages = Boolean(p.subPages && p.subPages.length > 0);
                 const isExpanded = expandedPages[p.id];
-                const isParentActive = 
-                  activeTab === p.id || 
-                  (p.subPages?.some((sp) => sp.isActive) ?? false);
+                const isParentDirectlyActive = activeTab === p.id;
+                const isChildActive = p.subPages?.some((sp) => activeTab === sp.id) ?? false;
 
                 return (
                   <div key={p.id} className="space-y-0.5">
                     {/* Parent Page Row */}
                     <div
                       className={`group flex items-center justify-between rounded-lg transition ${
-                        isParentActive && !hasSubPages
+                        isParentDirectlyActive
                           ? 'bg-[#efefed] dark:bg-[#2c2c2c] text-[#37352f] dark:text-white font-bold'
-                          : isParentActive
+                          : isChildActive
                           ? 'bg-[#f0efe9] dark:bg-[#272727] text-[#37352f] dark:text-white font-semibold'
                           : 'hover:bg-[#efefed]/70 dark:hover:bg-[#282828] text-[#555] dark:text-[#aaa]'
                       }`}
@@ -302,23 +227,29 @@ export const NotionSidebar: React.FC<NotionSidebarProps> = ({
                       )}
                     </div>
 
-                    {/* Sub-pages Nested Tree (Notion Style) */}
+                    {/* Sub-pages Nested Tree (Real Sub-pages) */}
                     {isOpen && hasSubPages && isExpanded && (
                       <div className="ml-3 pl-3 border-l border-[#e3e2e0] dark:border-[#333] space-y-0.5 my-1">
-                        {p.subPages!.map((sp) => (
-                          <button
-                            key={sp.id}
-                            onClick={sp.action}
-                            className={`w-full flex items-center gap-2 px-2 py-1.2 rounded-md text-[11px] transition text-left ${
-                              sp.isActive
-                                ? 'bg-black dark:bg-white text-white dark:text-black font-bold shadow-2xs'
-                                : 'text-[#787774] hover:text-[#37352f] dark:hover:text-white hover:bg-[#efefed] dark:hover:bg-[#282828]'
-                            }`}
-                          >
-                            <span className="text-xs shrink-0">{sp.icon}</span>
-                            <span className="truncate">{sp.label}</span>
-                          </button>
-                        ))}
+                        {p.subPages!.map((sp) => {
+                          const isSubActive = activeTab === sp.id;
+                          return (
+                            <button
+                              key={sp.id}
+                              onClick={() => {
+                                setActiveTab(sp.id);
+                                if (window.innerWidth < 768) setIsOpen(false);
+                              }}
+                              className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[11px] transition text-left ${
+                                isSubActive
+                                  ? 'bg-black dark:bg-white text-white dark:text-black font-bold shadow-2xs'
+                                  : 'text-[#787774] hover:text-[#37352f] dark:hover:text-white hover:bg-[#efefed] dark:hover:bg-[#282828]'
+                              }`}
+                            >
+                              <span className="text-xs shrink-0">{sp.icon}</span>
+                              <span className="truncate">{sp.label}</span>
+                            </button>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -331,9 +262,9 @@ export const NotionSidebar: React.FC<NotionSidebarProps> = ({
               <div className="pt-2">
                 <div className="p-3 rounded-xl bg-[#efefed]/80 dark:bg-[#282828] border border-[#e3e2e0] dark:border-[#333] text-[11px] leading-relaxed text-[#787774]">
                   <p className="font-semibold text-[#37352f] dark:text-[#e3e2e0] flex items-center gap-1 mb-1">
-                    <span>💡</span> 노션 하위 페이지
+                    <span>📁</span> 진짜 노션 하위 페이지
                   </p>
-                  화살표(▼)를 누르면 각 도구의 세부 하위 페이지로 즉시 이동할 수 있습니다.
+                  하위 페이지를 누르면 해당 기능 전용 화면으로 전환됩니다.
                 </div>
               </div>
             )}

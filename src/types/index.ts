@@ -1,6 +1,8 @@
 export type ActiveTab = 
   | 'home'
   | 'editor'
+  | 'editor-image'
+  | 'editor-pdf'
   | 'compressor'
   | 'converter'
   | 'media'

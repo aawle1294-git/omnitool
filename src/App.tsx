@@ -9,6 +9,7 @@ import { FunToolsView } from './components/FunTools/FunToolsView';
 import { AppInstallerView } from './components/Installer/AppInstallerView';
 import { ExtraToolsView } from './components/ExtraTools/ExtraToolsView';
 import { FileEditorView } from './components/Editor/FileEditorView';
+import { EditorHubView } from './components/Editor/EditorHubView';
 import { NotionInstallerWizard } from './components/Installer/NotionInstallerWizard';
 import { launchNativeInstaller } from './utils/installerBridge';
 import { ActiveTab } from './types';
@@ -16,7 +17,6 @@ import { ShieldCheck } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
-  const [editorSubTab, setEditorSubTab] = useState<'image' | 'pdf'>('image');
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
   const [isWizardModalOpen, setIsWizardModalOpen] = useState<boolean>(false);
   const [selectedApps, setSelectedApps] = useState<string[]>([
@@ -53,8 +53,6 @@ export const App: React.FC = () => {
       <NotionSidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        editorSubTab={editorSubTab}
-        setEditorSubTab={setEditorSubTab}
         isOpen={sidebarOpen}
         setIsOpen={setSidebarOpen}
         darkMode={darkMode}
@@ -69,7 +67,6 @@ export const App: React.FC = () => {
         <NotionTopBar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          editorSubTab={editorSubTab}
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           onOpenWizard={handleOpenWizard}
@@ -88,10 +85,13 @@ export const App: React.FC = () => {
             />
           )}
           {activeTab === 'editor' && (
-            <FileEditorView
-              activeSubTab={editorSubTab}
-              setActiveSubTab={setEditorSubTab}
-            />
+            <EditorHubView setActiveTab={setActiveTab} />
+          )}
+          {activeTab === 'editor-image' && (
+            <FileEditorView mode="image" setActiveTab={setActiveTab} />
+          )}
+          {activeTab === 'editor-pdf' && (
+            <FileEditorView mode="pdf" setActiveTab={setActiveTab} />
           )}
           {activeTab === 'compressor' && <CompressorView />}
           {activeTab === 'converter' && <ConverterView />}

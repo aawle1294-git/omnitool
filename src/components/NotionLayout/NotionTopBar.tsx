@@ -12,7 +12,6 @@ import { ActiveTab } from '../../types';
 interface NotionTopBarProps {
   activeTab: ActiveTab;
   setActiveTab?: (tab: ActiveTab) => void;
-  editorSubTab?: 'image' | 'pdf';
   sidebarOpen: boolean;
   setSidebarOpen: (val: boolean) => void;
   onOpenWizard: () => void;
@@ -23,7 +22,6 @@ interface NotionTopBarProps {
 export const NotionTopBar: React.FC<NotionTopBarProps> = ({
   activeTab,
   setActiveTab,
-  editorSubTab = 'image',
   sidebarOpen,
   setSidebarOpen,
   onOpenWizard,
@@ -34,6 +32,8 @@ export const NotionTopBar: React.FC<NotionTopBarProps> = ({
     home: { title: '홈 대시보드', icon: '🏠' },
     installer: { title: '프로그램 설치 마법사', icon: '📦' },
     editor: { title: '파일 편집소', icon: '✂️' },
+    'editor-image': { title: 'PNG & 사진 편집기', icon: '🖼️' },
+    'editor-pdf': { title: 'PDF 문서 편집기', icon: '📄' },
     compressor: { title: '파일 용량 압축기', icon: '📉' },
     converter: { title: '파일 형식 변환기', icon: '🔄' },
     media: { title: '영상 · 음악 변환기', icon: '🎬' },
@@ -41,29 +41,11 @@ export const NotionTopBar: React.FC<NotionTopBarProps> = ({
     tools: { title: '스마트 생산성 도구함', icon: '🛠️' },
   };
 
-  const current = titles[activeTab];
-
-  // Hierarchical Sub-page Breadcrumb Determination
-  const getSubPageInfo = () => {
-    if (activeTab === 'editor') {
-      return editorSubTab === 'image'
-        ? { parent: '파일 편집소', icon: '🖼️', title: 'PNG & 사진 편집기' }
-        : { parent: '파일 편집소', icon: '📄', title: 'PDF 문서 편집기' };
-    }
-    if (activeTab === 'media') {
-      return { parent: '변환 도구', icon: '🎬', title: '영상 · 음악 변환기' };
-    }
-    if (activeTab === 'fun') {
-      return { parent: '유틸리티', icon: '🐾', title: '재미 도구함' };
-    }
-    return null;
-  };
-
-  const subPageInfo = getSubPageInfo();
+  const current = titles[activeTab] || titles['home'];
 
   return (
     <header className="sticky top-0 z-30 h-12 bg-white/85 dark:bg-[#191919]/85 backdrop-blur-md border-b border-[#e9e9e7] dark:border-[#2f2f2f] px-4 flex items-center justify-between text-xs select-none">
-      {/* Left: Notion Breadcrumbs */}
+      {/* Left: Notion Hierarchical Breadcrumbs */}
       <div className="flex items-center gap-1.5 text-[#787774] overflow-hidden">
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -82,24 +64,20 @@ export const NotionTopBar: React.FC<NotionTopBarProps> = ({
 
         <span className="text-[#a1a1aa] shrink-0">/</span>
 
-        {/* Parent or Single Page */}
-        {subPageInfo ? (
+        {/* Hierarchical Subpage Breadcrumb */}
+        {activeTab === 'editor-image' || activeTab === 'editor-pdf' ? (
           <>
             <button
-              onClick={() => {
-                if (activeTab === 'editor') setActiveTab?.('editor');
-                else if (activeTab === 'media') setActiveTab?.('converter');
-                else if (activeTab === 'fun') setActiveTab?.('tools');
-              }}
-              className="font-medium hover:text-[#37352f] dark:hover:text-white transition shrink-0"
+              onClick={() => setActiveTab?.('editor')}
+              className="font-medium hover:text-[#37352f] dark:hover:text-white transition shrink-0 flex items-center gap-1"
             >
-              <span>{subPageInfo.parent}</span>
+              <span>✂️</span>
+              <span>파일 편집소</span>
             </button>
             <span className="text-[#a1a1aa] shrink-0">/</span>
-            {/* Sub-page */}
             <span className="font-bold text-[#37352f] dark:text-white flex items-center gap-1 truncate">
-              <span>{subPageInfo.icon}</span>
-              <span className="truncate">{subPageInfo.title}</span>
+              <span>{current.icon}</span>
+              <span className="truncate">{current.title}</span>
             </span>
           </>
         ) : (
