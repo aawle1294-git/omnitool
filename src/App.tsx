@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { NotionSidebar } from './components/NotionLayout/NotionSidebar';
 import { NotionTopBar } from './components/NotionLayout/NotionTopBar';
 import { HomeView } from './components/Home/HomeView';
@@ -12,11 +12,64 @@ import { FileEditorView } from './components/Editor/FileEditorView';
 import { EditorHubView } from './components/Editor/EditorHubView';
 import { NotionInstallerWizard } from './components/Installer/NotionInstallerWizard';
 import { launchNativeInstaller } from './utils/installerBridge';
+import { tabToPath, pathToTab } from './utils/routes';
 import { ActiveTab } from './types';
 import { ShieldCheck } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('home');
+  const [activeTab, setActiveTabState] = useState<ActiveTab>(() => {
+    if (typeof window !== 'undefined') {
+      return pathToTab(window.location.pathname);
+    }
+    return 'home';
+  });
+
+  const setActiveTab = useCallback((tab: ActiveTab) => {
+    setActiveTabState(tab);
+    if (typeof window !== 'undefined') {
+      const targetPath = tabToPath[tab] || '/';
+      if (window.location.pathname !== targetPath) {
+        window.history.pushState({ tab }, '', targetPath);
+      }
+    }
+  }, []);
+
+  // Listen to browser Back / Forward buttons (popstate)
+  useEffect(() => {
+    const handlePopState = () => {
+      const currentTab = pathToTab(window.location.pathname);
+      setActiveTabState(currentTab);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Sync initial URL if needed
+  useEffect(() => {
+    const currentTab = pathToTab(window.location.pathname);
+    const expectedPath = tabToPath[currentTab];
+    if (window.location.pathname !== expectedPath) {
+      window.history.replaceState({ tab: currentTab }, '', expectedPath);
+    }
+  }, []);
+
+  // Sync document title with real route
+  useEffect(() => {
+    const titles: Record<ActiveTab, string> = {
+      home: 'AllDesk - 올인원 노션 데스크',
+      editor: '파일 편집소 - AllDesk',
+      'editor-image': 'PNG & 사진 편집기 - AllDesk',
+      'editor-pdf': 'PDF 문서 편집기 - AllDesk',
+      compressor: '파일 용량 압축기 - AllDesk',
+      converter: '파일 형식 변환기 - AllDesk',
+      media: '영상 · 음악 변환기 - AllDesk',
+      tools: '스마트 생산성 도구 - AllDesk',
+      fun: '재미 도구함 - AllDesk',
+      installer: '프로그램 설치 마법사 - AllDesk',
+    };
+    document.title = titles[activeTab] || 'AllDesk';
+  }, [activeTab]);
+
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
   const [isWizardModalOpen, setIsWizardModalOpen] = useState<boolean>(false);
   const [selectedApps, setSelectedApps] = useState<string[]>([
