@@ -1,6 +1,6 @@
-# ⚡ OmniTool (Notion Edition & 설치 마법사)
+# ⚡ AllDesk (Notion Edition & 설치 마법사)
 
-OmniTool은 **모던한 노션(Notion) UI/UX**와 **익숙한 윈도우 설치 마법사(Setup Wizard)** 방식을 결합한 올인원 생산성 웹 애플리케이션입니다.  
+AllDesk는 **모던한 노션(Notion) UI/UX**와 **익숙한 윈도우 설치 마법사(Setup Wizard)** 방식을 결합한 올인원 데스크 웹 애플리케이션입니다.  
 **100% 브라우저 로컬(Client-side) 처리** 방식으로 동작하므로, 사용자의 파일(사진, PDF, 텍스트)이 외부 서버로 전혀 전송되지 않아 완벽한 보안과 프라이버시를 보장합니다.
 
 ---

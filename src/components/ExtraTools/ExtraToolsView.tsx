@@ -111,7 +111,7 @@ export const ExtraToolsView: React.FC = () => {
   // Persistent Saved Passwords Vault
   const [savedPasswords, setSavedPasswords] = useState<SavedPassword[]>(() => {
     try {
-      const saved = localStorage.getItem('omnitool_saved_passwords');
+      const saved = localStorage.getItem('alldesk_saved_passwords') || localStorage.getItem('omnitool_saved_passwords');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -126,7 +126,7 @@ export const ExtraToolsView: React.FC = () => {
 
   useEffect(() => {
     try {
-      localStorage.setItem('omnitool_saved_passwords', JSON.stringify(savedPasswords));
+      localStorage.setItem('alldesk_saved_passwords', JSON.stringify(savedPasswords));
     } catch (e) {
       console.error(e);
     }
@@ -185,7 +185,7 @@ export const ExtraToolsView: React.FC = () => {
     if (savedPasswords.length === 0) return;
     const lines = [
       '=======================================================',
-      '  OmniTool 기억된 비밀번호 보관함 백업 파일',
+      '  AllDesk 기억된 비밀번호 보관함 백업 파일',
       '  생성일시: ' + new Date().toLocaleString('ko-KR'),
       '=======================================================\n'
     ];
@@ -492,10 +492,10 @@ export const ExtraToolsView: React.FC = () => {
   // 5. LOCAL NOTES & TODO STATE
   // ==============================================================
   const [notes, setNotes] = useState<string>(() => {
-    return localStorage.getItem('omnitool_notes') || '# 오늘의 업무 메모\n\n- [ ] 생산성 사이트 완성하기\n- [ ] 즐겨찾기 등록하기';
+    return localStorage.getItem('alldesk_notes') || localStorage.getItem('omnitool_notes') || '# 오늘의 업무 메모\n\n- [ ] 생산성 사이트 완성하기\n- [ ] 즐겨찾기 등록하기';
   });
   const [todos, setTodos] = useState<{ id: string; text: string; done: boolean }[]>(() => {
-    const saved = localStorage.getItem('omnitool_todos');
+    const saved = localStorage.getItem('alldesk_todos') || localStorage.getItem('omnitool_todos');
     return saved ? JSON.parse(saved) : [
       { id: '1', text: 'PDF 용량 줄이기 테스트', done: true },
       { id: '2', text: '원클릭 인스톨러로 크롬 설치 스크립트 만들기', done: false },
@@ -504,11 +504,11 @@ export const ExtraToolsView: React.FC = () => {
   const [newTodoText, setNewTodoText] = useState('');
 
   useEffect(() => {
-    localStorage.setItem('omnitool_notes', notes);
+    localStorage.setItem('alldesk_notes', notes);
   }, [notes]);
 
   useEffect(() => {
-    localStorage.setItem('omnitool_todos', JSON.stringify(todos));
+    localStorage.setItem('alldesk_todos', JSON.stringify(todos));
   }, [todos]);
 
   const addTodo = () => {

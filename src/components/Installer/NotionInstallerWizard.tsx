@@ -101,7 +101,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
       'chcp 65001 > nul',
       'title Notion Style Software Installer',
       'echo =======================================================',
-      'echo   OmniTool 노션 소프트웨어 설치 마법사',
+      'echo   AllDesk 노션 소프트웨어 설치 마법사',
       'echo =======================================================',
       'echo.',
     ];
@@ -143,7 +143,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
     setIsInstalling(true);
     setInstallProgress(0);
     setLogs([
-      '[시스템] OmniTool 설치 마법사 초기화 완료...',
+      '[시스템] AllDesk 설치 마법사 초기화 완료...',
       '[시스템] Windows Winget 패키지 매니저 환경 감지됨',
       `[시스템] 선택된 ${selectedAppObjects.length}개 프로그램 대기열 생성 완료\n`,
     ]);
@@ -203,7 +203,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
             <span className="w-3 h-3 rounded-full bg-[#27c93f] inline-block border border-[#1aab29]/40" />
           </div>
           <span className="text-xs font-semibold text-[#37352f] dark:text-[#d3d3d3] flex items-center gap-1.5">
-            <span>📦</span> OmniTool 설치 마법사 (Notion Edition)
+            <span>📦</span> AllDesk 설치 마법사 (Notion Edition)
           </span>
         </div>
 
@@ -306,7 +306,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-[#37352f] dark:text-[#ffffff]">
-                    OmniTool 소프트웨어 설치 마법사
+                    AllDesk 소프트웨어 설치 마법사
                   </h2>
                   <p className="text-xs text-[#787774] mt-1">
                     노션 스타일의 심플하고 안전한 원클릭 프로그램 무인 인스톨러입니다.

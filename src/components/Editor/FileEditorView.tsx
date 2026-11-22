@@ -103,7 +103,7 @@ export const FileEditorView: React.FC = () => {
   const [watermarkText, setWatermarkText] = useState<string>('');
   const [watermarkOpacity, setWatermarkOpacity] = useState<number>(0.25);
   const [headerText, setHeaderText] = useState<string>('');
-  const [footerText, setFooterText] = useState<string>('OmniTool 문서');
+  const [footerText, setFooterText] = useState<string>('AllDesk 문서');
   const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false);
   const pdfInputRef = useRef<HTMLInputElement>(null);
 
@@ -923,7 +923,7 @@ export const FileEditorView: React.FC = () => {
                     type="text"
                     value={footerText}
                     onChange={(e) => setFooterText(e.target.value)}
-                    placeholder="예: OmniTool 생산성"
+                    placeholder="예: AllDesk 생산성"
                     className="w-full px-3 py-1.5 rounded-lg border border-[#e9e9e7] dark:border-[#333] bg-[#faf9f6] dark:bg-[#1b1b1b]"
                   />
                 </div>

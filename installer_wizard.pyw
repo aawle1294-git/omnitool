@@ -49,7 +49,7 @@ SOFTWARE_LIST = [
 class SetupWizard(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("OmniTool 소프트웨어 설치 마법사")
+        self.title("AllDesk 소프트웨어 설치 마법사")
         self.geometry("680x540")
         self.minsize(640, 500)
         self.configure(bg="#FFFFFF")
@@ -105,7 +105,7 @@ class SetupWizard(tk.Tk):
 
         # Sidebar Title
         tk.Label(
-            self.side_frame, text="⚡ OmniTool", font=("Pretendard", 12, "bold"),
+            self.side_frame, text="⚡ AllDesk", font=("Pretendard", 12, "bold"),
             bg=self.BG_SIDE, fg=self.TEXT_MAIN
         ).pack(anchor="w", padx=18, pady=(20, 2))
         tk.Label(
@@ -210,7 +210,7 @@ class SetupWizard(tk.Tk):
         frame.pack(fill=tk.BOTH, expand=True)
 
         tk.Label(
-            frame, text="📦 OmniTool 소프트웨어 설치 마법사",
+            frame, text="📦 AllDesk 소프트웨어 설치 마법사",
             font=("Pretendard", 14, "bold"), bg=self.BG_MAIN, fg=self.TEXT_MAIN
         ).pack(anchor="w")
 
@@ -496,7 +496,7 @@ class SetupWizard(tk.Tk):
             return
 
         self.log("=======================================================")
-        self.log("⚡ OmniTool 소프트웨어 자동 설치 프로세스 시작")
+        self.log("⚡ AllDesk 소프트웨어 자동 설치 프로세스 시작")
         self.log(f"총 {total}개 프로그램 대기열 등록됨")
         self.log("=======================================================\n")
 

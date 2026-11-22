@@ -69,7 +69,7 @@ export const ConverterView: React.FC = () => {
   const imgInputRef = useRef<HTMLInputElement>(null);
 
   // --- 4. Text to PDF state ---
-  const [textContent, setTextContent] = useState<string>('OmniTool을 사용하여 작성된 텍스트 문서입니다.\n\n- 손쉬운 문서 PDF 변환\n- 브라우저 로컬 안전 처리');
+  const [textContent, setTextContent] = useState<string>('AllDesk를 사용하여 작성된 텍스트 문서입니다.\n\n- 손쉬운 문서 PDF 변환\n- 브라우저 로컬 안전 처리');
   const [textDocTitle, setTextDocTitle] = useState<string>('내 문서');
   const [isConvertingTextPdf, setIsConvertingTextPdf] = useState<boolean>(false);
 

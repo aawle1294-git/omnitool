@@ -38,7 +38,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* Notion Page Header */}
       <NotionPageHeader
         icon="⚡"
-        title="OmniTool 생산성 워크스페이스"
+        title="AllDesk 생산성 워크스페이스"
         description="파일 용량 압축, 포맷 변환, 원클릭 프로그램 설치 마법사까지 매일의 작업 효율을 극대화하는 올인원 도구 모음입니다."
         tags={[
           { label: '상태: 준비됨' },

@@ -83,10 +83,10 @@ export const NotionSidebar: React.FC<NotionSidebarProps> = ({
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs font-bold truncate text-[#37352f] dark:text-white flex items-center gap-1">
-                    <span>OmniTool's Notion</span>
+                    <span>AllDesk's Notion</span>
                     <ChevronDown className="w-3 h-3 text-[#787774]" />
                   </p>
-                  <p className="text-[10px] text-[#787774] truncate">생산성 스위트</p>
+                  <p className="text-[10px] text-[#787774] truncate">올인원 데스크</p>
                 </div>
               </div>
             ) : (

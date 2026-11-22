@@ -52,7 +52,7 @@ export const NotionTopBar: React.FC<NotionTopBarProps> = ({
         </button>
 
         <span className="font-medium hover:text-[#37352f] dark:hover:text-white cursor-pointer">
-          OmniTool
+          AllDesk
         </span>
         <span>/</span>
         <span className="font-semibold text-[#37352f] dark:text-white flex items-center gap-1.5">

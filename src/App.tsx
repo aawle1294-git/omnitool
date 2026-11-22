@@ -25,7 +25,7 @@ export const App: React.FC = () => {
     'kakaotalk',
   ]);
   const [darkMode, setDarkMode] = useState<boolean>(() => {
-    const saved = localStorage.getItem('omnitool_dark');
+    const saved = localStorage.getItem('alldesk_dark') || localStorage.getItem('omnitool_dark');
     if (saved !== null) return saved === 'true';
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
@@ -36,7 +36,7 @@ export const App: React.FC = () => {
     } else {
       document.documentElement.classList.remove('dark');
     }
-    localStorage.setItem('omnitool_dark', String(darkMode));
+    localStorage.setItem('alldesk_dark', String(darkMode));
   }, [darkMode]);
 
   const handleOpenWizard = async () => {
@@ -104,9 +104,9 @@ export const App: React.FC = () => {
                 N
               </span>
               <span className="font-semibold text-[#37352f] dark:text-white">
-                OmniTool (Notion Edition)
+                AllDesk (Notion Edition)
               </span>
-              <span>— 올인원 생산성 스위트 & 설치 마법사</span>
+              <span>— 올인원 데스크 & 설치 마법사</span>
             </div>
 
             <div className="flex items-center gap-4">

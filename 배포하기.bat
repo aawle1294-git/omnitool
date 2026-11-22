@@ -1,10 +1,10 @@
 @echo off
 chcp 65001 > nul
 cd /d "%~dp0"
-title OmniTool 자동 배포기
+title AllDesk 자동 배포기
 
 echo ========================================================
-echo   ⚡ OmniTool 넷리파이(Netlify) 원클릭 자동 배포
+echo   ⚡ AllDesk 넷리파이(Netlify) 원클릭 자동 배포
 echo ========================================================
 echo.
 echo [1/2] 최신 버전 빌드 중 (npm run build)...

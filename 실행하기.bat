@@ -1,9 +1,9 @@
 @echo off
 chcp 65001 > nul
 cd /d "%~dp0"
-title OmniTool 생산성 스위트 실행기
+title AllDesk 올인원 데스크 실행기
 echo ========================================================
-echo   ⚡ OmniTool 올인원 생산성 스위트를 시작합니다...
+echo   ⚡ AllDesk 올인원 데스크를 시작합니다...
 echo ========================================================
 echo.
 echo [1/2] 로컬 서버를 구동 중입니다 (http://localhost:3000)

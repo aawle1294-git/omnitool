@@ -54,13 +54,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
-                  OmniTool
+                  AllDesk
                 </span>
                 <span className="text-[10px] font-semibold tracking-wider uppercase px-1.5 py-0.5 rounded bg-brand-100 dark:bg-brand-950/60 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800">
                   PRO
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 -mt-0.5">올인원 생산성 스위트</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 -mt-0.5">올인원 데스크</p>
             </div>
           </div>
 
