@@ -49,7 +49,7 @@ export const NotionSidebar: React.FC<NotionSidebarProps> = ({
       icon: '📦',
       countBadge: selectedAppsCount > 0 ? selectedAppsCount : undefined 
     },
-    { id: 'editor', label: '파일 편집기 (사진 자르기 · PDF)', icon: '✂️' },
+    { id: 'editor', label: '파일 편집기 (PNG/사진 편집 · PDF)', icon: '✂️' },
     { id: 'compressor', label: '파일 용량 압축기', icon: '📉' },
     { id: 'converter', label: '파일 형식 변환기', icon: '🔄' },
     { id: 'media', label: '영상 · 음악 변환기', icon: '🎬' },

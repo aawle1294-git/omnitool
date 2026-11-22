@@ -30,7 +30,7 @@ export const NotionTopBar: React.FC<NotionTopBarProps> = ({
   const titles: Record<ActiveTab, { title: string; icon: string }> = {
     home: { title: '홈 대시보드', icon: '🏠' },
     installer: { title: '프로그램 설치 마법사', icon: '📦' },
-    editor: { title: '파일 편집기 (사진 자르기 · PDF 수정)', icon: '✂️' },
+    editor: { title: '파일 편집기 (PNG/사진 편집 · PDF 수정)', icon: '✂️' },
     compressor: { title: '파일 용량 압축기', icon: '📉' },
     converter: { title: '파일 형식 변환기', icon: '🔄' },
     media: { title: '영상 · 음악 변환기', icon: '🎬' },

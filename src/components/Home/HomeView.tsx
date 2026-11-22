@@ -107,10 +107,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <div className="space-y-2.5">
               <span className="text-2xl block">✂️</span>
               <h3 className="font-bold text-sm text-[#37352f] dark:text-white">
-                파일 편집소 (사진 자르기 · PDF)
+                파일 편집소 (PNG/사진 편집 · PDF)
               </h3>
               <p className="text-xs text-[#787774] leading-relaxed">
-                비율별 사진 자르기(Crop), 브러시/텍스트 추가, PDF 페이지 회전·삭제·워터마크.
+                PNG 투명도 유지 편집 & 지우개, 사진 자르기(Crop), 도형·모자이크, PDF 페이지 편집.
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-[#f0f0ee] dark:border-[#282828] flex items-center justify-between text-xs font-semibold text-[#37352f] dark:text-white">
