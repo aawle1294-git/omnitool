@@ -15,7 +15,7 @@ declare global {
 }
 
 export const AdBanner: React.FC<AdBannerProps> = ({
-  client = 'ca-pub-XXXXXXXXXXXXXXXX',
+  client = 'ca-pub-8206779817848170',
   slot = '1234567890',
   format = 'auto',
   className = '',
@@ -24,8 +24,8 @@ export const AdBanner: React.FC<AdBannerProps> = ({
   const adRef = useRef<HTMLModElement | null>(null);
 
   useEffect(() => {
-    // Only attempt to push ad if a real ca-pub client ID is provided
-    if (client && client !== 'ca-pub-XXXXXXXXXXXXXXXX') {
+    // Attempt to push ad safely
+    if (client) {
       try {
         (window.adsbygoogle = window.adsbygoogle || []).push({});
       } catch (e) {

@@ -1,3 +1,1 @@
-# Google AdSense ads.txt for alldesk.netlify.app
-# 애드센스 가입 승인 후 본인의 pub-XXXXXXXXXXXXXXXX 코드로 교체하세요.
-google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+google.com, pub-8206779817848170, DIRECT, f08c47fec0942fa0
