@@ -10,6 +10,13 @@
     Cross-Origin-Embedder-Policy = "credentialless"
     Cross-Origin-Resource-Policy = "cross-origin"
 
+# Netlify HUD / Badge 차단 리디렉션
+[[redirects]]
+  from = "/.netlify/scripts/hud*"
+  to = "/empty.js"
+  status = 200
+  force = true
+
 # SPA 라우팅 (새로고침 시 404 방지)
 [[redirects]]
   from = "/*"

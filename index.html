@@ -7,6 +7,52 @@
     <title>AllDesk - 올인원 노션 데스크 생산성 도구</title>
     <meta name="description" content="AllDesk(올데스크): PNG 투명도 편집 및 자르기, PDF 페이지 편집, 파일 용량 압축, 형식 변환, 윈도우 원클릭 프로그램 설치 마법사를 100% 브라우저 내에서 안전하게 제공합니다." />
 
+    <!-- Netlify Badge Blockers (Head level) -->
+    <style id="nl-badge-blocker">
+      #nl-badge-frame,
+      #nl-hud-frame,
+      iframe[id*="nl-"],
+      iframe[title*="Netlify"],
+      iframe[title*="Powered by Netlify"],
+      div[id*="netlify-badge"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        clip-path: inset(100%) !important;
+        position: absolute !important;
+        top: -9999px !important;
+        left: -9999px !important;
+      }
+    </style>
+    <script>
+      (function() {
+        try {
+          localStorage.setItem('nl-hud:public:v1', 'hidden:' + (Date.now() + 604800000));
+          localStorage.setItem('nl-hud:owner-private:v1', 'hidden');
+        } catch(e) {}
+        
+        var observer = new MutationObserver(function(mutations) {
+          for (var i = 0; i < mutations.length; i++) {
+            var added = mutations[i].addedNodes;
+            for (var j = 0; j < added.length; j++) {
+              var node = added[j];
+              if (!node || node.nodeType !== 1) continue;
+              if (node.tagName === 'SCRIPT' && node.src && node.src.indexOf('hud') !== -1) {
+                node.remove();
+              }
+              if (node.id === 'nl-badge-frame' || node.id === 'nl-hud-frame' || (node.tagName === 'IFRAME' && node.title && node.title.indexOf('Netlify') !== -1)) {
+                node.remove();
+              }
+            }
+          }
+        });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+      })();
+    </script>
+
     <!-- Google AdSense 소유권 확인 메타 태그 -->
     <meta name="google-adsense-account" content="ca-pub-8206779817848170">
 
@@ -19,33 +65,5 @@
   <body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- Netlify Badge Auto-Suppressor -->
-    <script>
-      (function() {
-        function hideNetlifyBadge() {
-          const selectors = [
-            '#netlify-badge',
-            '.netlify-badge',
-            'iframe[src*="netlify"]',
-            'iframe[id*="netlify"]',
-            'div[id*="netlify-badge"]',
-            'div[class*="netlify-badge"]',
-            '[data-netlify-badge]',
-            'a[href*="netlify.com"][class*="badge"]'
-          ];
-          document.querySelectorAll(selectors.join(',')).forEach(function(el) {
-            el.style.setProperty('display', 'none', 'important');
-            el.style.setProperty('visibility', 'hidden', 'important');
-            el.style.setProperty('opacity', '0', 'important');
-          });
-        }
-        window.addEventListener('DOMContentLoaded', hideNetlifyBadge);
-        window.addEventListener('load', hideNetlifyBadge);
-        try {
-          const obs = new MutationObserver(hideNetlifyBadge);
-          obs.observe(document.documentElement, { childList: true, subtree: true });
-        } catch(e) {}
-      })();
-    </script>
   </body>
 </html>
