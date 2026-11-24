@@ -1,5 +1,5 @@
 import * as pdfjsLib from 'pdfjs-dist';
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { PDFDocument, StandardFonts, rgb, degrees } from 'pdf-lib';
 
 // Set up worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
@@ -439,7 +439,7 @@ export async function exportEditedPdf(
     // Apply rotation
     const currentRotation = copiedPage.getRotation().angle;
     const finalRotation = (currentRotation + pageInfo.rotation) % 360;
-    copiedPage.setRotation({ angle: finalRotation as any, type: 0 } as any);
+    copiedPage.setRotation(degrees(finalRotation));
 
     const { width, height } = copiedPage.getSize();
 
@@ -471,7 +471,7 @@ export async function exportEditedPdf(
         font,
         color: rgb(0.7, 0.7, 0.7),
         opacity: options.watermarkOpacity ?? 0.35,
-        rotate: { angle: 35, type: 0 } as any,
+        rotate: degrees(35),
       });
     }
 
