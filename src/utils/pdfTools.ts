@@ -363,6 +363,7 @@ export interface PdfPageItem {
   originalIndex: number;
   rotation: number; // 0, 90, 180, 270
   thumbnailUrl: string;
+  annotationDataUrl?: string; // New: stores paint annotations, drawings, text
 }
 
 /**
@@ -441,6 +442,23 @@ export async function exportEditedPdf(
     copiedPage.setRotation({ angle: finalRotation as any, type: 0 } as any);
 
     const { width, height } = copiedPage.getSize();
+
+    // Embed painted drawings and annotations onto page
+    if (pageInfo.annotationDataUrl) {
+      try {
+        const res = await fetch(pageInfo.annotationDataUrl);
+        const imgBuffer = await res.arrayBuffer();
+        const embeddedPng = await newPdf.embedPng(imgBuffer);
+        copiedPage.drawImage(embeddedPng, {
+          x: 0,
+          y: 0,
+          width,
+          height,
+        });
+      } catch (err) {
+        console.warn('Failed to embed page annotation image:', err);
+      }
+    }
 
     // Add watermark if specified
     if (options.watermarkText && options.watermarkText.trim()) {

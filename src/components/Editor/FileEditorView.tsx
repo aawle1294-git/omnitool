@@ -23,7 +23,9 @@ import {
   Grid3X3,
   RefreshCw,
   Eye,
-  Info
+  Info,
+  Wand2,
+  Palette
 } from 'lucide-react';
 import { NotionPageHeader } from '../NotionLayout/NotionPageHeader';
 import {
@@ -32,6 +34,7 @@ import {
   PdfPageItem,
   PdfEditOptions
 } from '../../utils/pdfTools';
+import { PdfAnnotationModal } from './PdfAnnotationModal';
 import { saveAs } from 'file-saver';
 import { formatBytes } from '../../utils/formatters';
 
@@ -54,6 +57,7 @@ type EditorTool =
   | 'brush'
   | 'highlighter'
   | 'eraser'
+  | 'wand'
   | 'rect'
   | 'arrow'
   | 'mosaic'
@@ -125,6 +129,10 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
   const [history, setHistory] = useState<ImageData[]>([]);
   const [redoStack, setRedoStack] = useState<ImageData[]>([]);
 
+  // Cutout (Background Removal) state
+  const [cutoutTolerance, setCutoutTolerance] = useState<number>(32);
+  const [isAutoCutoutProcessing, setIsAutoCutoutProcessing] = useState<boolean>(false);
+
   // ==============================================================
   // 2. PDF EDITOR STATE
   // ==============================================================
@@ -138,6 +146,10 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
   const [footerText, setFooterText] = useState<string>('AllDesk 문서');
   const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false);
   const pdfInputRef = useRef<HTMLInputElement>(null);
+
+  // PDF Page Annotation Modal state
+  const [selectedAnnotationPage, setSelectedAnnotationPage] = useState<PdfPageItem | null>(null);
+  const [isAnnotationModalOpen, setIsAnnotationModalOpen] = useState<boolean>(false);
 
   // Helper to save history snapshot before mutating canvas
   const saveHistoryState = useCallback(() => {
@@ -461,6 +473,248 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
   };
 
   // ==============================================================
+  // AUTOMATIC BACKGROUND REMOVAL (CUTOUT) & MAGIC WAND
+  // ==============================================================
+  const colorDistance = (
+    r1: number, g1: number, b1: number, a1: number,
+    r2: number, g2: number, b2: number, a2: number
+  ) => {
+    if (a1 < 10 && a2 < 10) return 0;
+    if (Math.abs(a1 - a2) > 100) return 255;
+    const dr = r1 - r2;
+    const dg = g1 - g2;
+    const db = b1 - b2;
+    return Math.sqrt(0.299 * dr * dr + 0.587 * dg * dg + 0.114 * db * db);
+  };
+
+  const handleAutoCutout = () => {
+    const canvas = mainCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    saveHistoryState();
+    setIsAutoCutoutProcessing(true);
+
+    setTimeout(() => {
+      try {
+        const width = canvas.width;
+        const height = canvas.height;
+        const imgData = ctx.getImageData(0, 0, width, height);
+        const data = imgData.data;
+
+        // Sample border pixels to detect dominant background color
+        let rSum = 0, gSum = 0, bSum = 0, count = 0;
+        const step = Math.max(1, Math.floor((width + height) / 120));
+
+        for (let x = 0; x < width; x += step) {
+          const topIdx = x * 4;
+          const botIdx = ((height - 1) * width + x) * 4;
+          if (data[topIdx + 3] > 20) {
+            rSum += data[topIdx]; gSum += data[topIdx + 1]; bSum += data[topIdx + 2]; count++;
+          }
+          if (data[botIdx + 3] > 20) {
+            rSum += data[botIdx]; gSum += data[botIdx + 1]; bSum += data[botIdx + 2]; count++;
+          }
+        }
+        for (let y = 0; y < height; y += step) {
+          const leftIdx = (y * width) * 4;
+          const rightIdx = (y * width + width - 1) * 4;
+          if (data[leftIdx + 3] > 20) {
+            rSum += data[leftIdx]; gSum += data[leftIdx + 1]; bSum += data[leftIdx + 2]; count++;
+          }
+          if (data[rightIdx + 3] > 20) {
+            rSum += data[rightIdx]; gSum += data[rightIdx + 1]; bSum += data[rightIdx + 2]; count++;
+          }
+        }
+
+        const bg = count > 0 ? {
+          r: Math.round(rSum / count),
+          g: Math.round(gSum / count),
+          b: Math.round(bSum / count),
+          a: 255
+        } : { r: 255, g: 255, b: 255, a: 255 };
+
+        const tol = cutoutTolerance;
+        const visited = new Uint8Array(width * height);
+        const queue = new Int32Array(width * height);
+        let head = 0;
+        let tail = 0;
+
+        const checkAndEnqueue = (x: number, y: number) => {
+          const idx = y * width + x;
+          if (visited[idx]) return;
+          visited[idx] = 1;
+          const pIdx = idx * 4;
+          const dist = colorDistance(data[pIdx], data[pIdx + 1], data[pIdx + 2], data[pIdx + 3], bg.r, bg.g, bg.b, bg.a);
+          if (dist <= tol * 1.5) {
+            queue[tail++] = idx;
+          }
+        };
+
+        for (let x = 0; x < width; x++) {
+          checkAndEnqueue(x, 0);
+          checkAndEnqueue(x, height - 1);
+        }
+        for (let y = 0; y < height; y++) {
+          checkAndEnqueue(0, y);
+          checkAndEnqueue(width - 1, y);
+        }
+
+        while (head < tail) {
+          const curr = queue[head++];
+          const cx = curr % width;
+          const cy = Math.floor(curr / width);
+          const pIdx = curr * 4;
+
+          const dist = colorDistance(data[pIdx], data[pIdx + 1], data[pIdx + 2], data[pIdx + 3], bg.r, bg.g, bg.b, bg.a);
+          if (dist <= tol) {
+            data[pIdx + 3] = 0; // Transparent
+          } else if (dist <= tol * 1.4) {
+            const feather = (dist - tol) / (tol * 0.4);
+            data[pIdx + 3] = Math.min(data[pIdx + 3], Math.round(255 * feather));
+          }
+
+          if (cx > 0) {
+            const left = curr - 1;
+            if (!visited[left]) {
+              visited[left] = 1;
+              const lIdx = left * 4;
+              const d = colorDistance(data[lIdx], data[lIdx + 1], data[lIdx + 2], data[lIdx + 3], bg.r, bg.g, bg.b, bg.a);
+              if (d <= tol * 1.5) queue[tail++] = left;
+            }
+          }
+          if (cx < width - 1) {
+            const right = curr + 1;
+            if (!visited[right]) {
+              visited[right] = 1;
+              const rIdx = right * 4;
+              const d = colorDistance(data[rIdx], data[rIdx + 1], data[rIdx + 2], data[rIdx + 3], bg.r, bg.g, bg.b, bg.a);
+              if (d <= tol * 1.5) queue[tail++] = right;
+            }
+          }
+          if (cy > 0) {
+            const up = curr - width;
+            if (!visited[up]) {
+              visited[up] = 1;
+              const uIdx = up * 4;
+              const d = colorDistance(data[uIdx], data[uIdx + 1], data[uIdx + 2], data[uIdx + 3], bg.r, bg.g, bg.b, bg.a);
+              if (d <= tol * 1.5) queue[tail++] = up;
+            }
+          }
+          if (cy < height - 1) {
+            const down = curr + width;
+            if (!visited[down]) {
+              visited[down] = 1;
+              const dIdx = down * 4;
+              const d = colorDistance(data[dIdx], data[dIdx + 1], data[dIdx + 2], data[dIdx + 3], bg.r, bg.g, bg.b, bg.a);
+              if (d <= tol * 1.5) queue[tail++] = down;
+            }
+          }
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+        setBgMode('checkerboard');
+      } catch (err) {
+        console.error('Auto cutout error:', err);
+      } finally {
+        setIsAutoCutoutProcessing(false);
+      }
+    }, 30);
+  };
+
+  const handleWandCutoutAt = (startX: number, startY: number) => {
+    const canvas = mainCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    try {
+      const width = canvas.width;
+      const height = canvas.height;
+      const imgData = ctx.getImageData(0, 0, width, height);
+      const data = imgData.data;
+
+      const px = Math.min(width - 1, Math.max(0, Math.floor(startX)));
+      const py = Math.min(height - 1, Math.max(0, Math.floor(startY)));
+      const startPixelIdx = (py * width + px) * 4;
+      const targetR = data[startPixelIdx];
+      const targetG = data[startPixelIdx + 1];
+      const targetB = data[startPixelIdx + 2];
+      const targetA = data[startPixelIdx + 3];
+
+      if (targetA === 0) return;
+
+      const tol = cutoutTolerance;
+      const visited = new Uint8Array(width * height);
+      const queue = new Int32Array(width * height);
+      let head = 0;
+      let tail = 0;
+
+      const rootIdx = py * width + px;
+      visited[rootIdx] = 1;
+      queue[tail++] = rootIdx;
+
+      while (head < tail) {
+        const curr = queue[head++];
+        const cx = curr % width;
+        const cy = Math.floor(curr / width);
+        const pIdx = curr * 4;
+
+        const dist = colorDistance(data[pIdx], data[pIdx + 1], data[pIdx + 2], data[pIdx + 3], targetR, targetG, targetB, targetA);
+        if (dist <= tol) {
+          data[pIdx + 3] = 0;
+        } else if (dist <= tol * 1.4) {
+          const feather = (dist - tol) / (tol * 0.4);
+          data[pIdx + 3] = Math.min(data[pIdx + 3], Math.round(255 * feather));
+        }
+
+        if (cx > 0) {
+          const left = curr - 1;
+          if (!visited[left]) {
+            visited[left] = 1;
+            const lIdx = left * 4;
+            const d = colorDistance(data[lIdx], data[lIdx + 1], data[lIdx + 2], data[lIdx + 3], targetR, targetG, targetB, targetA);
+            if (d <= tol * 1.5) queue[tail++] = left;
+          }
+        }
+        if (cx < width - 1) {
+          const right = curr + 1;
+          if (!visited[right]) {
+            visited[right] = 1;
+            const rIdx = right * 4;
+            const d = colorDistance(data[rIdx], data[rIdx + 1], data[rIdx + 2], data[rIdx + 3], targetR, targetG, targetB, targetA);
+            if (d <= tol * 1.5) queue[tail++] = right;
+          }
+        }
+        if (cy > 0) {
+          const up = curr - width;
+          if (!visited[up]) {
+            visited[up] = 1;
+            const uIdx = up * 4;
+            const d = colorDistance(data[uIdx], data[uIdx + 1], data[uIdx + 2], data[uIdx + 3], targetR, targetG, targetB, targetA);
+            if (d <= tol * 1.5) queue[tail++] = up;
+          }
+        }
+        if (cy < height - 1) {
+          const down = curr + width;
+          if (!visited[down]) {
+            visited[down] = 1;
+            const dIdx = down * 4;
+            const d = colorDistance(data[dIdx], data[dIdx + 1], data[dIdx + 2], data[dIdx + 3], targetR, targetG, targetB, targetA);
+            if (d <= tol * 1.5) queue[tail++] = down;
+          }
+        }
+      }
+
+      ctx.putImageData(imgData, 0, 0);
+      setBgMode('checkerboard');
+    } catch (e) {
+      console.warn('Wand cutout error:', e);
+    }
+  };
+
+  // ==============================================================
   // CANVAS MOUSE EVENT HANDLERS (Drawing, Eraser, Shapes, Text)
   // ==============================================================
   const getCanvasCoords = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -483,6 +737,13 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
 
     const { x, y } = getCanvasCoords(e);
     saveHistoryState();
+
+    if (tool === 'wand') {
+      handleWandCutoutAt(x, y);
+      setIsDrawing(false);
+      return;
+    }
+
     setIsDrawing(true);
     setStartPoint({ x, y });
 
@@ -732,9 +993,11 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
           <NotionPageHeader
             icon="🖼️"
             title="PNG & 사진 편집기"
-            description="PNG 투명 배경 유지 및 투명 지우개(누끼), 사진 자르기(Crop), 브러시·형광펜, 도형·화살표, 텍스트 및 모자이크 편집을 100% 브라우저 내에서 안전하게 처리합니다."
+            description="스마트 원클릭 자동 누끼(배경 투명화), 마술봉 누끼, PNG 투명 배경 유지 및 투명 지우개, 사진 자르기(Crop), 브러시·형광펜, 도형·화살표, 텍스트 및 모자이크 편집을 100% 브라우저 내에서 안전하게 처리합니다."
             tags={[
               { label: '하위 페이지' },
+              { label: '✨ 스마트 원클릭 자동 누끼' },
+              { label: '🪄 마술봉 누끼 제거' },
               { label: 'PNG 투명도 100% 유지' },
               { label: '투명 지우개 (알파 채널 누끼)' },
               { label: '자르기(Crop) 비율 프리셋' },
@@ -821,6 +1084,45 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                   </button>
                 </div>
 
+                {/* Auto Background Removal (Smart Cutout) Card */}
+                <div className="p-3.5 rounded-xl bg-linear-to-r from-violet-500/10 via-fuchsia-500/10 to-indigo-500/10 border border-violet-200 dark:border-violet-900/50 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-violet-900 dark:text-violet-200 flex items-center gap-1.5">
+                      <Wand2 className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" />
+                      스마트 원클릭 자동 누끼
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950 text-violet-700 dark:text-violet-300 font-semibold font-mono">
+                      100% 로컬
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#787774] dark:text-[#a0a0a0] leading-relaxed">
+                    사진 테두리의 배경색을 자동으로 분석하여 원클릭으로 투명 배경(PNG)을 만듭니다.
+                  </p>
+                  <button
+                    disabled={isAutoCutoutProcessing}
+                    onClick={handleAutoCutout}
+                    className="w-full py-2 px-3 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition disabled:opacity-50"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>{isAutoCutoutProcessing ? '배경 분리 분석 중...' : '✨ 원클릭 자동 누끼 따기'}</span>
+                  </button>
+
+                  <div className="pt-0.5 space-y-1">
+                    <div className="flex justify-between text-[10px] text-[#787774]">
+                      <span>누끼 감도 (오차 범위): {cutoutTolerance}</span>
+                      <span className="font-mono">{cutoutTolerance < 25 ? '정밀' : cutoutTolerance > 50 ? '넓게' : '표준'}</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="10"
+                      max="80"
+                      value={cutoutTolerance}
+                      onChange={(e) => setCutoutTolerance(Number(e.target.value))}
+                      className="w-full accent-violet-600 cursor-pointer"
+                    />
+                  </div>
+                </div>
+
                 {/* Primary Editing Tool Palette */}
                 <div className="p-4 rounded-xl bg-[#f7f6f3] dark:bg-[#202020] border border-[#e9e9e7] dark:border-[#2f2f2f] space-y-3">
                   <div className="flex items-center justify-between">
@@ -850,7 +1152,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-4 gap-1.5 text-xs">
+                  <div className="grid grid-cols-3 gap-1.5 text-xs">
                     {/* Brush */}
                     <button
                       onClick={() => {
@@ -897,6 +1199,22 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                     >
                       <Eraser className="w-3.5 h-3.5" />
                       <span className="text-[10px]">투명 지우개</span>
+                    </button>
+
+                    {/* Magic Wand Cutout */}
+                    <button
+                      onClick={() => {
+                        setTool('wand');
+                        setIsCropping(false);
+                      }}
+                      className={`p-2 rounded-lg font-semibold flex flex-col items-center gap-1 transition ${
+                        tool === 'wand'
+                          ? 'bg-violet-600 text-white shadow-xs'
+                          : 'bg-white dark:bg-[#282828] text-[#37352f] dark:text-white border border-[#e9e9e7] dark:border-[#333]'
+                      }`}
+                    >
+                      <Wand2 className="w-3.5 h-3.5" />
+                      <span className="text-[10px]">🪄 마술봉 누끼</span>
                     </button>
 
                     {/* Crop */}
@@ -982,6 +1300,33 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                 </div>
 
                 {/* Sub Tool Options based on Active Tool */}
+
+                {/* 0. Magic Wand Submenu */}
+                {tool === 'wand' && (
+                  <div className="p-4 rounded-xl bg-white dark:bg-[#1f1f1f] border border-violet-200 dark:border-violet-900/40 space-y-3">
+                    <span className="text-xs font-bold text-violet-900 dark:text-violet-200 flex items-center gap-1.5">
+                      <Wand2 className="w-3.5 h-3.5 text-violet-600" />
+                      마술봉 누끼 도구 활성화
+                    </span>
+                    <p className="text-[11px] text-[#787774] leading-relaxed">
+                      지우고 싶은 배경 위치를 클릭하면, 연결된 동일한 색상 영역을 즉시 투명하게 제거합니다.
+                    </p>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px] text-[#787774]">
+                        <span>선택 감도 (오차 허용)</span>
+                        <span className="font-mono font-bold text-[#37352f] dark:text-white">{cutoutTolerance}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="10"
+                        max="80"
+                        value={cutoutTolerance}
+                        onChange={(e) => setCutoutTolerance(Number(e.target.value))}
+                        className="w-full accent-violet-600"
+                      />
+                    </div>
+                  </div>
+                )}
 
                 {/* 1. Crop Ratio Submenu */}
                 {tool === 'crop' && (
@@ -1322,6 +1667,8 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                     className={`max-w-full max-h-[600px] object-contain rounded select-none ${
                       tool === 'eraser'
                         ? 'cursor-cell'
+                        : tool === 'wand'
+                        ? 'cursor-crosshair'
                         : tool === 'text'
                         ? 'cursor-text'
                         : tool === 'crop'
@@ -1348,6 +1695,14 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                     <span>자르기 모드 · 좌측에서 비율을 선택하거나 [선택 영역 자르기 적용]을 클릭하세요</span>
                   </div>
                 )}
+
+                {/* Wand Mode Notice */}
+                {tool === 'wand' && (
+                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-violet-950/90 text-white px-5 py-2.5 rounded-full text-xs font-semibold backdrop-blur-md shadow-lg flex items-center gap-2 animate-in fade-in border border-violet-800">
+                    <Wand2 className="w-3.5 h-3.5 text-violet-300" />
+                    <span>마술봉 누끼 모드 · 투명하게 지우고 싶은 배경 영역을 클릭하세요</span>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -1363,9 +1718,10 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
           <NotionPageHeader
             icon="📄"
             title="PDF 문서 편집기"
-            description="PDF 페이지별 90도 회전, 불필요한 페이지 삭제, 순서 재배치 및 맞춤 워터마크·머리글 삽입을 브라우저 내에서 안전하게 완결합니다."
+            description="PDF 페이지별 그림판 그리기 & 주석 쓰기, 90도 회전, 불필요한 페이지 삭제, 순서 재배치 및 맞춤 워터마크·머리글 삽입을 브라우저 내에서 100% 안전하게 완결합니다."
             tags={[
               { label: '하위 페이지' },
+              { label: '🎨 페이지별 그림판 & 주석 쓰기' },
               { label: 'PDF 페이지 90° 회전' },
               { label: '불필요한 페이지 삭제' },
               { label: '페이지 순서 재배치' },
@@ -1402,7 +1758,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                   편집할 PDF 문서를 여기에 올려주세요
                 </p>
                 <p className="text-xs text-[#787774] mt-1">
-                  페이지 회전, 불필요한 페이지 삭제, 순서 재배치, 워터마크 추가를 한 번에 처리합니다.
+                  페이지별 그림판 주석 쓰기, 회전, 삭제, 순서 재배치, 워터마크 추가를 한 번에 처리합니다.
                 </p>
               </div>
             </div>
@@ -1419,7 +1775,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                     </span>
                   </h3>
                   <p className="text-[11px] text-[#787774] mt-0.5">
-                    각 페이지의 회전 화살표를 눌러 회전하거나, 삭제 아이콘으로 불필요한 페이지를 제거하세요.
+                    각 페이지의 <strong>[그림판 / 주석 쓰기]</strong>를 눌러 펜·형광펜·텍스트·화이트를 입력하거나 회전/순서를 변경하세요.
                   </p>
                 </div>
 
@@ -1496,12 +1852,57 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                         }}
                         className="max-w-full max-h-full object-contain pointer-events-none"
                       />
+
+                      {/* Page Index Badge */}
                       <span className="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded-md bg-black/70 text-white font-mono text-[10px] font-bold">
                         {idx + 1}
                       </span>
+
+                      {/* Annotation Badge if present */}
+                      {page.annotationDataUrl && (
+                        <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-md bg-indigo-600 text-white text-[10px] font-bold shadow-xs flex items-center gap-1">
+                          <Sparkles className="w-2.5 h-2.5" />
+                          <span>주석 있음</span>
+                        </span>
+                      )}
                     </div>
 
-                    {/* Action Buttons for this page */}
+                    {/* Paint / Annotation Button */}
+                    <div className="space-y-1 pt-1">
+                      <button
+                        onClick={() => {
+                          setSelectedAnnotationPage(page);
+                          setIsAnnotationModalOpen(true);
+                        }}
+                        className={`w-full py-1.5 px-2 rounded-lg font-bold text-[11px] flex items-center justify-center gap-1.5 transition border ${
+                          page.annotationDataUrl
+                            ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/40 hover:bg-indigo-100'
+                            : 'bg-white dark:bg-[#282828] text-[#37352f] dark:text-white border-[#e9e9e7] dark:border-[#333] hover:bg-[#efefed]'
+                        }`}
+                      >
+                        <Edit3 className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                        <span>{page.annotationDataUrl ? '그림판 / 주석 수정' : '그림판 / 주석 쓰기'}</span>
+                      </button>
+
+                      {page.annotationDataUrl && (
+                        <button
+                          onClick={() => {
+                            if (confirm(`${idx + 1}페이지의 주석을 삭제할까요?`)) {
+                              setPdfPages((prev) =>
+                                prev.map((p) =>
+                                  p.id === page.id ? { ...p, annotationDataUrl: undefined } : p
+                                )
+                              );
+                            }
+                          }}
+                          className="w-full py-0.5 text-[10px] text-[#787774] hover:text-red-500 transition text-center"
+                        >
+                          주석 지우기
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Action Buttons for this page (Move / Rotate / Delete) */}
                     <div className="flex items-center justify-between text-xs pt-1 border-t border-[#f0f0ee] dark:border-[#282828]">
                       {/* Move Order */}
                       <div className="flex items-center gap-0.5">
@@ -1549,6 +1950,11 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
               <div className="sticky bottom-4 z-20 p-4 rounded-2xl bg-white/95 dark:bg-[#1f1f1f]/95 backdrop-blur-md border border-[#e9e9e7] dark:border-[#333] shadow-lg flex items-center justify-between gap-4">
                 <div className="text-xs text-[#787774]">
                   총 <strong>{pdfPages.length}개</strong>의 페이지가 저장 준비되었습니다.
+                  {pdfPages.some((p) => p.annotationDataUrl) && (
+                    <span className="ml-2 font-semibold text-indigo-600 dark:text-indigo-400">
+                      (주석 포함 {pdfPages.filter((p) => p.annotationDataUrl).length}장)
+                    </span>
+                  )}
                 </div>
                 <button
                   disabled={isExportingPdf}
@@ -1563,6 +1969,31 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
           )}
         </div>
         </>
+      )}
+
+      {/* PDF Paint & Annotation Modal */}
+      {isAnnotationModalOpen && selectedAnnotationPage && pdfFile && (
+        <PdfAnnotationModal
+          isOpen={isAnnotationModalOpen}
+          onClose={() => {
+            setIsAnnotationModalOpen(false);
+            setSelectedAnnotationPage(null);
+          }}
+          pdfFile={pdfFile}
+          pageItem={selectedAnnotationPage}
+          pageNumber={pdfPages.findIndex((p) => p.id === selectedAnnotationPage.id) + 1}
+          onSaveAnnotation={(pageId, annotationDataUrl, combinedThumbnailUrl) => {
+            setPdfPages((prev) =>
+              prev.map((p) =>
+                p.id === pageId
+                  ? { ...p, annotationDataUrl, thumbnailUrl: combinedThumbnailUrl }
+                  : p
+              )
+            );
+            setIsAnnotationModalOpen(false);
+            setSelectedAnnotationPage(null);
+          }}
+        />
       )}
     </div>
   );
