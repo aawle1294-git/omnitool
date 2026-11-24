@@ -48,6 +48,21 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Netlify Badge Auto-hide */
+#netlify-badge,
+.netlify-badge,
+iframe[src*="netlify"],
+iframe[id*="netlify"],
+div[id*="netlify-badge"],
+div[class*="netlify-badge"],
+[data-netlify-badge] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
