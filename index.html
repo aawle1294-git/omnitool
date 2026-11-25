@@ -9,45 +9,82 @@
 
     <!-- Netlify Badge Blockers (Head level) -->
     <style id="nl-badge-blocker">
+      /* Netlify HUD / badge — all known selectors */
       #nl-badge-frame,
       #nl-hud-frame,
+      #netlify-badge-frame,
       iframe[id*="nl-"],
+      iframe[id*="netlify"],
       iframe[title*="Netlify"],
       iframe[title*="Powered by Netlify"],
-      div[id*="netlify-badge"] {
+      iframe[src*="netlify"],
+      div[id*="netlify-badge"],
+      div[id*="netlify-hud"],
+      [data-testid*="netlify-badge"],
+      a[href*="app.netlify.com"] > img[alt*="Netlify"] {
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
         pointer-events: none !important;
         width: 0 !important;
         height: 0 !important;
+        max-width: 0 !important;
+        max-height: 0 !important;
         clip-path: inset(100%) !important;
         position: absolute !important;
-        top: -9999px !important;
-        left: -9999px !important;
+        top: -99999px !important;
+        left: -99999px !important;
+        overflow: hidden !important;
       }
     </style>
     <script>
       (function() {
+        // Hide via localStorage (Netlify HUD respects these keys)
         try {
-          localStorage.setItem('nl-hud:public:v1', 'hidden:' + (Date.now() + 604800000));
+          var farFuture = Date.now() + 31536000000;
+          localStorage.setItem('nl-hud:public:v1', 'hidden:' + farFuture);
           localStorage.setItem('nl-hud:owner-private:v1', 'hidden');
+          localStorage.setItem('nl-hud-hidden', '1');
+          localStorage.setItem('netlify-badge-dismissed', '1');
         } catch(e) {}
-        
+
+        function removeNetlifyNodes(root) {
+          var selectors = [
+            '#nl-badge-frame', '#nl-hud-frame', '#netlify-badge-frame',
+            'iframe[src*="netlify"]', 'iframe[title*="Netlify"]',
+            'div[id*="netlify-badge"]', 'div[id*="netlify-hud"]'
+          ];
+          selectors.forEach(function(sel) {
+            try {
+              (root || document).querySelectorAll(sel).forEach(function(el) { el.remove(); });
+            } catch(e) {}
+          });
+        }
+
+        removeNetlifyNodes(document);
+
         var observer = new MutationObserver(function(mutations) {
-          for (var i = 0; i < mutations.length; i++) {
-            var added = mutations[i].addedNodes;
-            for (var j = 0; j < added.length; j++) {
-              var node = added[j];
-              if (!node || node.nodeType !== 1) continue;
-              if (node.tagName === 'SCRIPT' && node.src && node.src.indexOf('hud') !== -1) {
-                node.remove();
+          mutations.forEach(function(m) {
+            m.addedNodes.forEach(function(node) {
+              if (!node || node.nodeType !== 1) return;
+              var el = node;
+              var id = el.id || '';
+              var src = el.src || '';
+              var title = el.title || '';
+              // Block hud scripts
+              if (el.tagName === 'SCRIPT' && src && (src.indexOf('hud') !== -1 || src.indexOf('netlify-badge') !== -1)) {
+                el.remove(); return;
               }
-              if (node.id === 'nl-badge-frame' || node.id === 'nl-hud-frame' || (node.tagName === 'IFRAME' && node.title && node.title.indexOf('Netlify') !== -1)) {
-                node.remove();
+              // Block badge/hud iframes and divs
+              if (id.indexOf('nl-') !== -1 || id.indexOf('netlify') !== -1 ||
+                  src.indexOf('netlify') !== -1 ||
+                  title.indexOf('Netlify') !== -1) {
+                el.remove(); return;
               }
-            }
-          }
+              // Also check children
+              removeNetlifyNodes(el);
+            });
+          });
         });
         observer.observe(document.documentElement, { childList: true, subtree: true });
       })();

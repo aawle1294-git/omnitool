@@ -436,9 +436,10 @@ export async function exportEditedPdf(
     const pageInfo = orderedPages[idx];
     const [copiedPage] = await newPdf.copyPages(srcPdf, [pageInfo.originalIndex]);
 
-    // Apply rotation
-    const currentRotation = copiedPage.getRotation().angle;
-    const finalRotation = (currentRotation + pageInfo.rotation) % 360;
+    // Apply rotation — getRotation() can return a Degrees object; extract numeric angle safely
+    const rawRotation = copiedPage.getRotation();
+    const currentAngle: number = typeof rawRotation === 'number' ? rawRotation : (rawRotation?.angle ?? 0);
+    const finalRotation = ((currentAngle + pageInfo.rotation) % 360 + 360) % 360;
     copiedPage.setRotation(degrees(finalRotation));
 
     const { width, height } = copiedPage.getSize();
