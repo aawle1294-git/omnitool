@@ -21,8 +21,10 @@ import { launchNativeInstaller } from './utils/installerBridge';
 import { tabToPath, pathToTab } from './utils/routes';
 import { ActiveTab } from './types';
 import { ShieldCheck, Sparkles } from 'lucide-react';
+import { useLanguage } from './contexts/LanguageContext';
 
 export const App: React.FC = () => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTabState] = useState<ActiveTab>(() => {
     if (typeof window !== 'undefined') {
       return pathToTab(window.location.pathname);
@@ -62,22 +64,22 @@ export const App: React.FC = () => {
   // Sync document title with real route
   useEffect(() => {
     const titles: Record<ActiveTab, string> = {
-      home: 'AllDesk - 올인원 노션 데스크',
-      editor: '파일 편집소 - AllDesk',
-      'editor-image': 'PNG & 사진 편집기 - AllDesk',
-      'editor-pdf': 'PDF 문서 편집기 - AllDesk',
-      compressor: '파일 용량 압축기 - AllDesk',
-      converter: '파일 형식 변환기 - AllDesk',
-      media: '영상 · 음악 변환기 - AllDesk',
-      tools: '스마트 생산성 도구 - AllDesk',
-      fun: '재미 도구함 - AllDesk',
-      installer: '프로그램 설치 마법사 - AllDesk',
-      privacy: '개인정보처리방침 - AllDesk',
-      terms: '서비스 이용약관 - AllDesk',
-      about: 'AllDesk 소개 및 문의 - AllDesk',
+      home: t('title.home'),
+      editor: t('title.editor'),
+      'editor-image': t('title.editor-image'),
+      'editor-pdf': t('title.editor-pdf'),
+      compressor: t('title.compressor'),
+      converter: t('title.converter'),
+      media: t('title.media'),
+      tools: t('title.tools'),
+      fun: t('title.fun'),
+      installer: t('title.installer'),
+      privacy: t('title.privacy'),
+      terms: t('title.terms'),
+      about: t('title.about'),
     };
     document.title = titles[activeTab] || 'AllDesk';
-  }, [activeTab]);
+  }, [activeTab, t]);
 
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
   const [isWizardModalOpen, setIsWizardModalOpen] = useState<boolean>(false);
@@ -199,7 +201,7 @@ export const App: React.FC = () => {
               <span className="font-semibold text-[#37352f] dark:text-white">
                 AllDesk (Notion Edition)
               </span>
-              <span>— 올인원 데스크 & 설치 마법사</span>
+              <span>— {t('footer.subtitle').replace('— ', '')}</span>
             </div>
 
             {/* Mandatory Policy Links for Google AdSense Approval */}
@@ -209,35 +211,35 @@ export const App: React.FC = () => {
                 className="hover:text-black dark:hover:text-white transition underline underline-offset-2 flex items-center gap-1 font-semibold text-violet-600 dark:text-violet-400"
               >
                 <Sparkles className="w-3 h-3" />
-                <span>업데이트 로그 ({CURRENT_VERSION})</span>
+                <span>{t('footer.updatelog')} ({CURRENT_VERSION})</span>
               </button>
               <span>•</span>
               <button
                 onClick={() => setActiveTab('privacy')}
                 className="hover:text-black dark:hover:text-white transition underline underline-offset-2"
               >
-                개인정보처리방침
+                  {t('footer.privacy')}
               </button>
               <span>•</span>
               <button
                 onClick={() => setActiveTab('terms')}
                 className="hover:text-black dark:hover:text-white transition underline underline-offset-2"
               >
-                서비스 이용약관
+                  {t('footer.terms')}
               </button>
               <span>•</span>
               <button
                 onClick={() => setActiveTab('about')}
                 className="hover:text-black dark:hover:text-white transition underline underline-offset-2"
               >
-                서비스 소개 및 문의
+                  {t('footer.about')}
               </button>
             </div>
 
             <div className="flex items-center gap-4 text-[11px]">
               <span className="flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                100% 브라우저 로컬 안전 처리
+                {t('footer.safe')}
               </span>
             </div>
           </div>

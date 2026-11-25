@@ -13,6 +13,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { ALL_UPDATE_LOGS, CURRENT_VERSION, UpdateLog } from '../../data/updateLogs';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface UpdateLogModalProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ export const UpdateLogModal: React.FC<UpdateLogModalProps> = ({
   onClose,
   onDismissForever,
 }) => {
+  const { t } = useLanguage();
   const [selectedTag, setSelectedTag] = useState<string>('all');
   const [expandedVersions, setExpandedVersions] = useState<Record<string, boolean>>({
     [CURRENT_VERSION]: true,
@@ -93,14 +95,14 @@ export const UpdateLogModal: React.FC<UpdateLogModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-sm font-bold text-[#37352f] dark:text-white">
-                  AllDesk 업데이트 로그
+                  AllDesk {t('updatelog.title')}
                 </h2>
                 <span className="px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950/80 text-violet-700 dark:text-violet-300 text-[10px] font-bold font-mono border border-violet-200 dark:border-violet-800">
-                  {CURRENT_VERSION} 최신
+                  {CURRENT_VERSION} {t('updatelog.latest')}
                 </span>
               </div>
               <p className="text-[11px] text-[#787774] dark:text-[#999] mt-0.5">
-                올데스크의 새로운 기능 및 모든 업데이트 내역을 확인하세요.
+                {t('updatelog.subtitle')}
               </p>
             </div>
           </div>
@@ -155,7 +157,7 @@ export const UpdateLogModal: React.FC<UpdateLogModalProps> = ({
               <div className="flex items-center gap-2">
                 <History className="w-4 h-4 text-[#787774]" />
                 <h3 className="text-xs font-bold text-[#37352f] dark:text-white uppercase tracking-wider">
-                  모든 업데이트 로그 (전체 {ALL_UPDATE_LOGS.length}개 릴리즈)
+                  {t('updatelog.title')} (All {ALL_UPDATE_LOGS.length} Releases)
                 </h3>
               </div>
 
@@ -164,14 +166,14 @@ export const UpdateLogModal: React.FC<UpdateLogModalProps> = ({
                   onClick={expandAll}
                   className="px-2 py-0.5 rounded hover:bg-[#efefed] dark:hover:bg-[#2c2c2c] transition"
                 >
-                  모두 펼치기
+                  {t('updatelog.expandall')}
                 </button>
                 <span>·</span>
                 <button
                   onClick={collapseAll}
                   className="px-2 py-0.5 rounded hover:bg-[#efefed] dark:hover:bg-[#2c2c2c] transition"
                 >
-                  최신만 보기
+                  {t('updatelog.collapseall')}
                 </button>
               </div>
             </div>
@@ -179,7 +181,7 @@ export const UpdateLogModal: React.FC<UpdateLogModalProps> = ({
             {/* Filter Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 text-[11px]">
               {[
-                { id: 'all', label: `전체 (${ALL_UPDATE_LOGS.length})` },
+                { id: 'all', label: `${t('updatelog.filter.all')} (${ALL_UPDATE_LOGS.length})` },
                 { id: '대규모 업데이트', label: '대규모 업데이트' },
                 { id: '기능 추가', label: '기능 추가' },
                 { id: '디자인 개선', label: '디자인 개선' },
@@ -292,14 +294,14 @@ export const UpdateLogModal: React.FC<UpdateLogModalProps> = ({
               onChange={(e) => setDontShowAgain(e.target.checked)}
               className="rounded accent-violet-600 cursor-pointer"
             />
-            <span>이 버전({CURRENT_VERSION}) 업데이트 안내 다시 보지 않기</span>
+            <span>{t('updatelog.dontshow')} ({CURRENT_VERSION})</span>
           </label>
 
           <button
             onClick={handleConfirmClose}
             className="w-full sm:w-auto px-5 py-2 rounded-xl bg-black dark:bg-white text-white dark:text-black font-bold text-xs flex items-center justify-center gap-1.5 hover:opacity-90 shadow-sm transition"
           >
-            <span>확인 및 AllDesk 시작하기</span>
+            <span>{t('updatelog.confirm')}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>

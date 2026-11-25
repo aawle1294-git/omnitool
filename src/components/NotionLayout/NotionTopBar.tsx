@@ -4,10 +4,11 @@ import {
   Sun, 
   Moon, 
   Zap, 
-  ChevronRight,
-  Sparkles
+  Sparkles,
+  Languages
 } from 'lucide-react';
 import { ActiveTab } from '../../types';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface NotionTopBarProps {
   activeTab: ActiveTab;
@@ -30,20 +31,22 @@ export const NotionTopBar: React.FC<NotionTopBarProps> = ({
   darkMode,
   setDarkMode,
 }) => {
+  const { lang, setLang, t } = useLanguage();
+
   const titles: Record<ActiveTab, { title: string; icon: string }> = {
-    home: { title: '홈 대시보드', icon: '🏠' },
-    installer: { title: '프로그램 설치 마법사', icon: '📦' },
-    editor: { title: '파일 편집소', icon: '✂️' },
-    'editor-image': { title: 'PNG & 사진 편집기', icon: '🖼️' },
-    'editor-pdf': { title: 'PDF 문서 편집기', icon: '📄' },
-    compressor: { title: '파일 용량 압축기', icon: '📉' },
-    converter: { title: '파일 형식 변환기', icon: '🔄' },
-    media: { title: '영상 · 음악 변환기', icon: '🎬' },
-    fun: { title: '재미 도구함', icon: '🐾' },
-    tools: { title: '스마트 생산성 도구함', icon: '🛠️' },
-    privacy: { title: '개인정보처리방침', icon: '🛡️' },
-    terms: { title: '서비스 이용약관', icon: '📜' },
-    about: { title: 'AllDesk 소개', icon: '✨' },
+    home: { title: t('page.home'), icon: '🏠' },
+    installer: { title: t('page.installer'), icon: '📦' },
+    editor: { title: t('page.editor'), icon: '✂️' },
+    'editor-image': { title: t('page.editor-image'), icon: '🖼️' },
+    'editor-pdf': { title: t('page.editor-pdf'), icon: '📄' },
+    compressor: { title: t('page.compressor'), icon: '📉' },
+    converter: { title: t('page.converter'), icon: '🔄' },
+    media: { title: t('page.media'), icon: '🎬' },
+    fun: { title: t('page.fun'), icon: '🐾' },
+    tools: { title: t('page.tools'), icon: '🛠️' },
+    privacy: { title: t('page.privacy'), icon: '🛡️' },
+    terms: { title: t('page.terms'), icon: '📜' },
+    about: { title: t('page.about'), icon: '✨' },
   };
 
   const current = titles[activeTab] || titles['home'];
@@ -77,7 +80,7 @@ export const NotionTopBar: React.FC<NotionTopBarProps> = ({
               className="font-medium hover:text-[#37352f] dark:hover:text-white transition shrink-0 flex items-center gap-1"
             >
               <span>✂️</span>
-              <span>파일 편집소</span>
+              <span>{t('page.editor')}</span>
             </button>
             <span className="text-[#a1a1aa] shrink-0">/</span>
             <span className="font-bold text-[#37352f] dark:text-white flex items-center gap-1 truncate">
@@ -100,11 +103,11 @@ export const NotionTopBar: React.FC<NotionTopBarProps> = ({
           <button
             onClick={onOpenUpdateLog}
             className="shrink-0 whitespace-nowrap flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-violet-50 hover:bg-violet-100 dark:bg-violet-950/40 dark:hover:bg-violet-900/50 text-violet-700 dark:text-violet-300 font-bold text-xs border border-violet-200 dark:border-violet-800/40 transition group shadow-2xs"
-            title="업데이트 로그 및 모든 버전 히스토리 보기"
+            title={t('topbar.update.title')}
           >
             <Sparkles className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400 group-hover:rotate-12 transition-transform" />
             <span>v2.0.0</span>
-            <span className="hidden sm:inline">업데이트</span>
+            <span className="hidden sm:inline">{t('topbar.update')}</span>
             <span className="w-1.5 h-1.5 rounded-full bg-violet-600 animate-pulse" />
           </button>
         )}
@@ -115,15 +118,25 @@ export const NotionTopBar: React.FC<NotionTopBarProps> = ({
           className="shrink-0 whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black dark:bg-white text-white dark:text-black font-semibold text-xs shadow-xs hover:opacity-90 transition"
         >
           <Zap className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">설치 마법사 열기</span>
-          <span className="sm:hidden">마법사</span>
+          <span className="hidden sm:inline">{t('topbar.wizard.full')}</span>
+          <span className="sm:hidden">{t('topbar.wizard.short')}</span>
+        </button>
+
+        {/* Language Toggle KO / EN */}
+        <button
+          onClick={() => setLang(lang === 'ko' ? 'en' : 'ko')}
+          className="flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-[#efefed] dark:hover:bg-[#2c2c2c] text-[#787774] dark:text-[#a0a0a0] font-bold text-[11px] transition border border-transparent hover:border-[#e9e9e7] dark:hover:border-[#333]"
+          title="Switch language / 언어 전환"
+        >
+          <Languages className="w-3.5 h-3.5" />
+          <span>{lang === 'ko' ? 'KO' : 'EN'}</span>
         </button>
 
         {/* Theme Toggle */}
         <button
           onClick={() => setDarkMode(!darkMode)}
           className="p-1.5 rounded-lg hover:bg-[#efefed] dark:hover:bg-[#2c2c2c] text-[#787774] dark:text-[#a0a0a0] transition"
-          title={darkMode ? '라이트 모드로 전환' : '다크 모드로 전환'}
+          title={darkMode ? t('topbar.light.title') : t('topbar.dark.title')}
         >
           {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
         </button>

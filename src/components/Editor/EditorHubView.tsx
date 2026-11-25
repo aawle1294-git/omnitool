@@ -1,26 +1,29 @@
 import React from 'react';
 import { NotionPageHeader } from '../NotionLayout/NotionPageHeader';
-import { ChevronRight, ArrowUpRight, Sparkles, ShieldCheck, Layers, FileText, Image as ImageIcon } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { ActiveTab } from '../../types';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface EditorHubViewProps {
   setActiveTab: (tab: ActiveTab) => void;
 }
 
 export const EditorHubView: React.FC<EditorHubViewProps> = ({ setActiveTab }) => {
+  const { t } = useLanguage();
+
   return (
     <div className="space-y-6 pb-20">
       {/* Notion Parent Page Header */}
       <NotionPageHeader
         icon="✂️"
-        title="파일 편집소"
-        description="사진, PNG 투명 이미지 및 PDF 문서를 안전하게 편집하는 상위 작업실입니다. 작업하실 하위 페이지를 선택하세요."
+        title={t('editorhub.title')}
+        description={t('editorhub.desc')}
         tags={[
-          { label: '노션 하위 페이지 구조' },
-          { label: '✨ 스마트 원클릭 자동 누끼' },
-          { label: '🎨 PDF 그림판 & 주석 쓰기' },
-          { label: 'PNG 투명도 유지 편집' },
-          { label: '100% 브라우저 로컬 처리' },
+          { label: t('editorhub.tag1') },
+          { label: t('editorhub.tag2') },
+          { label: t('editorhub.tag3') },
+          { label: t('editorhub.tag4') },
+          { label: t('editorhub.tag5') },
         ]}
       />
 
@@ -29,9 +32,9 @@ export const EditorHubView: React.FC<EditorHubViewProps> = ({ setActiveTab }) =>
         <span className="text-xl shrink-0">💡</span>
         <div>
           <p className="font-bold text-[#37352f] dark:text-white mb-0.5">
-            독립된 하위 페이지 안내
+            {t('editorhub.callout.title')}
           </p>
-          아래의 하위 페이지를 클릭하면 해당 도구만의 전용 작업 공간으로 이동합니다. 언제든지 상단 경로(Breadcrumb)나 좌측 사이드바를 통해 상위 페이지로 돌아올 수 있습니다.
+          {t('editorhub.callout.desc')}
         </div>
       </div>
 
@@ -39,9 +42,9 @@ export const EditorHubView: React.FC<EditorHubViewProps> = ({ setActiveTab }) =>
       <div className="space-y-3 pt-2">
         <div className="flex items-center justify-between px-1">
           <p className="text-xs font-bold text-[#9b9a97] tracking-wider uppercase flex items-center gap-1.5">
-            <span>📄</span> 하위 페이지 (Sub-pages)
+            <span>📄</span> {t('editorhub.subpages')}
           </p>
-          <span className="text-[11px] text-[#9b9a97]">2개의 하위 페이지</span>
+          <span className="text-[11px] text-[#9b9a97]">{t('editorhub.subpages.count')}</span>
         </div>
 
         {/* Subpage 1: PNG & 사진 편집기 */}
@@ -54,28 +57,28 @@ export const EditorHubView: React.FC<EditorHubViewProps> = ({ setActiveTab }) =>
               🖼️
             </span>
             <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="font-bold text-sm text-[#37352f] dark:text-white group-hover:text-black dark:group-hover:text-white">
-                  PNG & 사진 편집기
+                  {t('editorhub.image.title')}
                 </h3>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 dark:bg-violet-950/60 dark:text-violet-400 font-semibold">
-                  ✨ 자동 누끼 지원
+                  {t('editorhub.image.badge1')}
                 </span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 font-semibold">
-                  PNG 투명도 유지
+                  {t('editorhub.image.badge2')}
                 </span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#f0efe9] text-[#6b6965] dark:bg-[#2a2a2a] dark:text-[#a5a4a0] font-semibold">
-                  하위 페이지
+                  {t('editorhub.image.badge3')}
                 </span>
               </div>
               <p className="text-xs text-[#787774] leading-relaxed">
-                스마트 원클릭 자동 누끼(배경 투명화), 마술봉 누끼 도구, PNG 투명 배경 유지 및 체커보드 확인, 투명 지우개, 비율별 사진 자르기(Crop), 도형·화살표, 텍스트, 모자이크, 실행 취소(Ctrl+Z)
+                {t('editorhub.image.desc')}
               </p>
-              <div className="flex items-center gap-2 text-[11px] text-[#9b9a97] pt-1">
-                <span>• ✨ 원클릭 자동 누끼</span>
-                <span>• 🪄 마술봉 누끼</span>
-                <span>• 무손실 PNG 다운로드</span>
-                <span>• 단축키 실행 취소</span>
+              <div className="flex items-center gap-2 text-[11px] text-[#9b9a97] pt-1 flex-wrap">
+                <span>{t('editorhub.image.feat1')}</span>
+                <span>{t('editorhub.image.feat2')}</span>
+                <span>{t('editorhub.image.feat3')}</span>
+                <span>{t('editorhub.image.feat4')}</span>
               </div>
             </div>
           </div>
@@ -94,28 +97,28 @@ export const EditorHubView: React.FC<EditorHubViewProps> = ({ setActiveTab }) =>
               📄
             </span>
             <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="font-bold text-sm text-[#37352f] dark:text-white group-hover:text-black dark:group-hover:text-white">
-                  PDF 문서 편집기
+                  {t('editorhub.pdf.title')}
                 </h3>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400 font-semibold">
-                  🎨 그림판 & 주석
+                  {t('editorhub.pdf.badge1')}
                 </span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400 font-semibold">
-                  PDF Editor
+                  {t('editorhub.pdf.badge2')}
                 </span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#f0efe9] text-[#6b6965] dark:bg-[#2a2a2a] dark:text-[#a5a4a0] font-semibold">
-                  하위 페이지
+                  {t('editorhub.pdf.badge3')}
                 </span>
               </div>
               <p className="text-xs text-[#787774] leading-relaxed">
-                어느 페이지든 원하는 위치에 펜·형광펜 그리기, 화이트 수정액, 텍스트 주석 메모, 네모·화살표, 모자이크 블러 주석 작성 및 페이지 90도 회전, 삭제, 순서 재배치, 워터마크
+                {t('editorhub.pdf.desc')}
               </p>
-              <div className="flex items-center gap-2 text-[11px] text-[#9b9a97] pt-1">
-                <span>• 🎨 페이지별 그림판 주석</span>
-                <span>• ✍️ 텍스트 메모 & 형광펜</span>
-                <span>• 페이지 회전/순서 이동</span>
-                <span>• 기밀 워터마크 추가</span>
+              <div className="flex items-center gap-2 text-[11px] text-[#9b9a97] pt-1 flex-wrap">
+                <span>{t('editorhub.pdf.feat1')}</span>
+                <span>{t('editorhub.pdf.feat2')}</span>
+                <span>{t('editorhub.pdf.feat3')}</span>
+                <span>{t('editorhub.pdf.feat4')}</span>
               </div>
             </div>
           </div>
