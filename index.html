@@ -17,7 +17,8 @@
       iframe[id*="netlify"],
       iframe[title*="Netlify"],
       iframe[title*="Powered by Netlify"],
-      iframe[src*="netlify"],
+      iframe[src*="app.netlify.com"],
+      iframe[src*="/.netlify/"],
       div[id*="netlify-badge"],
       div[id*="netlify-hud"],
       [data-testid*="netlify-badge"],
@@ -51,7 +52,7 @@
         function removeNetlifyNodes(root) {
           var selectors = [
             '#nl-badge-frame', '#nl-hud-frame', '#netlify-badge-frame',
-            'iframe[src*="netlify"]', 'iframe[title*="Netlify"]',
+            'iframe[src*="app.netlify.com"]', 'iframe[src*="/.netlify/"]', 'iframe[title*="Netlify"]',
             'div[id*="netlify-badge"]', 'div[id*="netlify-hud"]'
           ];
           selectors.forEach(function(sel) {
@@ -71,14 +72,17 @@
               var id = el.id || '';
               var src = el.src || '';
               var title = el.title || '';
-              // Block hud scripts
-              if (el.tagName === 'SCRIPT' && src && (src.indexOf('hud') !== -1 || src.indexOf('netlify-badge') !== -1)) {
+              // Block only Netlify HUD/badge scripts, never site bundle scripts
+              if (el.tagName === 'SCRIPT' && src && (src.indexOf('/.netlify/scripts/hud') !== -1 || src.indexOf('netlify-badge') !== -1)) {
                 el.remove(); return;
               }
               // Block badge/hud iframes and divs
-              if (id.indexOf('nl-') !== -1 || id.indexOf('netlify') !== -1 ||
-                  src.indexOf('netlify') !== -1 ||
-                  title.indexOf('Netlify') !== -1) {
+              if (el.tagName !== 'SCRIPT' && (
+                  id.indexOf('nl-') === 0 ||
+                  id.indexOf('netlify-badge') !== -1 ||
+                  id.indexOf('netlify-hud') !== -1 ||
+                  (el.tagName === 'IFRAME' && (src.indexOf('app.netlify.com') !== -1 || src.indexOf('/.netlify/') !== -1 || title.indexOf('Netlify') !== -1))
+              )) {
                 el.remove(); return;
               }
               // Also check children
