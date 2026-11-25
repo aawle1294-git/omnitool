@@ -15,10 +15,12 @@ import { TermsView } from './components/Legal/TermsView';
 import { AboutView } from './components/Legal/AboutView';
 import { AdBanner } from './components/AdSense/AdBanner';
 import { NotionInstallerWizard } from './components/Installer/NotionInstallerWizard';
+import { UpdateLogModal } from './components/UpdateLog/UpdateLogModal';
+import { CURRENT_VERSION } from './data/updateLogs';
 import { launchNativeInstaller } from './utils/installerBridge';
 import { tabToPath, pathToTab } from './utils/routes';
 import { ActiveTab } from './types';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Sparkles } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTabState] = useState<ActiveTab>(() => {
@@ -79,6 +81,7 @@ export const App: React.FC = () => {
 
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
   const [isWizardModalOpen, setIsWizardModalOpen] = useState<boolean>(false);
+  const [isUpdateLogOpen, setIsUpdateLogOpen] = useState<boolean>(false);
   const [selectedApps, setSelectedApps] = useState<string[]>([
     'chrome',
     'bandizip',
@@ -90,6 +93,18 @@ export const App: React.FC = () => {
     if (saved !== null) return saved === 'true';
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
+
+  // Auto-display update log modal whenever a new version is released!
+  useEffect(() => {
+    try {
+      const viewedVersion = localStorage.getItem('alldesk_viewed_version');
+      if (viewedVersion !== CURRENT_VERSION) {
+        setIsUpdateLogOpen(true);
+      }
+    } catch (e) {
+      console.warn('LocalStorage access skipped:', e);
+    }
+  }, []);
 
   useEffect(() => {
     if (darkMode) {
@@ -119,6 +134,7 @@ export const App: React.FC = () => {
         setDarkMode={setDarkMode}
         selectedAppsCount={selectedApps.length}
         onOpenWizard={handleOpenWizard}
+        onOpenUpdateLog={() => setIsUpdateLogOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -130,6 +146,7 @@ export const App: React.FC = () => {
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           onOpenWizard={handleOpenWizard}
+          onOpenUpdateLog={() => setIsUpdateLogOpen(true)}
           darkMode={darkMode}
           setDarkMode={setDarkMode}
         />
@@ -188,6 +205,14 @@ export const App: React.FC = () => {
             {/* Mandatory Policy Links for Google AdSense Approval */}
             <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] text-[#787774] dark:text-[#a0a0a0]">
               <button
+                onClick={() => setIsUpdateLogOpen(true)}
+                className="hover:text-black dark:hover:text-white transition underline underline-offset-2 flex items-center gap-1 font-semibold text-violet-600 dark:text-violet-400"
+              >
+                <Sparkles className="w-3 h-3" />
+                <span>업데이트 로그 ({CURRENT_VERSION})</span>
+              </button>
+              <span>•</span>
+              <button
                 onClick={() => setActiveTab('privacy')}
                 className="hover:text-black dark:hover:text-white transition underline underline-offset-2"
               >
@@ -232,6 +257,12 @@ export const App: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Global Version Update Log Modal */}
+      <UpdateLogModal
+        isOpen={isUpdateLogOpen}
+        onClose={() => setIsUpdateLogOpen(false)}
+      />
     </div>
   );
 };

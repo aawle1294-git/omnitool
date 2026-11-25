@@ -30,6 +30,7 @@ interface NotionSidebarProps {
   setDarkMode: (val: boolean) => void;
   selectedAppsCount: number;
   onOpenWizard?: () => void;
+  onOpenUpdateLog?: () => void;
 }
 
 export const NotionSidebar: React.FC<NotionSidebarProps> = ({
@@ -41,6 +42,7 @@ export const NotionSidebar: React.FC<NotionSidebarProps> = ({
   setDarkMode,
   selectedAppsCount,
   onOpenWizard,
+  onOpenUpdateLog,
 }) => {
   // Collapsible state for pages with sub-pages
   const [expandedPages, setExpandedPages] = useState<Record<string, boolean>>({
@@ -274,7 +276,16 @@ export const NotionSidebar: React.FC<NotionSidebarProps> = ({
         {/* Bottom Workspace Footer */}
         {isOpen && (
           <div className="p-3 border-t border-[#e9e9e7] dark:border-[#2f2f2f] flex items-center justify-between text-[11px] text-[#787774]">
-            <span className="truncate">AllDesk v1.0.0</span>
+            <button
+              onClick={onOpenUpdateLog}
+              className="flex items-center gap-1.5 hover:text-black dark:hover:text-white transition group py-0.5 px-1.5 rounded hover:bg-[#efefed] dark:hover:bg-[#2c2c2c] text-left"
+              title="업데이트 로그 및 전체 버전 히스토리 보기"
+            >
+              <span className="font-semibold text-[#37352f] dark:text-white">AllDesk v2.0.0</span>
+              <span className="px-1.5 py-0.2 rounded-full bg-violet-600 text-white text-[9px] font-bold">
+                NEW
+              </span>
+            </button>
             <button
               onClick={() => setDarkMode(!darkMode)}
               className="px-2 py-1 rounded hover:bg-[#efefed] dark:hover:bg-[#2c2c2c] transition"

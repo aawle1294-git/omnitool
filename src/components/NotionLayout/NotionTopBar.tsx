@@ -15,6 +15,7 @@ interface NotionTopBarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (val: boolean) => void;
   onOpenWizard: () => void;
+  onOpenUpdateLog?: () => void;
   darkMode: boolean;
   setDarkMode: (val: boolean) => void;
 }
@@ -25,6 +26,7 @@ export const NotionTopBar: React.FC<NotionTopBarProps> = ({
   sidebarOpen,
   setSidebarOpen,
   onOpenWizard,
+  onOpenUpdateLog,
   darkMode,
   setDarkMode,
 }) => {
@@ -93,6 +95,20 @@ export const NotionTopBar: React.FC<NotionTopBarProps> = ({
 
       {/* Right: Actions */}
       <div className="flex items-center gap-2">
+        {/* Update Log Trigger Button */}
+        {onOpenUpdateLog && (
+          <button
+            onClick={onOpenUpdateLog}
+            className="shrink-0 whitespace-nowrap flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-violet-50 hover:bg-violet-100 dark:bg-violet-950/40 dark:hover:bg-violet-900/50 text-violet-700 dark:text-violet-300 font-bold text-xs border border-violet-200 dark:border-violet-800/40 transition group shadow-2xs"
+            title="업데이트 로그 및 모든 버전 히스토리 보기"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400 group-hover:rotate-12 transition-transform" />
+            <span>v2.0.0</span>
+            <span className="hidden sm:inline">업데이트</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-violet-600 animate-pulse" />
+          </button>
+        )}
+
         {/* Quick Launch Wizard pill */}
         <button
           onClick={onOpenWizard}
