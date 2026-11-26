@@ -25,6 +25,7 @@ import { SoftwareApp } from '../../types';
 import { copyToClipboard } from '../../utils/formatters';
 import { saveAs } from 'file-saver';
 import { launchNativeInstaller } from '../../utils/installerBridge';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface NotionInstallerWizardProps {
   isOpen?: boolean;
@@ -41,6 +42,26 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
   selectedApps,
   setSelectedApps,
 }) => {
+  const { lang } = useLanguage();
+  const L = (ko: string, en: string) => (lang === 'en' ? en : ko);
+
+  const getCategoryLabel = (id: string, fallback: string) => {
+    if (lang !== 'en') return fallback;
+    const map: Record<string, string> = {
+      browser: 'Web Browsers',
+      dev: 'Dev & Programming',
+      communication: 'Messaging & Collab',
+      utility: 'Essential Utilities',
+      media: 'Media & Graphics',
+      office: 'Office & Productivity',
+      security: 'Security & Cloud',
+      gaming: 'Gaming & Launchers',
+    };
+    return map[id] || fallback;
+  };
+
+  const getAppName = (app: SoftwareApp) => (lang === 'en' ? app.name : app.nameKo || app.name);
+
   const [currentStep, setCurrentStep] = useState<WizardStep>('welcome');
   const [silentMode, setSilentMode] = useState<boolean>(true);
   const [createDesktopShortcuts, setCreateDesktopShortcuts] = useState<boolean>(true);
@@ -101,20 +122,20 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
       'chcp 65001 > nul',
       'title Notion Style Software Installer',
       'echo =======================================================',
-      'echo   AllDesk 노션 소프트웨어 설치 마법사',
+      `echo   ${L('AllDesk 노션 소프트웨어 설치 마법사', 'AllDesk Notion Software Setup Wizard')}`,
       'echo =======================================================',
       'echo.',
     ];
     selectedAppObjects.forEach((app) => {
       lines.push(
-        `echo [%date% %time%] ${app.nameKo || app.name} 설치 중...`,
+        `echo [%date% %time%] ${getAppName(app)} ${L('설치 중...', 'Installing...')}`,
         `winget install --id "${app.wingetId}" -e ${silentMode ? '--silent ' : ''}--accept-package-agreements --accept-source-agreements`,
         'echo.'
       );
     });
     lines.push(
       'echo =======================================================',
-      'echo   모든 프로그램 설치가 성공적으로 완료되었습니다!',
+      `echo   ${L('모든 프로그램 설치가 성공적으로 완료되었습니다!', 'All selected programs have been installed successfully!')}`,
       'echo =======================================================',
       'pause'
     );
@@ -143,9 +164,12 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
     setIsInstalling(true);
     setInstallProgress(0);
     setLogs([
-      '[시스템] AllDesk 설치 마법사 초기화 완료...',
-      '[시스템] Windows Winget 패키지 매니저 환경 감지됨',
-      `[시스템] 선택된 ${selectedAppObjects.length}개 프로그램 대기열 생성 완료\n`,
+      L('[시스템] AllDesk 설치 마법사 초기화 완료...', '[System] AllDesk Setup Wizard initialized...'),
+      L('[시스템] Windows Winget 패키지 매니저 환경 감지됨', '[System] Windows Winget Package Manager environment detected'),
+      L(
+        `[시스템] 선택된 ${selectedAppObjects.length}개 프로그램 대기열 생성 완료\n`,
+        `[System] Queued ${selectedAppObjects.length} selected program(s)\n`
+      ),
     ]);
 
     let currentIdx = 0;
@@ -159,7 +183,10 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
         setCurrentInstallingApp('');
         setLogs((prev) => [
           ...prev,
-          '\n🎉 [완료] 모든 프로그램의 설치 스크립트 생성이 성공적으로 완료되었습니다!',
+          L(
+            '\n🎉 [완료] 모든 프로그램의 설치 스크립트 생성이 성공적으로 완료되었습니다!',
+            '\n🎉 [Done] Installation script generation for all programs completed successfully!'
+          ),
         ]);
         setTimeout(() => {
           setCurrentStep('complete');
@@ -168,15 +195,15 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
       }
 
       const app = selectedAppObjects[currentIdx];
-      setCurrentInstallingApp(`${app.nameKo || app.name} (${app.wingetId})`);
+      setCurrentInstallingApp(`${getAppName(app)} (${app.wingetId})`);
       const pct = Math.round(((currentIdx + 1) / total) * 100);
       setInstallProgress(pct);
 
       setLogs((prev) => [
         ...prev,
-        `[${currentIdx + 1}/${total}] 준비: ${app.nameKo || app.name} ...`,
+        L(`[${currentIdx + 1}/${total}] 준비: ${getAppName(app)} ...`, `[${currentIdx + 1}/${total}] Preparing: ${getAppName(app)} ...`),
         `>>> winget install --id "${app.wingetId}" -e --accept-package-agreements`,
-        `✔ ${app.nameKo || app.name} 준비 완료`,
+        L(`✔ ${getAppName(app)} 준비 완료`, `✔ ${getAppName(app)} ready`),
       ]);
 
       currentIdx++;
@@ -184,11 +211,11 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
   };
 
   const stepsList: { id: WizardStep; label: string; num: number }[] = [
-    { id: 'welcome', label: '환영 및 안내', num: 1 },
-    { id: 'components', label: '프로그램 선택', num: 2 },
-    { id: 'options', label: '설치 옵션', num: 3 },
-    { id: 'installing', label: '설치 진행', num: 4 },
-    { id: 'complete', label: '설치 완료', num: 5 },
+    { id: 'welcome', label: L('환영 및 안내', 'Welcome & Guide'), num: 1 },
+    { id: 'components', label: L('프로그램 선택', 'Select Apps'), num: 2 },
+    { id: 'options', label: L('설치 옵션', 'Install Options'), num: 3 },
+    { id: 'installing', label: L('설치 진행', 'Installing'), num: 4 },
+    { id: 'complete', label: L('설치 완료', 'Complete'), num: 5 },
   ];
 
   return (
@@ -203,7 +230,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
             <span className="w-3 h-3 rounded-full bg-[#27c93f] inline-block border border-[#1aab29]/40" />
           </div>
           <span className="text-xs font-semibold text-[#37352f] dark:text-[#d3d3d3] flex items-center gap-1.5">
-            <span>📦</span> AllDesk 설치 마법사 (Notion Edition)
+            <span>📦</span> {L('AllDesk 설치 마법사 (Notion Edition)', 'AllDesk Install Wizard (Notion Edition)')}
           </span>
         </div>
 
@@ -277,11 +304,11 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
           {/* Selected count badge in sidebar */}
           <div className="pt-4 border-t border-[#e9e9e7] dark:border-[#2f2f2f] text-[11px] text-[#787774]">
             <p className="flex justify-between">
-              <span>선택된 프로그램:</span>
-              <strong className="text-[#37352f] dark:text-white">{selectedApps.length}개</strong>
+              <span>{L('선택된 프로그램:', 'Selected Apps:')}</span>
+              <strong className="text-[#37352f] dark:text-white">{lang === 'en' ? selectedApps.length : `${selectedApps.length}개`}</strong>
             </p>
             <p className="flex justify-between mt-1">
-              <span>예상 용량:</span>
+              <span>{L('예상 용량:', 'Est. Size:')}</span>
               <strong className="text-[#37352f] dark:text-white">
                 ~{(selectedApps.length * 150).toLocaleString()} MB
               </strong>
@@ -291,9 +318,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
 
         {/* Right Step Content */}
         <div className="flex-1 p-6 flex flex-col justify-between bg-white dark:bg-[#191919]">
-          {/* ============================================================== */}
           {/* STEP 1: WELCOME */}
-          {/* ============================================================== */}
           {currentStep === 'welcome' && (
             <div className="space-y-6">
               <div className="flex items-center gap-4">
@@ -302,10 +327,10 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-[#37352f] dark:text-[#ffffff]">
-                    AllDesk 소프트웨어 설치 마법사
+                    {L('AllDesk 소프트웨어 설치 마법사', 'AllDesk Software Install Wizard')}
                   </h2>
                   <p className="text-xs text-[#787774] mt-1">
-                    노션 스타일의 심플하고 안전한 원클릭 프로그램 무인 인스톨러입니다.
+                    {L('노션 스타일의 심플하고 안전한 원클릭 프로그램 무인 인스톨러입니다.', 'A simple, safe Notion-style one-click unattended app installer.')}
                   </p>
                 </div>
               </div>
@@ -314,9 +339,12 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
               <div className="p-4 rounded-xl bg-[#f7f6f3] dark:bg-[#202020] border border-[#e9e9e7] dark:border-[#2e2e2e] flex items-start gap-3">
                 <span className="text-lg">💡</span>
                 <div className="text-xs text-[#37352f] dark:text-[#d3d3d3] leading-relaxed">
-                  <p className="font-semibold">안전한 공식 패키지 보장</p>
+                  <p className="font-semibold">{L('안전한 공식 패키지 보장', 'Official Verified Packages')}</p>
                   <p className="text-[#787774] mt-0.5">
-                    Microsoft 공식 Windows Package Manager(winget) 저장소를 통해 설치되므로, 악성코드나 애드웨어 걱정 없이 100% 원본 클린 설치를 보장합니다.
+                    {L(
+                      'Microsoft 공식 Windows Package Manager(winget) 저장소를 통해 설치되므로, 악성코드나 애드웨어 걱정 없이 100% 원본 클린 설치를 보장합니다.',
+                      'Installed via the official Microsoft Windows Package Manager (winget) repository, guaranteeing 100% clean original installers without adware.'
+                    )}
                   </p>
                 </div>
               </div>
@@ -325,30 +353,29 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold text-[#787774]">
-                    추천 시작팩 선택 또는 직접 선택:
+                    {L('추천 시작팩 선택 또는 직접 선택:', 'Choose a Starter Pack or Pick Manually:')}
                   </span>
-                  <span className="text-[11px] text-[#999]">(시작팩 없이도 바로 다음 단계로 이동 가능)</span>
+                  <span className="text-[11px] text-[#999]">{L('(시작팩 없이도 바로 다음 단계로 이동 가능)', '(Or skip presets and pick individually)')}</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-                  {/* Custom direct start button */}
                   <button
                     onClick={() => {
-                      setSelectedApps([]); // Start fresh with empty selection
+                      setSelectedApps([]);
                       setCurrentStep('components');
                     }}
                     className="p-3 text-left rounded-xl border-2 border-dashed border-[#dcdad5] dark:border-[#383838] hover:border-black dark:hover:border-white hover:bg-[#faf9f6] dark:hover:bg-[#222] transition group flex flex-col justify-between"
                   >
                     <div>
                       <p className="text-xs font-bold text-[#37352f] dark:text-white flex items-center gap-1.5">
-                        <span>🎯</span> 직접 하나씩 선택
+                        <span>🎯</span> {L('직접 하나씩 선택', 'Pick Manually')}
                       </p>
                       <p className="text-[11px] text-[#787774] mt-1 line-clamp-2">
-                        시작팩 없이 30+개 전체 프로그램 목록에서 직접 골라 담기
+                        {L('시작팩 없이 30+개 전체 프로그램 목록에서 직접 골라 담기', 'Choose directly from 30+ apps without a preset')}
                       </p>
                     </div>
                     <span className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold mt-2 group-hover:underline">
-                      빈 상태로 시작 ➔
+                      {L('빈 상태로 시작 ➔', 'Start Empty ➔')}
                     </span>
                   </button>
 
@@ -361,14 +388,14 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                   >
                     <div>
                       <p className="text-xs font-bold text-[#37352f] dark:text-white flex items-center gap-1.5">
-                        <span>✨</span> 새 PC 필수팩
+                        <span>✨</span> {L('새 PC 필수팩', 'New PC Essentials')}
                       </p>
                       <p className="text-[11px] text-[#787774] mt-1 line-clamp-2">
-                        크롬, 반디집, 카톡, 팟플레이어...
+                        {L('크롬, 반디집, 카톡, 팟플레이어...', 'Chrome, Bandizip, KakaoTalk, PotPlayer...')}
                       </p>
                     </div>
                     <span className="text-[10px] text-[#787774] font-medium mt-2">
-                      추천 4개 자동 담기
+                      {L('추천 4개 자동 담기', 'Auto-select 4 essentials')}
                     </span>
                   </button>
 
@@ -381,14 +408,14 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                   >
                     <div>
                       <p className="text-xs font-bold text-[#37352f] dark:text-white flex items-center gap-1.5">
-                        <span>💻</span> 개발자 스타터팩
+                        <span>💻</span> {L('개발자 스타터팩', 'Developer Starter')}
                       </p>
                       <p className="text-[11px] text-[#787774] mt-1 line-clamp-2">
                         VS Code, Git, Python, Terminal...
                       </p>
                     </div>
                     <span className="text-[10px] text-[#787774] font-medium mt-2">
-                      개발 도구 4개 자동 담기
+                      {L('개발 도구 4개 자동 담기', 'Auto-select 4 dev tools')}
                     </span>
                   </button>
 
@@ -401,14 +428,14 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                   >
                     <div>
                       <p className="text-xs font-bold text-[#37352f] dark:text-white flex items-center gap-1.5">
-                        <span>🎬</span> 미디어 & 유틸팩
+                        <span>🎬</span> {L('미디어 & 유틸팩', 'Media & Utilities')}
                       </p>
                       <p className="text-[11px] text-[#787774] mt-1 line-clamp-2">
-                        팟플레이어, VLC, Everything, ShareX...
+                        {L('팟플레이어, VLC, Everything, ShareX...', 'PotPlayer, VLC, Everything, ShareX...')}
                       </p>
                     </div>
                     <span className="text-[10px] text-[#787774] font-medium mt-2">
-                      유틸리티 4개 자동 담기
+                      {L('유틸리티 4개 자동 담기', 'Auto-select 4 utilities')}
                     </span>
                   </button>
                 </div>
@@ -416,23 +443,25 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
             </div>
           )}
 
-          {/* ============================================================== */}
           {/* STEP 2: COMPONENTS SELECTION */}
-          {/* ============================================================== */}
           {currentStep === 'components' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-bold text-[#37352f] dark:text-white flex items-center gap-2">
-                    <span>설치할 구성 요소 (프로그램) 선택</span>
+                    <span>{L('설치할 구성 요소 (프로그램) 선택', 'Select Components (Programs) to Install')}</span>
                     {selectedApps.length === 0 && (
                       <span className="text-[10px] font-normal px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                        1개 이상 체크 필요
+                        {L('1개 이상 체크 필요', 'Select at least 1')}
                       </span>
                     )}
                   </h3>
                   <p className="text-xs text-[#787774]">
-                    설치하고 싶은 프로그램의 체크박스를 선택하세요. (현재 <strong>{selectedApps.length}개</strong> 선택됨)
+                    {lang === 'en' ? (
+                      <>Check the programs you want to install. (<strong>{selectedApps.length}</strong> selected)</>
+                    ) : (
+                      <>설치하고 싶은 프로그램의 체크박스를 선택하세요. (현재 <strong>{selectedApps.length}개</strong> 선택됨)</>
+                    )}
                   </p>
                 </div>
 
@@ -441,13 +470,13 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                     onClick={selectAll}
                     className="text-xs px-2.5 py-1 rounded-md bg-[#f0f0ee] dark:bg-[#252525] text-[#37352f] dark:text-white hover:bg-[#e4e3e0]"
                   >
-                    전체 선택
+                    {L('전체 선택', 'Select All')}
                   </button>
                   <button
                     onClick={clearAll}
                     className="text-xs px-2.5 py-1 rounded-md bg-[#f0f0ee] dark:bg-[#252525] text-red-500 hover:bg-[#e4e3e0]"
                   >
-                    선택 해제
+                    {L('선택 해제', 'Clear All')}
                   </button>
                 </div>
               </div>
@@ -462,7 +491,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                       : 'bg-[#f7f6f3] dark:bg-[#202020] text-[#787774]'
                   }`}
                 >
-                  전체 ({SOFTWARE_APPS.length})
+                  {L(`전체 (${SOFTWARE_APPS.length})`, `All (${SOFTWARE_APPS.length})`)}
                 </button>
                 {APP_CATEGORIES.map((c) => (
                   <button
@@ -474,7 +503,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                         : 'bg-[#f7f6f3] dark:bg-[#202020] text-[#787774]'
                     }`}
                   >
-                    {c.label}
+                    {getCategoryLabel(c.id, c.label)}
                   </button>
                 ))}
               </div>
@@ -504,7 +533,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                           )}
                         </div>
                         <span className="font-semibold text-[#37352f] dark:text-white truncate">
-                          {app.nameKo || app.name}
+                          {getAppName(app)}
                         </span>
                         <span className="text-[10px] text-[#888] font-mono truncate">({app.wingetId})</span>
                       </div>
@@ -512,7 +541,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                       <div className="flex items-center gap-2 shrink-0 whitespace-nowrap">
                         {app.recommended && (
                           <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-bold shrink-0">
-                            추천
+                            {L('추천', 'Popular')}
                           </span>
                         )}
                         <span className="text-[11px] text-[#787774] shrink-0">
@@ -527,14 +556,18 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
               {/* Step 2 Summary & In-page Next Action */}
               <div className="flex items-center justify-between p-3 rounded-xl bg-[#f7f6f3] dark:bg-[#202020] border border-[#e9e9e7] dark:border-[#2e2e2e]">
                 <div className="text-xs text-[#787774]">
-                  선택된 프로그램: <strong className="text-black dark:text-white font-bold">{selectedApps.length}개</strong>
+                  {lang === 'en' ? (
+                    <>Selected: <strong className="text-black dark:text-white font-bold">{selectedApps.length}</strong></>
+                  ) : (
+                    <>선택된 프로그램: <strong className="text-black dark:text-white font-bold">{selectedApps.length}개</strong></>
+                  )}
                   {selectedApps.length === 0 ? (
                     <span className="text-amber-600 dark:text-amber-400 ml-2 text-[11px] font-semibold">
-                      (원하는 프로그램을 체크해주세요)
+                      {L('(원하는 프로그램을 체크해주세요)', '(Check at least one app)')}
                     </span>
                   ) : (
                     <span className="text-emerald-600 dark:text-emerald-400 ml-2 text-[11px] font-semibold">
-                      ✓ 3단계 이동 준비 완료
+                      {L('✓ 3단계 이동 준비 완료', '✓ Ready for Step 3')}
                     </span>
                   )}
                 </div>
@@ -542,7 +575,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                 <button
                   onClick={() => {
                     if (selectedApps.length === 0) {
-                      alert('목록에서 설치하고 싶은 프로그램을 최소 1개 이상 체크해 주세요!');
+                      alert(L('목록에서 설치하고 싶은 프로그램을 최소 1개 이상 체크해 주세요!', 'Please select at least 1 program from the list!'));
                       return;
                     }
                     setCurrentStep('options');
@@ -553,27 +586,24 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                       : 'bg-black/20 dark:bg-white/20 text-[#787774] dark:text-[#aaa] cursor-pointer'
                   }`}
                 >
-                  <span>3단계 옵션으로 이동</span>
+                  <span>{L('3단계 옵션으로 이동', 'Go to Options')}</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
           )}
 
-          {/* ============================================================== */}
           {/* STEP 3: OPTIONS */}
-          {/* ============================================================== */}
           {currentStep === 'options' && (
             <div className="space-y-5">
               <div>
-                <h3 className="text-base font-bold text-[#37352f] dark:text-white">설치 환경 및 방식 설정</h3>
+                <h3 className="text-base font-bold text-[#37352f] dark:text-white">{L('설치 환경 및 방식 설정', 'Installation Options')}</h3>
                 <p className="text-xs text-[#787774]">
-                  무인 백그라운드 설치 옵션과 스크립트 실행 방식을 지정합니다.
+                  {L('무인 백그라운드 설치 옵션과 스크립트 실행 방식을 지정합니다.', 'Configure silent background installation and script execution options.')}
                 </p>
               </div>
 
               <div className="space-y-3">
-                {/* Silent mode option */}
                 <label className="flex items-start gap-3 p-3.5 rounded-xl border border-[#e9e9e7] dark:border-[#2e2e2e] bg-[#faf9f6] dark:bg-[#202020] cursor-pointer">
                   <input
                     type="checkbox"
@@ -583,32 +613,37 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                   />
                   <div>
                     <p className="text-xs font-bold text-[#37352f] dark:text-white">
-                      무인 자동 설치 모드 (--silent) 권장
+                      {L('무인 자동 설치 모드 (--silent) 권장', 'Unattended Silent Mode (--silent) Recommended')}
                     </p>
                     <p className="text-[11px] text-[#787774] mt-0.5">
-                      설치 마법사 창을 일일이 다음(Next) 누를 필요 없이 백그라운드에서 완전히 자동으로 설치를 완료합니다.
+                      {L(
+                        '설치 마법사 창을 일일이 다음(Next) 누를 필요 없이 백그라운드에서 완전히 자동으로 설치를 완료합니다.',
+                        'Automatically completes installation in the background without clicking Next on every installer.'
+                      )}
                     </p>
                   </div>
                 </label>
 
-                {/* Auto accept agreements */}
                 <div className="flex items-start gap-3 p-3.5 rounded-xl border border-[#e9e9e7] dark:border-[#2e2e2e] bg-[#faf9f6] dark:bg-[#202020]">
                   <ShieldCheck className="w-4 h-4 text-emerald-600 mt-0.5" />
                   <div>
                     <p className="text-xs font-bold text-[#37352f] dark:text-white">
-                      공식 패키지 및 라이선스 자동 승인 포함
+                      {L('공식 패키지 및 라이선스 자동 승인 포함', 'Auto-Accept Official Packages & Licenses')}
                     </p>
                     <p className="text-[11px] text-[#787774] mt-0.5">
-                      <code>--accept-package-agreements --accept-source-agreements</code> 옵션이 기본 활성화되어 중단 없는 설치를 지원합니다.
+                      {lang === 'en' ? (
+                        <><code>--accept-package-agreements --accept-source-agreements</code> are enabled by default for uninterrupted installs.</>
+                      ) : (
+                        <><code>--accept-package-agreements --accept-source-agreements</code> 옵션이 기본 활성화되어 중단 없는 설치를 지원합니다.</>
+                      )}
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Ready summary */}
               <div className="p-4 rounded-xl bg-[#f7f6f3] dark:bg-[#222] border border-[#e9e9e7] dark:border-[#2f2f2f]">
                 <p className="text-xs font-bold text-[#37352f] dark:text-white mb-1.5">
-                  설치 준비 요약:
+                  {L('설치 준비 요약:', 'Install Summary:')}
                 </p>
                 <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
                   {selectedAppObjects.map((a) => (
@@ -616,7 +651,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                       key={a.id}
                       className="px-2 py-0.5 rounded bg-white dark:bg-[#2c2c2c] text-[11px] border border-[#e3e2e0] dark:border-[#3a3a3a] text-[#37352f] dark:text-white"
                     >
-                      {a.nameKo || a.name}
+                      {getAppName(a)}
                     </span>
                   ))}
                 </div>
@@ -624,22 +659,21 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
             </div>
           )}
 
-          {/* ============================================================== */}
-          {/* STEP 4: INSTALLING (LIVE SIMULATION / LOGS) */}
-          {/* ============================================================== */}
+          {/* STEP 4: INSTALLING */}
           {currentStep === 'installing' && (
             <div className="space-y-4">
               <div>
                 <h3 className="text-base font-bold text-[#37352f] dark:text-white flex items-center gap-2">
                   <RefreshCw className={`w-4 h-4 ${isInstalling ? 'animate-spin' : ''}`} />
-                  설치 패키지 준비 및 배포 중...
+                  {L('설치 패키지 준비 및 배포 중...', 'Preparing installation packages...')}
                 </h3>
                 <p className="text-xs text-[#787774] mt-0.5">
-                  {currentInstallingApp ? `현재 처리 중: ${currentInstallingApp}` : '스크립트 생성 중...'}
+                  {currentInstallingApp
+                    ? L(`현재 처리 중: ${currentInstallingApp}`, `Processing: ${currentInstallingApp}`)
+                    : L('스크립트 생성 중...', 'Generating script...')}
                 </p>
               </div>
 
-              {/* Progress bar */}
               <div className="space-y-1.5">
                 <div className="w-full bg-[#efefed] dark:bg-[#2c2c2c] h-3 rounded-full overflow-hidden">
                   <div
@@ -648,12 +682,11 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                   />
                 </div>
                 <div className="flex justify-between text-[11px] text-[#787774]">
-                  <span>진행률</span>
+                  <span>{L('진행률', 'Progress')}</span>
                   <span className="font-bold">{installProgress}%</span>
                 </div>
               </div>
 
-              {/* Real terminal log output */}
               <div className="rounded-xl bg-[#191919] p-3.5 border border-[#333] text-emerald-400 font-mono text-[11px] h-48 overflow-y-auto leading-relaxed shadow-inner">
                 {logs.map((log, idx) => (
                   <div key={idx} className="whitespace-pre-wrap">
@@ -664,9 +697,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
             </div>
           )}
 
-          {/* ============================================================== */}
           {/* STEP 5: COMPLETE */}
-          {/* ============================================================== */}
           {currentStep === 'complete' && (
             <div className="space-y-6 text-center py-4">
               <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto text-2xl shadow-sm">
@@ -675,14 +706,16 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
 
               <div>
                 <h3 className="text-xl font-bold text-[#37352f] dark:text-white">
-                  설치 준비가 성공적으로 완료되었습니다!
+                  {L('설치 준비가 성공적으로 완료되었습니다!', 'Setup Script Ready!')}
                 </h3>
                 <p className="text-xs text-[#787774] mt-1.5 max-w-md mx-auto">
-                  선택하신 {selectedAppObjects.length}개 프로그램에 대한 무인 자동 설치 스크립트가 준비되었습니다.
+                  {L(
+                    `선택하신 ${selectedAppObjects.length}개 프로그램에 대한 무인 자동 설치 스크립트가 준비되었습니다.`,
+                    `Your unattended install script for ${selectedAppObjects.length} selected program(s) is ready.`
+                  )}
                 </p>
               </div>
 
-              {/* Action buttons */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
                 <button
                   onClick={async () => {
@@ -690,7 +723,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                   }}
                   className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-black dark:bg-white text-white dark:text-black text-xs font-bold shadow-md hover:opacity-90 transition"
                 >
-                  <span>⚡ 독립 설치 마법사 창 띄우기</span>
+                  <span>⚡ {L('독립 설치 마법사 창 띄우기', 'Open Native Setup Wizard')}</span>
                 </button>
 
                 <button
@@ -698,32 +731,30 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                   className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-[#e9e9e7] dark:border-[#2f2f2f] hover:bg-[#f7f6f3] dark:hover:bg-[#252525] text-xs font-bold transition"
                 >
                   {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-                  {copied ? 'PowerShell 복사됨!' : 'PowerShell 명령어 복사'}
+                  {copied ? L('PowerShell 복사됨!', 'PowerShell Copied!') : L('PowerShell 명령어 복사', 'Copy PowerShell Command')}
                 </button>
               </div>
 
               <div className="p-3 rounded-lg bg-[#f7f6f3] dark:bg-[#222] text-[11px] text-[#787774] max-w-lg mx-auto">
-                💡 [독립 설치 마법사 창 띄우기]를 클릭하면 바탕화면에 분리된 윈도우 설치 창이 열려 실시간으로 무인 자동 설치가 진행됩니다.
+                {L(
+                  '💡 [독립 설치 마법사 창 띄우기]를 클릭하면 바탕화면에 분리된 윈도우 설치 창이 열려 실시간으로 무인 자동 설치가 진행됩니다.',
+                  '💡 Click [Open Native Setup Wizard] to launch a standalone Windows installer window for real-time unattended setup (requires local server).'
+                )}
               </div>
             </div>
           )}
 
-          {/* ============================================================== */}
-          {/* BOTTOM NAVIGATION ACTIONS (Always visible & compact) */}
-          {/* ============================================================== */}
+          {/* BOTTOM NAVIGATION ACTIONS */}
           <div className="flex items-center justify-between gap-2 pt-3 mt-3 border-t border-[#e9e9e7] dark:border-[#2f2f2f] shrink-0">
-            {/* Left: Compact Step Indicator */}
             <div className="text-[11px] text-[#787774] truncate">
-              {currentStep === 'welcome' && '1 / 5 시작 안내'}
-              {currentStep === 'components' && `2 / 5 선택 (${selectedApps.length}개)`}
-              {currentStep === 'options' && '3 / 5 옵션 설정'}
-              {currentStep === 'installing' && '4 / 5 설치 진행'}
-              {currentStep === 'complete' && '5 / 5 완료'}
+              {currentStep === 'welcome' && L('1 / 5 시작 안내', '1 / 5 Welcome')}
+              {currentStep === 'components' && L(`2 / 5 선택 (${selectedApps.length}개)`, `2 / 5 Select (${selectedApps.length})`)}
+              {currentStep === 'options' && L('3 / 5 옵션 설정', '3 / 5 Options')}
+              {currentStep === 'installing' && L('4 / 5 설치 진행', '4 / 5 Installing')}
+              {currentStep === 'complete' && L('5 / 5 완료', '5 / 5 Complete')}
             </div>
 
-            {/* Right: Actions Group (Never wraps, Back & Next side by side) */}
             <div className="flex items-center gap-1.5 shrink-0">
-              {/* [Back Button] */}
               {currentStep !== 'welcome' && currentStep !== 'installing' && currentStep !== 'complete' && (
                 <button
                   onClick={() => {
@@ -733,27 +764,25 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                   className="shrink-0 whitespace-nowrap flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-[#37352f] dark:text-white bg-[#f0f0ee] dark:bg-[#282828] hover:bg-[#e4e3e0] dark:hover:bg-[#333] rounded-lg transition"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" />
-                  <span>이전</span>
+                  <span>{L('이전', 'Back')}</span>
                 </button>
               )}
 
-              {/* [Next Button: Step 1 -> Step 2] */}
               {currentStep === 'welcome' && (
                 <button
                   onClick={() => setCurrentStep('components')}
                   className="shrink-0 whitespace-nowrap flex items-center gap-1 px-4 py-1.5 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-sm"
                 >
-                  <span>다음 단계</span>
+                  <span>{L('다음 단계', 'Next')}</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               )}
 
-              {/* [Next Button: Step 2 -> Step 3] ALWAYS VISIBLE! */}
               {currentStep === 'components' && (
                 <button
                   onClick={() => {
                     if (selectedApps.length === 0) {
-                      alert('설치할 프로그램을 최소 1개 이상 체크해 주세요!');
+                      alert(L('설치할 프로그램을 최소 1개 이상 체크해 주세요!', 'Please select at least 1 program to install!'));
                       return;
                     }
                     setCurrentStep('options');
@@ -764,23 +793,21 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                       : 'bg-black/20 dark:bg-white/20 text-[#787774] dark:text-[#aaa] border border-[#dcdad5] dark:border-[#383838]'
                   }`}
                 >
-                  <span>다음 단계</span>
+                  <span>{L('다음 단계', 'Next')}</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               )}
 
-              {/* [Start Button: Step 3 -> Step 4] */}
               {currentStep === 'options' && (
                 <button
                   onClick={startInstallation}
                   className="shrink-0 whitespace-nowrap flex items-center gap-1.5 px-4 py-1.5 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-md"
                 >
-                  <span>설치 시작</span>
+                  <span>{L('설치 시작', 'Start Install')}</span>
                   <Sparkles className="w-3.5 h-3.5" />
                 </button>
               )}
 
-              {/* [Finish Button: Step 5] */}
               {currentStep === 'complete' && (
                 <button
                   onClick={() => {
@@ -789,7 +816,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                   }}
                   className="shrink-0 whitespace-nowrap px-4 py-1.5 bg-black dark:bg-white text-white dark:text-black rounded-lg text-xs font-bold hover:opacity-90 transition shadow-sm"
                 >
-                  마침 (Finish)
+                  {L('마침 (Finish)', 'Finish')}
                 </button>
               )}
             </div>

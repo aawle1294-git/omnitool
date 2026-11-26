@@ -19,6 +19,7 @@ import {
   Info
 } from 'lucide-react';
 import { PdfPageItem } from '../../utils/pdfTools';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface PdfAnnotationModalProps {
   isOpen: boolean;
@@ -47,12 +48,15 @@ export const PdfAnnotationModal: React.FC<PdfAnnotationModalProps> = ({
   pageNumber,
   onSaveAnnotation,
 }) => {
+  const { lang } = useLanguage();
+  const L = (ko: string, en: string) => (lang === 'en' ? en : ko);
+
   const [tool, setTool] = useState<PaintTool>('brush');
   const [brushColor, setBrushColor] = useState<string>('#EF4444');
   const [brushSize, setBrushSize] = useState<number>(6);
 
   // Text annotation
-  const [insertText, setInsertText] = useState<string>('주석 메모');
+  const [insertText, setInsertText] = useState<string>(L('주석 메모', 'Annotation Note'));
   const [textSize, setTextSize] = useState<number>(20);
   const [textColor, setTextColor] = useState<string>('#000000');
 
@@ -408,7 +412,7 @@ export const PdfAnnotationModal: React.FC<PdfAnnotationModalProps> = ({
 
   // Clear paint canvas (Reset annotations)
   const handleClearPaint = () => {
-    if (!confirm('이 페이지에 작성한 모든 주석과 낙서를 지우시겠습니까?')) return;
+    if (!confirm(L('이 페이지에 작성한 모든 주석과 낙서를 지우시겠습니까?', 'Clear all annotations and drawings on this page?'))) return;
     const canvas = paintCanvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -450,12 +454,12 @@ export const PdfAnnotationModal: React.FC<PdfAnnotationModalProps> = ({
         <div className="px-5 py-3 border-b border-[#e9e9e7] dark:border-[#2f2f2f] flex items-center justify-between bg-[#faf9f6] dark:bg-[#202020]">
           <div className="flex items-center gap-2">
             <span className="p-1.5 rounded-lg bg-black dark:bg-white text-white dark:text-black text-xs font-bold">
-              PDF {pageNumber}페이지
+              {L(`PDF ${pageNumber}페이지`, `PDF Page ${pageNumber}`)}
             </span>
             <h3 className="font-bold text-xs text-[#37352f] dark:text-white flex items-center gap-1.5">
-              <span>🎨 그림판 & 주석 편집기</span>
+              <span>{L('🎨 그림판 & 주석 편집기', '🎨 Paint & Annotation Editor')}</span>
               <span className="text-[11px] font-normal text-[#787774]">
-                (어느 위치든 텍스트 메모, 자유 필기, 형광펜, 네모 박스 삽입)
+                {L('(어느 위치든 텍스트 메모, 자유 필기, 형광펜, 네모 박스 삽입)', '(Insert text notes, freehand drawing, highlighter, or boxes anywhere)')}
               </span>
             </h3>
           </div>
@@ -466,7 +470,7 @@ export const PdfAnnotationModal: React.FC<PdfAnnotationModalProps> = ({
               <button
                 onClick={handleUndo}
                 disabled={history.length === 0}
-                title="실행 취소 (Ctrl+Z)"
+                title={L('실행 취소 (Ctrl+Z)', 'Undo (Ctrl+Z)')}
                 className="p-1.5 rounded-md bg-white dark:bg-[#2a2a2a] border border-[#e9e9e7] dark:border-[#333] hover:bg-[#efefed] dark:hover:bg-[#333] disabled:opacity-30 disabled:pointer-events-none transition text-[#37352f] dark:text-white"
               >
                 <Undo2 className="w-3.5 h-3.5" />
@@ -474,7 +478,7 @@ export const PdfAnnotationModal: React.FC<PdfAnnotationModalProps> = ({
               <button
                 onClick={handleRedo}
                 disabled={redoStack.length === 0}
-                title="다시 실행 (Ctrl+Y)"
+                title={L('다시 실행 (Ctrl+Y)', 'Redo (Ctrl+Y)')}
                 className="p-1.5 rounded-md bg-white dark:bg-[#2a2a2a] border border-[#e9e9e7] dark:border-[#333] hover:bg-[#efefed] dark:hover:bg-[#333] disabled:opacity-30 disabled:pointer-events-none transition text-[#37352f] dark:text-white"
               >
                 <Redo2 className="w-3.5 h-3.5" />
@@ -486,7 +490,7 @@ export const PdfAnnotationModal: React.FC<PdfAnnotationModalProps> = ({
               className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition flex items-center gap-1"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">주석 초기화</span>
+              <span className="hidden sm:inline">{L('주석 초기화', 'Clear Annotations')}</span>
             </button>
 
             <button
@@ -503,14 +507,14 @@ export const PdfAnnotationModal: React.FC<PdfAnnotationModalProps> = ({
           {/* Tool Selector */}
           <div className="flex items-center gap-1 flex-wrap">
             {[
-              { id: 'brush', label: '펜 그리기', icon: Edit3 },
-              { id: 'highlighter', label: '형광펜', icon: Sparkles },
-              { id: 'whiteout', label: '화이트(가리기)', icon: Square },
-              { id: 'eraser', label: '지우개', icon: Eraser },
-              { id: 'text', label: '텍스트 주석', icon: Type },
-              { id: 'rect', label: '네모 박스', icon: Square },
-              { id: 'arrow', label: '화살표', icon: ArrowUpRight },
-              { id: 'mosaic', label: '모자이크', icon: Grid3X3 },
+              { id: 'brush', label: L('펜 그리기', 'Pen'), icon: Edit3 },
+              { id: 'highlighter', label: L('형광펜', 'Highlighter'), icon: Sparkles },
+              { id: 'whiteout', label: L('화이트(가리기)', 'Whiteout'), icon: Square },
+              { id: 'eraser', label: L('지우개', 'Eraser'), icon: Eraser },
+              { id: 'text', label: L('텍스트 주석', 'Text Note'), icon: Type },
+              { id: 'rect', label: L('네모 박스', 'Rectangle'), icon: Square },
+              { id: 'arrow', label: L('화살표', 'Arrow'), icon: ArrowUpRight },
+              { id: 'mosaic', label: L('모자이크', 'Mosaic'), icon: Grid3X3 },
             ].map((t) => {
               const Icon = t.icon;
               const isActive = tool === t.id;
@@ -548,7 +552,7 @@ export const PdfAnnotationModal: React.FC<PdfAnnotationModalProps> = ({
                     }`}
                   />
                 ))}
-                <label className="w-5 h-5 rounded-full overflow-hidden cursor-pointer relative flex items-center justify-center bg-linear-to-tr from-rose-500 via-amber-400 to-indigo-500" title="직접 색상 선택">
+                <label className="w-5 h-5 rounded-full overflow-hidden cursor-pointer relative flex items-center justify-center bg-linear-to-tr from-rose-500 via-amber-400 to-indigo-500" title={L('직접 색상 선택', 'Custom Color')}>
                   <input
                     type="color"
                     value={brushColor}
@@ -564,7 +568,7 @@ export const PdfAnnotationModal: React.FC<PdfAnnotationModalProps> = ({
 
             {/* Thickness Slider */}
             <div className="flex items-center gap-1.5">
-              <span className="text-[11px] text-[#787774]">두께:</span>
+              <span className="text-[11px] text-[#787774]">{L('두께:', 'Size:')}</span>
               <input
                 type="range"
                 min="2"
@@ -581,16 +585,16 @@ export const PdfAnnotationModal: React.FC<PdfAnnotationModalProps> = ({
         {/* Sub toolbar for Text insertion */}
         {tool === 'text' && (
           <div className="px-5 py-2 bg-amber-50/70 dark:bg-amber-950/20 border-b border-amber-200 dark:border-amber-900/40 flex items-center gap-3 text-xs">
-            <span className="font-bold text-amber-900 dark:text-amber-200">텍스트 입력:</span>
+            <span className="font-bold text-amber-900 dark:text-amber-200">{L('텍스트 입력:', 'Text:')}</span>
             <input
               type="text"
               value={insertText}
               onChange={(e) => setInsertText(e.target.value)}
-              placeholder="PDF에 삽입할 주석 문구..."
+              placeholder={L('PDF에 삽입할 주석 문구...', 'Enter annotation text for PDF...')}
               className="px-3 py-1 text-xs rounded-lg border border-[#e9e9e7] dark:border-[#444] bg-white dark:bg-[#1a1a1a] flex-1 max-w-md"
             />
             <div className="flex items-center gap-1">
-              <span className="text-[11px] text-[#787774]">글자 크기:</span>
+              <span className="text-[11px] text-[#787774]">{L('글자 크기:', 'Font Size:')}</span>
               <input
                 type="range"
                 min="12"
@@ -602,7 +606,7 @@ export const PdfAnnotationModal: React.FC<PdfAnnotationModalProps> = ({
               <span className="font-mono text-[10px]">{textSize}px</span>
             </div>
             <span className="text-[11px] text-[#787774] ml-auto">
-              💡 원하는 위치를 클릭하면 글자가 삽입됩니다.
+              {L('💡 원하는 위치를 클릭하면 글자가 삽입됩니다.', '💡 Click anywhere on the page to insert text.')}
             </span>
           </div>
         )}
@@ -612,7 +616,7 @@ export const PdfAnnotationModal: React.FC<PdfAnnotationModalProps> = ({
           {isLoadingPage ? (
             <div className="py-20 flex flex-col items-center gap-3 text-xs text-[#787774]">
               <div className="w-8 h-8 rounded-full border-2 border-black dark:border-white border-t-transparent animate-spin" />
-              <span>고화질 PDF 페이지 불러오는 중...</span>
+              <span>{L('고화질 PDF 페이지 불러오는 중...', 'Loading high-resolution PDF page...')}</span>
             </div>
           ) : (
             <div className="relative shadow-2xl rounded-lg overflow-hidden bg-white max-w-full">
@@ -644,7 +648,13 @@ export const PdfAnnotationModal: React.FC<PdfAnnotationModalProps> = ({
         <div className="px-5 py-3 border-t border-[#e9e9e7] dark:border-[#2f2f2f] flex items-center justify-between bg-[#faf9f6] dark:bg-[#202020] text-xs">
           <div className="text-[#787774] flex items-center gap-1.5">
             <Info className="w-3.5 h-3.5" />
-            <span>단축키: <strong>Ctrl + Z</strong> (실행 취소) · <strong>Ctrl + Y</strong> (다시 실행) · <strong>ESC</strong> (닫기)</span>
+            <span>
+              {lang === 'en' ? (
+                <>Shortcuts: <strong>Ctrl + Z</strong> (Undo) · <strong>Ctrl + Y</strong> (Redo) · <strong>ESC</strong> (Close)</>
+              ) : (
+                <>단축키: <strong>Ctrl + Z</strong> (실행 취소) · <strong>Ctrl + Y</strong> (다시 실행) · <strong>ESC</strong> (닫기)</>
+              )}
+            </span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -652,14 +662,14 @@ export const PdfAnnotationModal: React.FC<PdfAnnotationModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 rounded-xl bg-white dark:bg-[#2a2a2a] border border-[#e9e9e7] dark:border-[#333] font-semibold text-[#37352f] dark:text-white hover:bg-[#efefed] transition"
             >
-              취소
+              {L('취소', 'Cancel')}
             </button>
             <button
               onClick={handleSaveAndApply}
               className="px-5 py-2 rounded-xl bg-black dark:bg-white text-white dark:text-black font-bold flex items-center gap-2 hover:opacity-90 shadow-sm transition"
             >
               <Check className="w-4 h-4" />
-              <span>주석 저장 및 PDF 페이지에 적용</span>
+              <span>{L('주석 저장 및 PDF 페이지에 적용', 'Save & Apply to PDF Page')}</span>
             </button>
           </div>
         </div>

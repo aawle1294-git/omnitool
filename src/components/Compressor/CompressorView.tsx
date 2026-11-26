@@ -21,6 +21,7 @@ import { formatBytes, calculateSavings } from '../../utils/formatters';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { NotionPageHeader } from '../NotionLayout/NotionPageHeader';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface ImageItem {
   id: string;
@@ -48,6 +49,8 @@ interface PdfItem {
 }
 
 export const CompressorView: React.FC = () => {
+  const { lang } = useLanguage();
+  const L = (ko: string, en: string) => (lang === 'en' ? en : ko);
   const [activeSubTab, setActiveSubTab] = useState<'image' | 'pdf'>('pdf');
 
   // --- Image state ---
@@ -104,7 +107,7 @@ export const CompressorView: React.FC = () => {
       return {
         ...item,
         status: 'error',
-        error: err.message || '압축 중 오류 발생',
+        error: err.message || L('압축 중 오류 발생', 'Error during compression'),
       };
     }
   };
@@ -194,7 +197,7 @@ export const CompressorView: React.FC = () => {
       return {
         ...item,
         status: 'error',
-        error: err.message || '압축 실패',
+        error: err.message || L('압축 실패', 'Compression failed'),
       };
     }
   };
@@ -252,12 +255,12 @@ export const CompressorView: React.FC = () => {
       {/* Notion Page Header */}
       <NotionPageHeader
         icon="📉"
-        title="파일 용량 압축기"
-        description="서버 업로드 없이 브라우저 로컬에서 안전하게 여러 PDF 문서와 이미지(PNG, JPG, WEBP)의 용량을 최대 85% 압축합니다."
+        title={L('파일 용량 압축기', 'File Size Compressor')}
+        description={L('서버 업로드 없이 브라우저 로컬에서 안전하게 여러 PDF 문서와 이미지(PNG, JPG, WEBP)의 용량을 최대 85% 압축합니다.', 'Safely compress multiple PDF documents and images (PNG, JPG, WEBP) by up to 85% locally in your browser without server uploads.')}
         tags={[
-          { label: '다중 PDF 동시 압축 지원' },
-          { label: '다중 이미지 일괄 압축' },
-          { label: '전체 ZIP 다운로드' },
+          { label: L('다중 PDF 동시 압축 지원', 'Batch PDF Compression') },
+          { label: L('다중 이미지 일괄 압축', 'Batch Image Compression') },
+          { label: L('전체 ZIP 다운로드', 'Download All as ZIP') },
         ]}
       />
 
@@ -272,7 +275,7 @@ export const CompressorView: React.FC = () => {
           }`}
         >
           <FileText className="w-3.5 h-3.5 shrink-0" />
-          <span>여러 PDF 일괄 압축 ({pdfItems.length})</span>
+          <span>{L(`여러 PDF 일괄 압축 (${pdfItems.length})`, `Batch PDF Compression (${pdfItems.length})`)}</span>
         </button>
 
         <button
@@ -284,7 +287,7 @@ export const CompressorView: React.FC = () => {
           }`}
         >
           <ImageIcon className="w-3.5 h-3.5 shrink-0" />
-          <span>이미지 압축 (PNG/JPG/WEBP) ({imageItems.length})</span>
+          <span>{L(`이미지 압축 (PNG/JPG/WEBP) (${imageItems.length})`, `Image Compression (PNG/JPG/WEBP) (${imageItems.length})`)}</span>
         </button>
       </div>
 
@@ -298,27 +301,27 @@ export const CompressorView: React.FC = () => {
             <div className="flex items-center justify-between text-xs">
               <span className="font-bold text-[#37352f] dark:text-white flex items-center gap-1.5">
                 <Sliders className="w-3.5 h-3.5" />
-                PDF 압축 강도 프리셋
+                {L('PDF 압축 강도 프리셋', 'PDF Compression Presets')}
               </span>
-              <span className="text-[11px] text-[#787774]">선택한 강도가 등록된 모든 PDF에 일괄 적용됩니다.</span>
+              <span className="text-[11px] text-[#787774]">{L('선택한 강도가 등록된 모든 PDF에 일괄 적용됩니다.', 'The selected preset will be applied to all queued PDFs.')}</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               {[
                 {
                   id: 'low' as CompressionPreset,
-                  title: '🚀 최대 압축 (저화질)',
-                  desc: '이메일 첨부/가벼운 모바일 열람용, 약 60~85% 용량 절감',
+                  title: L('🚀 최대 압축 (저화질)', '🚀 Maximum Compression (Low Quality)'),
+                  desc: L('이메일 첨부/가벼운 모바일 열람용, 약 60~85% 용량 절감', 'For email attachments & mobile viewing, ~60–85% size reduction'),
                 },
                 {
                   id: 'medium' as CompressionPreset,
-                  title: '⚖️ 균형 압축 (추천)',
-                  desc: '선명한 텍스트 가독성을 유지하며 약 40~65% 용량 절감',
+                  title: L('⚖️ 균형 압축 (추천)', '⚖️ Balanced Compression (Recommended)'),
+                  desc: L('선명한 텍스트 가독성을 유지하며 약 40~65% 용량 절감', 'Keeps text sharp and readable, ~40–65% size reduction'),
                 },
                 {
                   id: 'high' as CompressionPreset,
-                  title: '💎 고화질 유지',
-                  desc: '인쇄용 또는 고해상도 그래픽 문서 유지, 가벼운 최적화',
+                  title: L('💎 고화질 유지', '💎 High Quality'),
+                  desc: L('인쇄용 또는 고해상도 그래픽 문서 유지, 가벼운 최적화', 'For printing or high-res graphics, light optimization'),
                 },
               ].map((preset) => (
                 <div
@@ -359,10 +362,10 @@ export const CompressorView: React.FC = () => {
               <UploadCloud className="w-6 h-6" />
             </div>
             <h3 className="text-sm font-bold text-[#37352f] dark:text-white">
-              여러 PDF 파일들을 이곳에 드래그하거나 클릭하여 한 번에 선택하세요
+              {L('여러 PDF 파일들을 이곳에 드래그하거나 클릭하여 한 번에 선택하세요', 'Drag and drop multiple PDF files here or click to select')}
             </h3>
             <p className="text-xs text-[#787774] mt-1">
-              다중 파일 동시 선택 지원 (개수 제한 없음, 100% 브라우저 메모리 내 로컬 처리)
+              {L('다중 파일 동시 선택 지원 (개수 제한 없음, 100% 브라우저 메모리 내 로컬 처리)', 'Supports multiple files (no limit, 100% local in-browser processing)')}
             </p>
           </div>
 
@@ -372,11 +375,11 @@ export const CompressorView: React.FC = () => {
               <div className="flex flex-wrap items-center justify-between gap-3 bg-[#f7f6f3] dark:bg-[#202020] p-3 rounded-xl border border-[#e9e9e7] dark:border-[#2f2f2f] text-xs">
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-[#37352f] dark:text-white">
-                    등록된 PDF 문서: {pdfItems.length}개
+                    {L(`등록된 PDF 문서: ${pdfItems.length}개`, `Queued PDFs: ${pdfItems.length}`)}
                   </span>
                   {pdfItems.some((i) => i.status === 'done') && (
                     <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold">
-                      압축 완료 {pdfItems.filter((i) => i.status === 'done').length}개
+                      {L(`압축 완료 ${pdfItems.filter((i) => i.status === 'done').length}개`, `${pdfItems.filter((i) => i.status === 'done').length} Compressed`)}
                     </span>
                   )}
                 </div>
@@ -386,7 +389,7 @@ export const CompressorView: React.FC = () => {
                     onClick={clearPdfs}
                     className="px-2.5 py-1 text-xs text-[#787774] hover:text-red-500 rounded hover:bg-[#efefed] dark:hover:bg-[#2c2c2c]"
                   >
-                    목록 비우기
+                    {L('목록 비우기', 'Clear All')}
                   </button>
 
                   <button
@@ -395,7 +398,7 @@ export const CompressorView: React.FC = () => {
                     className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-white bg-black dark:bg-white dark:text-black rounded-lg shadow-xs hover:opacity-90 disabled:opacity-50 transition"
                   >
                     <FileCheck className="w-3.5 h-3.5" />
-                    <span>{isProcessingPdfs ? '압축 처리 중...' : '모든 PDF 압축 실행'}</span>
+                    <span>{isProcessingPdfs ? L('압축 처리 중...', 'Compressing...') : L('모든 PDF 압축 실행', 'Compress All PDFs')}</span>
                   </button>
 
                   {pdfItems.some((i) => i.status === 'done') && (
@@ -404,7 +407,7 @@ export const CompressorView: React.FC = () => {
                       className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-[#e9e9e7] dark:border-[#2f2f2f] hover:bg-[#efefed] dark:hover:bg-[#2c2c2c] transition"
                     >
                       <Package className="w-3.5 h-3.5" />
-                      <span>전체 ZIP 다운로드</span>
+                      <span>{L('전체 ZIP 다운로드', 'Download All ZIP')}</span>
                     </button>
                   )}
                 </div>
@@ -431,7 +434,7 @@ export const CompressorView: React.FC = () => {
                             {item.file.name}
                           </p>
                           <div className="flex items-center gap-2 text-[11px] text-[#787774] mt-0.5">
-                            <span>원본: {formatBytes(item.originalSize)}</span>
+                            <span>{L('원본:', 'Original:')} {formatBytes(item.originalSize)}</span>
                             {item.compressedSize !== undefined && (
                               <>
                                 <ArrowRight className="w-3 h-3 text-[#aaa]" />
@@ -460,7 +463,7 @@ export const CompressorView: React.FC = () => {
 
                         {item.status === 'done' && savings && (
                           <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
-                            -{savings.percent}% 절감 ({formatBytes(savings.savedBytes)})
+                            -{savings.percent}% {L('절감', 'saved')} ({formatBytes(savings.savedBytes)})
                           </span>
                         )}
 
@@ -476,7 +479,7 @@ export const CompressorView: React.FC = () => {
                                 saveAs(item.compressedBlob!, `${name}_compressed.pdf`);
                               }}
                               className="p-1.5 rounded-md hover:bg-[#efefed] dark:hover:bg-[#2c2c2c] text-[#37352f] dark:text-white"
-                              title="다운로드"
+                              title={L('다운로드', 'Download')}
                             >
                               <Download className="w-4 h-4" />
                             </button>
@@ -485,7 +488,7 @@ export const CompressorView: React.FC = () => {
                           <button
                             onClick={() => removePdfItem(item.id)}
                             className="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-950 text-[#aaa] hover:text-red-500"
-                            title="제거"
+                            title={L('제거', 'Remove')}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -509,14 +512,14 @@ export const CompressorView: React.FC = () => {
           <div className="p-4 rounded-xl bg-[#f7f6f3] dark:bg-[#202020] border border-[#e9e9e7] dark:border-[#2f2f2f] space-y-4 text-xs">
             <div className="flex items-center gap-1.5 font-bold text-[#37352f] dark:text-white">
               <Sliders className="w-3.5 h-3.5" />
-              <span>이미지 압축 세부 옵션</span>
+              <span>{L('이미지 압축 세부 옵션', 'Image Compression Options')}</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
               {/* Quality slider */}
               <div className="space-y-1.5">
                 <div className="flex justify-between font-medium">
-                  <span className="text-[#787774]">압축 품질</span>
+                  <span className="text-[#787774]">{L('압축 품질', 'Compression Quality')}</span>
                   <span className="font-bold text-[#37352f] dark:text-white">{quality}%</span>
                 </div>
                 <input
@@ -531,32 +534,32 @@ export const CompressorView: React.FC = () => {
 
               {/* Max dimension limit */}
               <div className="space-y-1.5">
-                <label className="font-medium text-[#787774] block">최대 해상도 리사이즈</label>
+                <label className="font-medium text-[#787774] block">{L('최대 해상도 리사이즈', 'Max Resolution Resize')}</label>
                 <select
                   value={maxDimension}
                   onChange={(e) => setMaxDimension(Number(e.target.value))}
                   className="w-full px-2.5 py-1.5 rounded-lg border border-[#e9e9e7] dark:border-[#2f2f2f] bg-white dark:bg-[#191919] text-xs text-[#37352f] dark:text-white"
                 >
-                  <option value={0}>원본 크기 유지 (리사이즈 안함)</option>
-                  <option value={2560}>2K QHD (최대 2560px)</option>
-                  <option value={1920}>Full HD (최대 1920px, 추천)</option>
-                  <option value={1280}>HD (최대 1280px)</option>
-                  <option value={800}>작은 이미지 (최대 800px)</option>
+                  <option value={0}>{L('원본 크기 유지 (리사이즈 안함)', 'Keep Original Size (No Resize)')}</option>
+                  <option value={2560}>{L('2K QHD (최대 2560px)', '2K QHD (Max 2560px)')}</option>
+                  <option value={1920}>{L('Full HD (최대 1920px, 추천)', 'Full HD (Max 1920px, Recommended)')}</option>
+                  <option value={1280}>{L('HD (최대 1280px)', 'HD (Max 1280px)')}</option>
+                  <option value={800}>{L('작은 이미지 (최대 800px)', 'Small Image (Max 800px)')}</option>
                 </select>
               </div>
 
               {/* Output format */}
               <div className="space-y-1.5">
-                <label className="font-medium text-[#787774] block">출력 포맷</label>
+                <label className="font-medium text-[#787774] block">{L('출력 포맷', 'Output Format')}</label>
                 <select
                   value={outputFormat}
                   onChange={(e) => setOutputFormat(e.target.value as any)}
                   className="w-full px-2.5 py-1.5 rounded-lg border border-[#e9e9e7] dark:border-[#2f2f2f] bg-white dark:bg-[#191919] text-xs text-[#37352f] dark:text-white"
                 >
-                  <option value="original">원본 포맷 유지</option>
-                  <option value="image/webp">WebP (차세대 초경량 포맷)</option>
-                  <option value="image/jpeg">JPEG (표준 사진)</option>
-                  <option value="image/png">PNG (무손실 투명도)</option>
+                  <option value="original">{L('원본 포맷 유지', 'Keep Original Format')}</option>
+                  <option value="image/webp">{L('WebP (차세대 초경량 포맷)', 'WebP (Next-gen Ultra-light)')}</option>
+                  <option value="image/jpeg">{L('JPEG (표준 사진)', 'JPEG (Standard Photo)')}</option>
+                  <option value="image/png">{L('PNG (무손실 투명도)', 'PNG (Lossless Transparency)')}</option>
                 </select>
               </div>
             </div>
@@ -584,9 +587,9 @@ export const CompressorView: React.FC = () => {
               <UploadCloud className="w-6 h-6" />
             </div>
             <h3 className="text-sm font-bold text-[#37352f] dark:text-white">
-              이미지 파일들을 이곳에 드래그하거나 클릭하여 선택하세요
+              {L('이미지 파일들을 이곳에 드래그하거나 클릭하여 선택하세요', 'Drag and drop image files here or click to select')}
             </h3>
-            <p className="text-xs text-[#787774] mt-1">PNG, JPG, WEBP 등 다중 파일 일괄 업로드 지원</p>
+            <p className="text-xs text-[#787774] mt-1">{L('PNG, JPG, WEBP 등 다중 파일 일괄 업로드 지원', 'Supports batch upload of PNG, JPG, WEBP, and more')}</p>
           </div>
 
           {/* Actions & Image List */}
@@ -594,7 +597,7 @@ export const CompressorView: React.FC = () => {
             <div className="space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3 bg-[#f7f6f3] dark:bg-[#202020] p-3 rounded-xl border border-[#e9e9e7] dark:border-[#2f2f2f] text-xs">
                 <span className="font-bold text-[#37352f] dark:text-white">
-                  등록된 이미지: {imageItems.length}개
+                  {L(`등록된 이미지: ${imageItems.length}개`, `Queued Images: ${imageItems.length}`)}
                 </span>
 
                 <div className="flex items-center gap-2">
@@ -602,7 +605,7 @@ export const CompressorView: React.FC = () => {
                     onClick={clearImages}
                     className="px-2.5 py-1 text-[#787774] hover:text-red-500 rounded hover:bg-[#efefed]"
                   >
-                    목록 비우기
+                    {L('목록 비우기', 'Clear All')}
                   </button>
 
                   <button
@@ -611,7 +614,7 @@ export const CompressorView: React.FC = () => {
                     className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-white bg-black dark:bg-white dark:text-black rounded-lg shadow-xs hover:opacity-90 disabled:opacity-50 transition"
                   >
                     <Sliders className="w-3.5 h-3.5" />
-                    <span>{isProcessingImages ? '압축 처리 중...' : '전체 압축 실행'}</span>
+                    <span>{isProcessingImages ? L('압축 처리 중...', 'Compressing...') : L('전체 압축 실행', 'Compress All')}</span>
                   </button>
 
                   {imageItems.some((i) => i.status === 'done') && (
@@ -620,7 +623,7 @@ export const CompressorView: React.FC = () => {
                       className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-[#e9e9e7] dark:border-[#2f2f2f] hover:bg-[#efefed]"
                     >
                       <Package className="w-3.5 h-3.5" />
-                      <span>전체 ZIP 다운로드</span>
+                      <span>{L('전체 ZIP 다운로드', 'Download All ZIP')}</span>
                     </button>
                   )}
                 </div>
@@ -665,7 +668,7 @@ export const CompressorView: React.FC = () => {
                       <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
                         {item.status === 'done' && savings && (
                           <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
-                            -{savings.percent}% 절감
+                            -{savings.percent}% {L('절감', 'saved')}
                           </span>
                         )}
 
@@ -678,7 +681,7 @@ export const CompressorView: React.FC = () => {
                                 saveAs(item.compressedBlob!, `${name}_compressed.${ext}`);
                               }}
                               className="p-1.5 rounded-md hover:bg-[#efefed] text-[#37352f] dark:text-white"
-                              title="다운로드"
+                              title={L('다운로드', 'Download')}
                             >
                               <Download className="w-4 h-4" />
                             </button>
@@ -687,7 +690,7 @@ export const CompressorView: React.FC = () => {
                           <button
                             onClick={() => removeImageItem(item.id)}
                             className="p-1.5 rounded-md hover:bg-red-50 text-[#aaa] hover:text-red-500"
-                            title="제거"
+                            title={L('제거', 'Remove')}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

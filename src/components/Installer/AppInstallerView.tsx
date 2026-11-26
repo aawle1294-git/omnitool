@@ -1,28 +1,23 @@
 import React, { useState, useMemo } from 'react';
 import { 
-  DownloadCloud, 
   Search, 
   CheckSquare, 
   Square, 
-  Copy, 
-  Check, 
   ExternalLink, 
   Sparkles, 
-  ShieldCheck, 
   Table, 
   LayoutGrid, 
   AppWindow, 
   Play, 
   CheckCircle2, 
-  HardDrive,
   AlertCircle
 } from 'lucide-react';
 import { SOFTWARE_APPS, APP_CATEGORIES } from '../../data/appsData';
-import { SoftwareApp, Category } from '../../types';
-import { copyToClipboard } from '../../utils/formatters';
+import { Category } from '../../types';
 import { NotionPageHeader } from '../NotionLayout/NotionPageHeader';
 import { NotionInstallerWizard } from './NotionInstallerWizard';
 import { launchNativeInstaller, isLocalServer } from '../../utils/installerBridge';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface AppInstallerViewProps {
   selectedApps: string[];
@@ -33,10 +28,13 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
   selectedApps,
   setSelectedApps,
 }) => {
+  const { lang } = useLanguage();
+  const isEn = lang === 'en';
+  const L = (ko: string, en: string) => (isEn ? en : ko);
+
   const [viewMode, setViewMode] = useState<'wizard' | 'gallery' | 'table'>('wizard');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
-  const [copied, setCopied] = useState(false);
   const [launchedNotice, setLaunchedNotice] = useState(false);
 
   const localMode = isLocalServer();
@@ -64,7 +62,7 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
   };
 
   const handleLaunchNativeWindow = async () => {
-    const success = await launchNativeInstaller();
+    await launchNativeInstaller();
     setLaunchedNotice(true);
     setTimeout(() => setLaunchedNotice(false), 5000);
   };
@@ -74,12 +72,15 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
       {/* Notion Page Header */}
       <NotionPageHeader
         icon="📦"
-        title="소프트웨어 설치 마법사"
-        description="배치 파일(.bat) 없이 독립된 윈도우 설치 마법사 창에서 실시간으로 프로그램을 무인 자동 설치합니다."
+        title={L('소프트웨어 설치 마법사', 'Software Install Wizard')}
+        description={L(
+          '배치 파일(.bat) 없이 독립된 윈도우 설치 마법사 창에서 실시간으로 프로그램을 무인 자동 설치합니다.',
+          'Install programs unattended in real time from a dedicated Windows setup wizard without batch (.bat) files.'
+        )}
         tags={[
-          { label: '실제 윈도우 독립 창 지원' },
-          { label: 'Windows winget 공식 엔진' },
-          { label: '배치파일 불필요' },
+          { label: L('실제 윈도우 독립 창 지원', 'Native Windows Window Support') },
+          { label: L('Windows winget 공식 엔진', 'Official Windows winget Engine') },
+          { label: L('배치파일 불필요', 'No Batch Files Needed') },
         ]}
       />
 
@@ -91,15 +92,21 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
           </div>
           <div className="min-w-0">
             <h3 className="font-bold text-sm text-[#37352f] dark:text-white flex items-center gap-2 flex-wrap">
-              <span>독립 설치 마법사 창 (Native Setup Wizard)</span>
+              <span>{L('독립 설치 마법사 창 (Native Setup Wizard)', 'Native Setup Wizard')}</span>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold shrink-0 whitespace-nowrap">
-                분리 실행
+                {L('분리 실행', 'Standalone')}
               </span>
             </h3>
             <p className="text-xs text-[#787774] dark:text-[#9b9a97] mt-0.5 leading-relaxed">
               {localMode
-                ? '웹 브라우저와 완전히 분리된 실제 윈도우 설치 마법사 창이 바탕화면에 팝업되어, 클릭 한 번으로 모든 프로그램을 직접 설치합니다.'
-                : '이 기능은 로컬 PC에서 실행하기.bat으로 구동할 때만 사용 가능합니다. 아래 웹 마법사 모드로도 winget 명령어를 복사해 직접 설치하실 수 있습니다.'}
+                ? L(
+                    '웹 브라우저와 완전히 분리된 실제 윈도우 설치 마법사 창이 바탕화면에 팝업되어, 클릭 한 번으로 모든 프로그램을 직접 설치합니다.',
+                    'A native Windows setup wizard pops up separately from the browser to install all selected apps in one click.'
+                  )
+                : L(
+                    '이 기능은 로컬 PC에서 실행하기.bat으로 구동할 때만 사용 가능합니다. 아래 웹 마법사 모드로도 winget 명령어를 복사해 직접 설치하실 수 있습니다.',
+                    'Available when running locally via 실행하기.bat. You can also use Web Wizard mode below to copy winget commands and install directly.'
+                  )}
             </p>
           </div>
         </div>
@@ -110,12 +117,12 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
             className="shrink-0 whitespace-nowrap w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-black dark:bg-white text-white dark:text-black font-bold text-xs hover:opacity-90 shadow-md transition"
           >
             <Play className="w-4 h-4 fill-current shrink-0" />
-            <span>독립 설치 마법사 창 띄우기</span>
+            <span>{L('독립 설치 마법사 창 띄우기', 'Open Native Setup Wizard')}</span>
           </button>
         ) : (
           <div className="shrink-0 whitespace-nowrap flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs font-semibold text-amber-800 dark:text-amber-300">
             <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-            <span>로컬 실행 전용</span>
+            <span>{L('로컬 실행 전용', 'Local Mode Only')}</span>
           </div>
         )}
       </div>
@@ -124,7 +131,8 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
         <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 text-xs text-emerald-800 dark:text-emerald-200 flex items-center gap-2 animate-in fade-in">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>
-            <strong>독립 설치 마법사 창이 실행되었습니다!</strong> 작업 표시줄이나 화면에 나타난 설치 마법사 창을 확인해 주세요.
+            <strong>{L('독립 설치 마법사 창이 실행되었습니다!', 'Native Setup Wizard launched!')}</strong>{' '}
+            {L('작업 표시줄이나 화면에 나타난 설치 마법사 창을 확인해 주세요.', 'Please check your taskbar or screen for the setup wizard window.')}
           </span>
         </div>
       )}
@@ -141,7 +149,7 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
             }`}
           >
             <Sparkles className="w-3.5 h-3.5 shrink-0" />
-            <span>웹 마법사 모드 (Web Wizard)</span>
+            <span>{L('웹 마법사 모드 (Web Wizard)', 'Web Wizard')}</span>
           </button>
 
           <button
@@ -153,7 +161,7 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
             }`}
           >
             <LayoutGrid className="w-3.5 h-3.5 shrink-0" />
-            <span>갤러리 뷰</span>
+            <span>{L('갤러리 뷰', 'Gallery View')}</span>
           </button>
 
           <button
@@ -165,22 +173,20 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
             }`}
           >
             <Table className="w-3.5 h-3.5 shrink-0" />
-            <span>데이터베이스 테이블</span>
+            <span>{L('데이터베이스 테이블', 'Database Table')}</span>
           </button>
         </div>
 
         {/* Selected count info */}
         <div className="flex items-center gap-2 shrink-0 whitespace-nowrap self-end sm:self-auto">
-          <span className="text-[#787774]">선택됨:</span>
+          <span className="text-[#787774]">{L('선택됨:', 'Selected:')}</span>
           <span className="font-bold text-black dark:text-white px-2 py-0.5 rounded bg-[#efefed] dark:bg-[#2c2c2c]">
-            {selectedApps.length}개 프로그램
+            {isEn ? `${selectedApps.length} apps` : `${selectedApps.length}개 프로그램`}
           </span>
         </div>
       </div>
 
-      {/* ============================================================== */}
       {/* 1. SETUP WIZARD MODE */}
-      {/* ============================================================== */}
       {viewMode === 'wizard' && (
         <div className="py-2">
           <NotionInstallerWizard
@@ -190,9 +196,7 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
         </div>
       )}
 
-      {/* ============================================================== */}
       {/* 2. GALLERY VIEW */}
-      {/* ============================================================== */}
       {viewMode === 'gallery' && (
         <div className="space-y-5">
           {/* Search & Filter Bar */}
@@ -203,7 +207,7 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="프로그램 검색..."
+                placeholder={L('프로그램 검색...', 'Search apps...')}
                 className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-[#e9e9e7] dark:border-[#2f2f2f] bg-white dark:bg-[#202020] text-xs text-[#37352f] dark:text-white focus:outline-none focus:ring-1 focus:ring-black"
               />
             </div>
@@ -217,7 +221,7 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
                     : 'bg-[#f7f6f3] dark:bg-[#202020] text-[#787774] hover:bg-[#efefed]'
                 }`}
               >
-                전체 ({SOFTWARE_APPS.length})
+                {L(`전체 (${SOFTWARE_APPS.length})`, `All (${SOFTWARE_APPS.length})`)}
               </button>
               {APP_CATEGORIES.map((c) => (
                 <button
@@ -229,7 +233,7 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
                       : 'bg-[#f7f6f3] dark:bg-[#202020] text-[#787774] hover:bg-[#efefed]'
                   }`}
                 >
-                  {c.label}
+                  {isEn ? c.id : c.label}
                 </button>
               ))}
             </div>
@@ -239,6 +243,7 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {filteredApps.map((app) => {
               const isSelected = selectedApps.includes(app.id);
+              const displayName = isEn ? app.name : (app.nameKo || app.name);
 
               return (
                 <div
@@ -257,8 +262,8 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
                           {app.name.charAt(0)}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h4 className="font-bold text-xs text-[#37352f] dark:text-white truncate" title={app.nameKo || app.name}>
-                            {app.nameKo || app.name}
+                          <h4 className="font-bold text-xs text-[#37352f] dark:text-white truncate" title={displayName}>
+                            {displayName}
                           </h4>
                           <p className="text-[10px] text-[#787774] font-mono truncate" title={app.name}>{app.name}</p>
                         </div>
@@ -289,7 +294,7 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
                       onClick={(e) => e.stopPropagation()}
                       className="hover:underline flex items-center gap-0.5 text-[#555] dark:text-[#aaa] shrink-0 whitespace-nowrap"
                     >
-                      홈페이지 <ExternalLink className="w-2.5 h-2.5" />
+                      {L('홈페이지', 'Website')} <ExternalLink className="w-2.5 h-2.5" />
                     </a>
                   </div>
                 </div>
@@ -299,20 +304,18 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
         </div>
       )}
 
-      {/* ============================================================== */}
       {/* 3. TABLE DATABASE VIEW */}
-      {/* ============================================================== */}
       {viewMode === 'table' && (
         <div className="border border-[#e9e9e7] dark:border-[#2f2f2f] rounded-xl overflow-x-auto bg-white dark:bg-[#191919]">
           <table className="w-full text-left text-xs border-collapse min-w-[700px]">
             <thead>
               <tr className="bg-[#f7f6f3] dark:bg-[#202020] border-b border-[#e9e9e7] dark:border-[#2f2f2f] text-[#787774]">
-                <th className="py-2.5 px-3 w-10 whitespace-nowrap">선택</th>
-                <th className="py-2.5 px-3 whitespace-nowrap">이름 (소프트웨어)</th>
-                <th className="py-2.5 px-3 whitespace-nowrap">카테고리</th>
+                <th className="py-2.5 px-3 w-10 whitespace-nowrap">{L('선택', 'Select')}</th>
+                <th className="py-2.5 px-3 whitespace-nowrap">{L('이름 (소프트웨어)', 'Name (Software)')}</th>
+                <th className="py-2.5 px-3 whitespace-nowrap">{L('카테고리', 'Category')}</th>
                 <th className="py-2.5 px-3 font-mono whitespace-nowrap">Winget ID</th>
-                <th className="py-2.5 px-3">설명</th>
-                <th className="py-2.5 px-3 w-20 whitespace-nowrap">링크</th>
+                <th className="py-2.5 px-3">{L('설명', 'Description')}</th>
+                <th className="py-2.5 px-3 w-20 whitespace-nowrap">{L('링크', 'Link')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#f0f0ee] dark:divide-[#282828]">
@@ -336,7 +339,7 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
                       )}
                     </td>
                     <td className="py-2.5 px-3 font-bold text-[#37352f] dark:text-white whitespace-nowrap">
-                      {app.nameKo || app.name}
+                      {isEn ? app.name : (app.nameKo || app.name)}
                     </td>
                     <td className="py-2.5 px-3 whitespace-nowrap">
                       <span className="px-2 py-0.5 rounded bg-[#f0f0ee] dark:bg-[#2c2c2c] text-[11px] whitespace-nowrap">
@@ -356,7 +359,7 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
                         rel="noreferrer"
                         className="text-[#555] dark:text-[#aaa] hover:underline flex items-center gap-1 shrink-0 whitespace-nowrap"
                       >
-                        열기 <ExternalLink className="w-3 h-3" />
+                        {L('열기', 'Open')} <ExternalLink className="w-3 h-3" />
                       </a>
                     </td>
                   </tr>

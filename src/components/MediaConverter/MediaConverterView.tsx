@@ -9,6 +9,7 @@ import {
 import { NotionPageHeader } from '../NotionLayout/NotionPageHeader';
 import { saveAs } from 'file-saver';
 import { isLocalServer } from '../../utils/installerBridge';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 type MediaTab = 'video' | 'audio' | 'url';
 
@@ -57,6 +58,9 @@ const formatBytes = (bytes: number): string => {
 };
 
 export const MediaConverterView: React.FC = () => {
+  const { lang } = useLanguage();
+  const L = (ko: string, en: string) => (lang === 'en' ? en : ko);
+
   const [activeTab, setActiveTab] = useState<MediaTab>('video');
   const [videoJobs, setVideoJobs] = useState<ConvertJob[]>([]);
   const [audioJobs, setAudioJobs] = useState<ConvertJob[]>([]);
@@ -93,7 +97,7 @@ export const MediaConverterView: React.FC = () => {
     if (ffmpegRef.current && ffmpegLoadedRef.current) return ffmpegRef.current;
 
     setIsLoading(true);
-    setLoadingMsg('FFmpeg 엔진 로딩 중... (최초 1회만, 약 20~60초 소요)');
+    setLoadingMsg(L('FFmpeg 엔진 로딩 중... (최초 1회만, 약 20~60초 소요)', 'Loading FFmpeg engine... (First time only, takes ~20–60s)'));
 
     const ffmpeg = new FFmpeg();
     ffmpegRef.current = ffmpeg;
@@ -151,7 +155,7 @@ export const MediaConverterView: React.FC = () => {
     try {
       ffmpeg = await loadFFmpeg();
     } catch (err: any) {
-      alert(`FFmpeg 로드 실패: ${err.message}\n\n네트워크 연결을 확인하세요.`);
+      alert(L(`FFmpeg 로드 실패: ${err.message}\n\n네트워크 연결을 확인하세요.`, `Failed to load FFmpeg: ${err.message}\n\nPlease check your network connection.`));
       return;
     }
 
@@ -254,7 +258,7 @@ export const MediaConverterView: React.FC = () => {
       progress: 5,
       speed: '',
       eta: '',
-      stage: '작업 요청 생성 중...',
+      stage: L('작업 요청 생성 중...', 'Creating download task...'),
       fileName: '',
       fileSize: 0,
     });
@@ -272,7 +276,7 @@ export const MediaConverterView: React.FC = () => {
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || '다운로드 작업을 시작하지 못했습니다.');
+        throw new Error(data.error || L('다운로드 작업을 시작하지 못했습니다.', 'Failed to start download task.'));
       }
 
       const taskId = data.taskId;
@@ -281,7 +285,7 @@ export const MediaConverterView: React.FC = () => {
           ? {
               ...prev,
               id: taskId,
-              stage: '미디어 정보 분석 및 고속 다운로드 시작...',
+              stage: L('미디어 정보 분석 및 고속 다운로드 시작...', 'Analyzing media info & starting high-speed download...'),
               progress: 10,
             }
           : null
@@ -334,7 +338,7 @@ export const MediaConverterView: React.FC = () => {
         stage: '',
         fileName: '',
         fileSize: 0,
-        error: err.message || '다운로드 요청 중 알 수 없는 오류가 발생했습니다.',
+        error: err.message || L('다운로드 요청 중 알 수 없는 오류가 발생했습니다.', 'An unknown error occurred during the download request.'),
       });
     }
   };
@@ -367,13 +371,13 @@ export const MediaConverterView: React.FC = () => {
     <div className="space-y-6 pb-20">
       <NotionPageHeader
         icon="🎬"
-        title="미디어 변환기"
-        description="영상·음악 포맷 변환부터 URL 다이렉트 MP4/MP3 다운로드까지. 모든 처리는 외부 이동 없이 브라우저 내에서 안전하게 완결됩니다."
+        title={L('미디어 변환기', 'Media Converter')}
+        description={L('영상·음악 포맷 변환부터 URL 다이렉트 MP4/MP3 다운로드까지. 모든 처리는 외부 이동 없이 브라우저 내에서 안전하게 완결됩니다.', 'Convert video & audio formats or download MP4/MP3 directly from URLs. Everything runs safely inside your browser without external redirects.')}
         tags={[
-          { label: '영상 변환 (6가지 형식)' },
-          { label: '오디오 변환 (7가지 형식)' },
-          { label: 'URL 다이렉트 다운로드 (외부 이동 X)' },
-          { label: 'YouTube, TikTok, Twitter 등 100+ 사이트' },
+          { label: L('영상 변환 (6가지 형식)', 'Video Conversion (6 formats)') },
+          { label: L('오디오 변환 (7가지 형식)', 'Audio Conversion (7 formats)') },
+          { label: L('URL 다이렉트 다운로드 (외부 이동 X)', 'Direct URL Download (No redirects)') },
+          { label: L('YouTube, TikTok, Twitter 등 100+ 사이트', 'YouTube, TikTok, Twitter & 100+ sites') },
         ]}
       />
 
@@ -388,7 +392,7 @@ export const MediaConverterView: React.FC = () => {
           }`}
         >
           <Film className="w-3.5 h-3.5 shrink-0" />
-          <span>영상 변환기</span>
+          <span>{L('영상 변환기', 'Video Converter')}</span>
         </button>
         <button
           onClick={() => setActiveTab('audio')}
@@ -399,7 +403,7 @@ export const MediaConverterView: React.FC = () => {
           }`}
         >
           <Music className="w-3.5 h-3.5 shrink-0" />
-          <span>오디오 변환기</span>
+          <span>{L('오디오 변환기', 'Audio Converter')}</span>
         </button>
         <button
           onClick={() => setActiveTab('url')}
@@ -410,7 +414,7 @@ export const MediaConverterView: React.FC = () => {
           }`}
         >
           <LinkIcon className="w-3.5 h-3.5 shrink-0" />
-          <span>URL 다운로드</span>
+          <span>{L('URL 다운로드', 'URL Download')}</span>
         </button>
       </div>
 
@@ -422,10 +426,19 @@ export const MediaConverterView: React.FC = () => {
             <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-start gap-3">
               <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <div className="text-xs text-amber-800 dark:text-amber-300 space-y-1">
-                <p className="font-bold">URL 다운로드는 로컬 PC 실행 전용 기능입니다</p>
+                <p className="font-bold">{L('URL 다운로드는 로컬 PC 실행 전용 기능입니다', 'URL Download is available only when running locally on PC')}</p>
                 <p className="text-amber-700 dark:text-amber-400">
-                  이 기능은 PC에서 <strong>실행하기.bat</strong>으로 로컬 서버를 구동할 때만 사용 가능합니다.
-                  영상·오디오 <strong>파일 변환</strong>은 위 탭(영상/오디오 변환기)에서 클라우드 없이 브라우저만으로 사용하실 수 있습니다.
+                  {lang === 'en' ? (
+                    <>
+                      This feature is only available when running the local server via <strong>실행하기.bat</strong> on your PC.
+                      Video &amp; audio <strong>file conversion</strong> works directly in your browser using the tabs above without a cloud server.
+                    </>
+                  ) : (
+                    <>
+                      이 기능은 PC에서 <strong>실행하기.bat</strong>으로 로컬 서버를 구동할 때만 사용 가능합니다.
+                      영상·오디오 <strong>파일 변환</strong>은 위 탭(영상/오디오 변환기)에서 클라우드 없이 브라우저만으로 사용하실 수 있습니다.
+                    </>
+                  )}
                 </p>
               </div>
             </div>
@@ -440,13 +453,13 @@ export const MediaConverterView: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-sm text-[#37352f] dark:text-white flex items-center gap-2">
-                    영상/음악 URL 다이렉트 다운로드
+                    {L('영상/음악 URL 다이렉트 다운로드', 'Direct Video/Audio URL Download')}
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-semibold">
-                      사이트 내 완결 처리
+                      {L('사이트 내 완결 처리', 'Processed In-App')}
                     </span>
                   </h3>
                   <p className="text-xs text-[#787774] mt-0.5">
-                    외부 사이트 이동 없이 브라우저 내에서 직접 고화질 MP4 영상이나 고음질 MP3 음원으로 내려받습니다.
+                    {L('외부 사이트 이동 없이 브라우저 내에서 직접 고화질 MP4 영상이나 고음질 MP3 음원으로 내려받습니다.', 'Download high-quality MP4 videos or MP3 audio directly in your browser without visiting external sites.')}
                   </p>
                 </div>
               </div>
@@ -457,7 +470,7 @@ export const MediaConverterView: React.FC = () => {
                   className="flex items-center gap-1 px-2.5 py-1 text-xs text-[#787774] hover:text-[#37352f] dark:hover:text-white border border-[#e9e9e7] dark:border-[#333] rounded-lg transition"
                 >
                   <RefreshCw className="w-3 h-3" />
-                  <span>초기화</span>
+                  <span>{L('초기화', 'Reset')}</span>
                 </button>
               )}
             </div>
@@ -470,7 +483,7 @@ export const MediaConverterView: React.FC = () => {
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && !isDownloading && handleUrlDownload()}
-                placeholder="https://youtube.com/watch?v=... 또는 TikTok, Twitter(X), Instagram 링크 붙여넣기"
+                placeholder={L('https://youtube.com/watch?v=... 또는 TikTok, Twitter(X), Instagram 링크 붙여넣기', 'Paste https://youtube.com/watch?v=... or TikTok, Twitter(X), Instagram link')}
                 disabled={isDownloading}
                 className="w-full pl-10 pr-10 py-3 text-sm rounded-xl border border-[#e9e9e7] dark:border-[#2f2f2f] bg-[#faf9f6] dark:bg-[#191919] text-[#37352f] dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white disabled:opacity-50"
               />
@@ -487,7 +500,7 @@ export const MediaConverterView: React.FC = () => {
             {/* Options Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#787774]">다운로드 형식</label>
+                <label className="text-xs font-semibold text-[#787774]">{L('다운로드 형식', 'Download Format')}</label>
                 <div className="flex rounded-xl bg-[#f7f6f3] dark:bg-[#282828] p-1 gap-1">
                   <button
                     disabled={isDownloading}
@@ -499,7 +512,7 @@ export const MediaConverterView: React.FC = () => {
                     }`}
                   >
                     <Film className="w-3.5 h-3.5" />
-                    <span>MP4 (영상+음성)</span>
+                    <span>{L('MP4 (영상+음성)', 'MP4 (Video + Audio)')}</span>
                   </button>
                   <button
                     disabled={isDownloading}
@@ -511,23 +524,23 @@ export const MediaConverterView: React.FC = () => {
                     }`}
                   >
                     <Music className="w-3.5 h-3.5" />
-                    <span>MP3 (고음질 음원)</span>
+                    <span>{L('MP3 (고음질 음원)', 'MP3 (High-Quality Audio)')}</span>
                   </button>
                 </div>
               </div>
 
               {urlMode === 'auto' && (
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[#787774]">영상 최대 해상도</label>
+                  <label className="text-xs font-semibold text-[#787774]">{L('영상 최대 해상도', 'Max Video Resolution')}</label>
                   <select
                     value={urlQuality}
                     disabled={isDownloading}
                     onChange={(e) => setUrlQuality(e.target.value as any)}
                     className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-[#e9e9e7] dark:border-[#2f2f2f] bg-[#faf9f6] dark:bg-[#191919] text-[#37352f] dark:text-white h-[38px] focus:outline-none"
                   >
-                    <option value="max">최고화질 (원본 그대로 / 4K·2K)</option>
-                    <option value="1080">1080p (Full HD - 권장)</option>
-                    <option value="720">720p (HD 빠른 다운로드)</option>
+                    <option value="max">{L('최고화질 (원본 그대로 / 4K·2K)', 'Best Quality (Original / 4K·2K)')}</option>
+                    <option value="1080">{L('1080p (Full HD - 권장)', '1080p (Full HD - Recommended)')}</option>
+                    <option value="720">{L('720p (HD 빠른 다운로드)', '720p (HD Fast Download)')}</option>
                     <option value="480">480p</option>
                     <option value="360">360p</option>
                   </select>
@@ -544,12 +557,12 @@ export const MediaConverterView: React.FC = () => {
               {isDownloading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>로컬 엔진 처리 중...</span>
+                  <span>{L('로컬 엔진 처리 중...', 'Processing with local engine...')}</span>
                 </>
               ) : (
                 <>
                   <Download className="w-4 h-4" />
-                  <span>{urlMode === 'audio' ? 'MP3 음원 추출 및 다운로드' : 'MP4 영상 다운로드'}</span>
+                  <span>{urlMode === 'audio' ? L('MP3 음원 추출 및 다운로드', 'Extract & Download MP3') : L('MP4 영상 다운로드', 'Download MP4 Video')}</span>
                 </>
               )}
             </button>
@@ -562,7 +575,7 @@ export const MediaConverterView: React.FC = () => {
                     <Loader2 className="w-4 h-4 text-black dark:text-white animate-spin" />
                     <div>
                       <span className="text-xs font-bold text-[#37352f] dark:text-white">
-                        {downloadTask.status === 'processing' ? '오디오/비디오 인코딩 처리 중...' : '미디어 다운로드 진행 중'}
+                        {downloadTask.status === 'processing' ? L('오디오/비디오 인코딩 처리 중...', 'Encoding audio/video...') : L('미디어 다운로드 진행 중', 'Downloading media')}
                       </span>
                       <p className="text-[11px] text-[#787774] mt-0.5">{downloadTask.stage}</p>
                     </div>
@@ -584,16 +597,16 @@ export const MediaConverterView: React.FC = () => {
                 <div className="flex flex-wrap items-center gap-2 text-[11px] text-[#787774]">
                   {downloadTask.speed && (
                     <span className="px-2 py-0.5 rounded-md bg-white dark:bg-[#282828] border border-[#e9e9e7] dark:border-[#333]">
-                      속도: <b className="text-[#37352f] dark:text-white font-mono">{downloadTask.speed}</b>
+                      {L('속도:', 'Speed:')} <b className="text-[#37352f] dark:text-white font-mono">{downloadTask.speed}</b>
                     </span>
                   )}
                   {downloadTask.eta && (
                     <span className="px-2 py-0.5 rounded-md bg-white dark:bg-[#282828] border border-[#e9e9e7] dark:border-[#333]">
-                      남은 시간: <b className="text-[#37352f] dark:text-white font-mono">{downloadTask.eta}</b>
+                      {L('남은 시간:', 'ETA:')} <b className="text-[#37352f] dark:text-white font-mono">{downloadTask.eta}</b>
                     </span>
                   )}
                   <span className="px-2 py-0.5 rounded-md bg-white dark:bg-[#282828] border border-[#e9e9e7] dark:border-[#333]">
-                    100% 로컬 다이렉트 변환
+                    {L('100% 로컬 다이렉트 변환', '100% Local Direct Conversion')}
                   </span>
                 </div>
               </div>
@@ -608,10 +621,10 @@ export const MediaConverterView: React.FC = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
-                      변환 및 다운로드가 완료되었습니다!
+                      {L('변환 및 다운로드가 완료되었습니다!', 'Conversion & download complete!')}
                     </h4>
                     <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">
-                      브라우저 다운로드 폴더에 자동 저장되었습니다.
+                      {L('브라우저 다운로드 폴더에 자동 저장되었습니다.', 'Automatically saved to your browser downloads folder.')}
                     </p>
                   </div>
                 </div>
@@ -640,13 +653,13 @@ export const MediaConverterView: React.FC = () => {
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition"
                     >
                       <Download className="w-3.5 h-3.5" />
-                      <span>다시 다운로드</span>
+                      <span>{L('다시 다운로드', 'Download Again')}</span>
                     </button>
                     <button
                       onClick={resetUrlDownload}
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-[#f7f6f3] dark:bg-[#282828] text-[#37352f] dark:text-white font-semibold text-xs rounded-lg border border-[#e9e9e7] dark:border-[#333] hover:bg-[#efefed] dark:hover:bg-[#333] transition"
                     >
-                      <span>다른 링크 변환</span>
+                      <span>{L('다른 링크 변환', 'Convert Another Link')}</span>
                     </button>
                   </div>
                 </div>
@@ -660,13 +673,13 @@ export const MediaConverterView: React.FC = () => {
                   <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
                   <div className="space-y-1">
                     <p className="text-sm font-bold text-red-900 dark:text-red-200">
-                      다운로드 처리 중 오류가 발생했습니다
+                      {L('다운로드 처리 중 오류가 발생했습니다', 'An error occurred while processing the download')}
                     </p>
                     <p className="text-xs text-red-700 dark:text-red-300 leading-relaxed font-mono">
                       {downloadTask.error}
                     </p>
                     <p className="text-[11px] text-red-600 dark:text-red-400 mt-1">
-                      * 연령 제한 콘텐츠, 비공개 영상 또는 잘못된 URL인지 확인 후 다시 시도해 주세요.
+                      {L('* 연령 제한 콘텐츠, 비공개 영상 또는 잘못된 URL인지 확인 후 다시 시도해 주세요.', '* Please check if the content is age-restricted, private, or an invalid URL and try again.')}
                     </p>
                   </div>
                 </div>
@@ -677,13 +690,13 @@ export const MediaConverterView: React.FC = () => {
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg transition"
                   >
                     <RefreshCw className="w-3 h-3" />
-                    <span>다시 시도</span>
+                    <span>{L('다시 시도', 'Retry')}</span>
                   </button>
                   <button
                     onClick={resetUrlDownload}
                     className="px-3 py-1.5 bg-white dark:bg-[#282828] border border-red-200 dark:border-red-800 text-red-900 dark:text-red-200 font-semibold text-xs rounded-lg hover:bg-red-50 transition"
                   >
-                    다른 링크 입력
+                    {L('다른 링크 입력', 'Enter Another Link')}
                   </button>
                 </div>
               </div>
@@ -695,10 +708,10 @@ export const MediaConverterView: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Info className="w-4 h-4 text-[#787774] shrink-0" />
-                <h4 className="font-bold text-xs text-[#37352f] dark:text-white">지원 사이트 및 다운로드 안내</h4>
+                <h4 className="font-bold text-xs text-[#37352f] dark:text-white">{L('지원 사이트 및 다운로드 안내', 'Supported Sites & Download Guide')}</h4>
               </div>
               <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
-                100% 로컬 다이렉트 변환
+                {L('100% 로컬 다이렉트 변환', '100% Local Direct Conversion')}
               </span>
             </div>
 
@@ -708,15 +721,15 @@ export const MediaConverterView: React.FC = () => {
                   key={s}
                   className="px-2.5 py-1 bg-white dark:bg-[#282828] border border-[#e9e9e7] dark:border-[#333] rounded-lg text-xs font-medium text-[#37352f] dark:text-[#d3d3d3]"
                 >
-                  {s}
+                  {s === '그 외 100+ 사이트' ? L('그 외 100+ 사이트', '100+ Other Sites') : s}
                 </span>
               ))}
             </div>
 
             <p className="text-[11px] text-[#787774] leading-relaxed">
-              • 외부 제3자 웹사이트나 광고 사이트로 이동하지 않고, 자체 로컬 엔진을 통해 브라우저로 바로 다운로드됩니다.
+              • {L('외부 제3자 웹사이트나 광고 사이트로 이동하지 않고, 자체 로컬 엔진을 통해 브라우저로 바로 다운로드됩니다.', 'Downloads directly to your browser via the built-in local engine without redirecting to third-party or ad sites.')}
               <br />
-              • 각 콘텐츠 제공자의 이용약관을 준수하여 개인적인 소장 및 오프라인 감상 용도로만 사용하시길 권장합니다.
+              • {L('각 콘텐츠 제공자의 이용약관을 준수하여 개인적인 소장 및 오프라인 감상 용도로만 사용하시길 권장합니다.', 'Please respect each content provider’s terms of service and use for personal archiving and offline viewing only.')}
             </p>
           </div>
         </div>
@@ -739,7 +752,7 @@ export const MediaConverterView: React.FC = () => {
             <div className="p-5 bg-white dark:bg-[#1f1f1f] border border-[#e9e9e7] dark:border-[#2f2f2f] rounded-2xl space-y-3">
               <h3 className="font-bold text-sm text-[#37352f] dark:text-white flex items-center gap-2">
                 {activeTab === 'video' ? <Film className="w-4 h-4" /> : <Music className="w-4 h-4" />}
-                출력 형식 선택
+                {L('출력 형식 선택', 'Select Output Format')}
               </h3>
               <div className="grid grid-cols-3 gap-1.5">
                 {(formats as readonly string[]).map((fmt) => (
@@ -759,7 +772,7 @@ export const MediaConverterView: React.FC = () => {
 
               {activeTab === 'video' && outputFmt === 'gif' && (
                 <p className="text-[11px] text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 p-2 rounded-lg">
-                  ⚠️ GIF는 15fps, 480px 너비로 최적화됩니다. 파일 크기가 클 수 있습니다.
+                  {L('⚠️ GIF는 15fps, 480px 너비로 최적화됩니다. 파일 크기가 클 수 있습니다.', '⚠️ GIF is optimized to 15fps, 480px width. Output file size may be large.')}
                 </p>
               )}
             </div>
@@ -776,7 +789,7 @@ export const MediaConverterView: React.FC = () => {
                 ) : (
                   activeTab === 'video' ? <Film className="w-4 h-4" /> : <Music className="w-4 h-4" />
                 )}
-                {activeTab === 'video' ? '영상' : '오디오'} 변환 시작
+                {activeTab === 'video' ? L('영상 변환 시작', 'Start Video Conversion') : L('오디오 변환 시작', 'Start Audio Conversion')}
               </button>
 
               {jobs.some((j) => j.status === 'done') && (
@@ -786,13 +799,13 @@ export const MediaConverterView: React.FC = () => {
                     className="w-full flex items-center justify-center gap-2 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition"
                   >
                     <Download className="w-4 h-4" />
-                    완료 파일 모두 다운로드
+                    {L('완료 파일 모두 다운로드', 'Download All Completed')}
                   </button>
                   <button
                     onClick={clearDone}
                     className="w-full py-2 text-xs text-[#787774] hover:text-[#37352f] dark:hover:text-white transition"
                   >
-                    완료 항목 목록에서 제거
+                    {L('완료 항목 목록에서 제거', 'Clear Completed Items')}
                   </button>
                 </>
               )}
@@ -800,11 +813,11 @@ export const MediaConverterView: React.FC = () => {
 
             {/* Info box */}
             <div className="p-4 bg-[#faf9f6] dark:bg-[#191919] border border-[#e9e9e7] dark:border-[#2f2f2f] rounded-2xl text-[11px] text-[#787774] space-y-1.5">
-              <p className="font-bold text-[#37352f] dark:text-white">⚙️ 처리 방식 안내</p>
-              <p>• FFmpeg WebAssembly 엔진을 사용합니다.</p>
-              <p>• 최초 실행 시 엔진 로딩에 최대 1분 소요됩니다.</p>
-              <p>• 모든 처리는 브라우저 내에서만 이루어집니다.</p>
-              <p>• 대용량 파일(500MB↑)은 시간이 걸릴 수 있습니다.</p>
+              <p className="font-bold text-[#37352f] dark:text-white">{L('⚙️ 처리 방식 안내', '⚙️ How It Works')}</p>
+              <p>• {L('FFmpeg WebAssembly 엔진을 사용합니다.', 'Powered by the FFmpeg WebAssembly engine.')}</p>
+              <p>• {L('최초 실행 시 엔진 로딩에 최대 1분 소요됩니다.', 'First-time engine loading may take up to 1 minute.')}</p>
+              <p>• {L('모든 처리는 브라우저 내에서만 이루어집니다.', 'All processing happens locally inside your browser.')}</p>
+              <p>• {L('대용량 파일(500MB↑)은 시간이 걸릴 수 있습니다.', 'Large files (500MB+) may take longer to process.')}</p>
             </div>
           </div>
 
@@ -835,13 +848,15 @@ export const MediaConverterView: React.FC = () => {
               </div>
               <div>
                 <p className="font-bold text-[#37352f] dark:text-white">
-                  {activeTab === 'video' ? '영상 파일을 드래그 & 드롭하거나 클릭하여 선택' : '오디오 파일을 드래그 & 드롭하거나 클릭하여 선택'}
+                  {activeTab === 'video'
+                    ? L('영상 파일을 드래그 & 드롭하거나 클릭하여 선택', 'Drag & drop video files or click to select')
+                    : L('오디오 파일을 드래그 & 드롭하거나 클릭하여 선택', 'Drag & drop audio files or click to select')}
                 </p>
                 <p className="text-xs text-[#787774] mt-1">
                   {activeTab === 'video'
-                    ? 'MP4, WEBM, AVI, MOV, MKV, GIF 등'
-                    : 'MP3, WAV, OGG, FLAC, AAC, M4A 등'}
-                  {' '}• 여러 파일 동시 선택 가능
+                    ? L('MP4, WEBM, AVI, MOV, MKV, GIF 등', 'MP4, WEBM, AVI, MOV, MKV, GIF, etc.')
+                    : L('MP3, WAV, OGG, FLAC, AAC, M4A 등', 'MP3, WAV, OGG, FLAC, AAC, M4A, etc.')}
+                  {' '}• {L('여러 파일 동시 선택 가능', 'Multiple files supported')}
                 </p>
               </div>
             </div>
@@ -850,8 +865,8 @@ export const MediaConverterView: React.FC = () => {
             {jobs.length > 0 && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs text-[#787774] px-1">
-                  <span>{jobs.length}개 파일</span>
-                  <button onClick={() => setJobs([])} className="hover:text-red-500 transition">전체 삭제</button>
+                  <span>{lang === 'en' ? `${jobs.length} file${jobs.length === 1 ? '' : 's'}` : `${jobs.length}개 파일`}</span>
+                  <button onClick={() => setJobs([])} className="hover:text-red-500 transition">{L('전체 삭제', 'Clear All')}</button>
                 </div>
 
                 <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
@@ -876,7 +891,7 @@ export const MediaConverterView: React.FC = () => {
                               className="flex items-center gap-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-[11px] rounded-lg transition"
                             >
                               <Download className="w-3 h-3" />
-                              저장
+                              {L('저장', 'Save')}
                             </button>
                           )}
                           {job.status !== 'converting' && (
@@ -907,7 +922,7 @@ export const MediaConverterView: React.FC = () => {
                       )}
 
                       {job.status === 'done' && (
-                        <p className="text-[11px] text-emerald-600 mt-1">✓ {job.outputName} 변환 완료</p>
+                        <p className="text-[11px] text-emerald-600 mt-1">✓ {job.outputName} {L('변환 완료', 'Converted')}</p>
                       )}
                     </div>
                   ))}

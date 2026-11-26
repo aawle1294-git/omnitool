@@ -39,6 +39,7 @@ import { saveAs } from 'file-saver';
 import { formatBytes } from '../../utils/formatters';
 
 import { ActiveTab } from '../../types';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 type EditorTab = 'image' | 'pdf';
 
@@ -74,6 +75,8 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
   mode,
   setActiveTab,
 }) => {
+  const { lang } = useLanguage();
+  const L = (ko: string, en: string) => (lang === 'en' ? en : ko);
   const activeTab = mode;
 
   // ==============================================================
@@ -95,7 +98,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
   const [brushSize, setBrushSize] = useState<number>(6);
 
   // Text insertion
-  const [insertText, setInsertText] = useState<string>('올데스크 텍스트');
+  const [insertText, setInsertText] = useState<string>(L('올데스크 텍스트', 'AllDesk Text'));
   const [textColor, setTextColor] = useState<string>('#000000');
   const [textSize, setTextSize] = useState<number>(24);
 
@@ -143,7 +146,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
   const [watermarkText, setWatermarkText] = useState<string>('');
   const [watermarkOpacity, setWatermarkOpacity] = useState<number>(0.25);
   const [headerText, setHeaderText] = useState<string>('');
-  const [footerText, setFooterText] = useState<string>('AllDesk 문서');
+  const [footerText, setFooterText] = useState<string>(L('AllDesk 문서', 'AllDesk Document'));
   const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false);
   const pdfInputRef = useRef<HTMLInputElement>(null);
 
@@ -228,7 +231,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
   // ==============================================================
   const handleImageUpload = (file: File) => {
     if (!file.type.startsWith('image/')) {
-      alert('이미지 파일(PNG, JPG, WEBP, GIF 등)만 업로드할 수 있습니다.');
+      alert(L('이미지 파일(PNG, JPG, WEBP, GIF 등)만 업로드할 수 있습니다.', 'Only image files (PNG, JPG, WEBP, GIF, etc.) can be uploaded.'));
       return;
     }
     setImageFile(file);
@@ -868,7 +871,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
   // Reset image to original state
   const handleResetImage = () => {
     if (!originalImage) return;
-    if (confirm('모든 편집 내용을 취소하고 원본 이미지로 되돌릴까요?')) {
+    if (confirm(L('모든 편집 내용을 취소하고 원본 이미지로 되돌릴까요?', 'Discard all edits and revert to the original image?'))) {
       renderCanvas();
       setHistory([]);
       setRedoStack([]);
@@ -880,7 +883,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
   // ==============================================================
   const handlePdfUpload = async (file: File) => {
     if (file.type !== 'application/pdf' && !file.name.endsWith('.pdf')) {
-      alert('PDF 파일만 업로드할 수 있습니다.');
+      alert(L('PDF 파일만 업로드할 수 있습니다.', 'Only PDF files can be uploaded.'));
       return;
     }
     setPdfFile(file);
@@ -891,7 +894,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
       const res = await loadPdfPagesForEditing(file, (p) => setPdfLoadingProgress(p));
       setPdfPages(res.pages);
     } catch (err: any) {
-      alert(`PDF 파일을 불러오는 중 오류가 발생했습니다: ${err.message}`);
+      alert(L(`PDF 파일을 불러오는 중 오류가 발생했습니다: ${err.message}`, `Error loading PDF file: ${err.message}`));
     } finally {
       setIsLoadingPdf(false);
     }
@@ -911,7 +914,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
 
   const deletePdfPage = (id: string) => {
     if (pdfPages.length <= 1) {
-      alert('최소 1개 이상의 페이지가 남아있어야 합니다.');
+      alert(L('최소 1개 이상의 페이지가 남아있어야 합니다.', 'At least 1 page must remain.'));
       return;
     }
     setPdfPages((prev) => prev.filter((p) => p.id !== id));
@@ -946,7 +949,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
       const baseName = pdfFile.name.replace(/\.pdf$/i, '');
       saveAs(editedBlob, `${baseName}_edited.pdf`);
     } catch (err: any) {
-      alert(`PDF 내보내기 실패: ${err.message}`);
+      alert(L(`PDF 내보내기 실패: ${err.message}`, `Failed to export PDF: ${err.message}`));
     } finally {
       setIsExportingPdf(false);
     }
@@ -983,7 +986,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
           className="inline-flex items-center gap-2 text-xs font-semibold text-[#787774] hover:text-[#37352f] dark:hover:text-white transition group py-1.5 px-3 rounded-lg hover:bg-[#efefed] dark:hover:bg-[#282828] border border-[#e9e9e7] dark:border-[#333] bg-white dark:bg-[#202020] shadow-2xs"
         >
           <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-          <span>상위 페이지 (파일 편집소)</span>
+          <span>{L('상위 페이지 (파일 편집소)', 'Parent Page (File Editor)')}</span>
         </button>
       </div>
 
@@ -992,17 +995,20 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
         <>
           <NotionPageHeader
             icon="🖼️"
-            title="PNG & 사진 편집기"
-            description="스마트 원클릭 자동 누끼(배경 투명화), 마술봉 누끼, PNG 투명 배경 유지 및 투명 지우개, 사진 자르기(Crop), 브러시·형광펜, 도형·화살표, 텍스트 및 모자이크 편집을 100% 브라우저 내에서 안전하게 처리합니다."
+            title={L('PNG & 사진 편집기', 'PNG & Photo Editor')}
+            description={L(
+              '스마트 원클릭 자동 누끼(배경 투명화), 마술봉 누끼, PNG 투명 배경 유지 및 투명 지우개, 사진 자르기(Crop), 브러시·형광펜, 도형·화살표, 텍스트 및 모자이크 편집을 100% 브라우저 내에서 안전하게 처리합니다.',
+              'Safely perform smart one-click auto background removal, magic wand cutout, transparent PNG preservation & eraser, photo cropping, brush/highlighter, shapes/arrows, text, and mosaic blur 100% locally in your browser.'
+            )}
             tags={[
-              { label: '하위 페이지' },
-              { label: '✨ 스마트 원클릭 자동 누끼' },
-              { label: '🪄 마술봉 누끼 제거' },
-              { label: 'PNG 투명도 100% 유지' },
-              { label: '투명 지우개 (알파 채널 누끼)' },
-              { label: '자르기(Crop) 비율 프리셋' },
-              { label: '네모·화살표 도형' },
-              { label: '실행 취소(Ctrl+Z)' },
+              { label: L('하위 페이지', 'Sub-page') },
+              { label: L('✨ 스마트 원클릭 자동 누끼', '✨ Smart One-Click Cutout') },
+              { label: L('🪄 마술봉 누끼 제거', '🪄 Magic Wand Cutout') },
+              { label: L('PNG 투명도 100% 유지', '100% PNG Transparency') },
+              { label: L('투명 지우개 (알파 채널 누끼)', 'Transparent Eraser') },
+              { label: L('자르기(Crop) 비율 프리셋', 'Crop Ratio Presets') },
+              { label: L('네모·화살표 도형', 'Rectangles & Arrows') },
+              { label: L('실행 취소(Ctrl+Z)', 'Undo (Ctrl+Z)') },
             ]}
           />
 
@@ -1032,29 +1038,29 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
               </div>
               <div className="space-y-1">
                 <p className="text-base font-bold text-[#37352f] dark:text-white">
-                  수정하거나 자를 PNG/사진 파일을 여기에 드래그하세요
+                  {L('수정하거나 자를 PNG/사진 파일을 여기에 드래그하세요', 'Drag & drop a PNG or photo here to edit or crop')}
                 </p>
                 <p className="text-xs text-[#787774]">
-                  PNG(투명 배경 지원), JPG, WEBP, GIF, BMP 지원 · 100% 브라우저 내 오프라인 안전 처리
+                  {L('PNG(투명 배경 지원), JPG, WEBP, GIF, BMP 지원 · 100% 브라우저 내 오프라인 안전 처리', 'Supports PNG (transparent), JPG, WEBP, GIF, BMP · 100% safe offline browser processing')}
                 </p>
               </div>
 
               {/* Feature Highlights Pills */}
               <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
                 <span className="px-2.5 py-1 rounded-full bg-white dark:bg-[#252525] border border-[#e9e9e7] dark:border-[#333] text-[11px] font-semibold text-[#37352f] dark:text-[#d4d4d4]">
-                  ✨ PNG 투명도 100% 유지
+                  {L('✨ PNG 투명도 100% 유지', '✨ 100% PNG Transparency')}
                 </span>
                 <span className="px-2.5 py-1 rounded-full bg-white dark:bg-[#252525] border border-[#e9e9e7] dark:border-[#333] text-[11px] font-semibold text-[#37352f] dark:text-[#d4d4d4]">
-                  🧹 투명 지우개 (배경 누끼 제거)
+                  {L('🧹 투명 지우개 (배경 누끼 제거)', '🧹 Transparent Eraser')}
                 </span>
                 <span className="px-2.5 py-1 rounded-full bg-white dark:bg-[#252525] border border-[#e9e9e7] dark:border-[#333] text-[11px] font-semibold text-[#37352f] dark:text-[#d4d4d4]">
-                  ⬛ 사각형/화살표 강조
+                  {L('⬛ 사각형/화살표 강조', '⬛ Rectangles & Arrows')}
                 </span>
                 <span className="px-2.5 py-1 rounded-full bg-white dark:bg-[#252525] border border-[#e9e9e7] dark:border-[#333] text-[11px] font-semibold text-[#37352f] dark:text-[#d4d4d4]">
-                  🔲 모자이크 블러
+                  {L('🔲 모자이크 블러', '🔲 Mosaic Blur')}
                 </span>
                 <span className="px-2.5 py-1 rounded-full bg-white dark:bg-[#252525] border border-[#e9e9e7] dark:border-[#333] text-[11px] font-semibold text-[#37352f] dark:text-[#d4d4d4]">
-                  ↩️ 실행 취소(Ctrl+Z)
+                  {L('↩️ 실행 취소(Ctrl+Z)', '↩️ Undo (Ctrl+Z)')}
                 </span>
               </div>
             </div>
@@ -1067,7 +1073,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                 <div className="p-3.5 rounded-xl bg-white dark:bg-[#1f1f1f] border border-[#e9e9e7] dark:border-[#2f2f2f] flex items-center justify-between text-xs">
                   <div className="truncate pr-2">
                     <p className="font-bold text-[#37352f] dark:text-white truncate">
-                      {imageFile?.name || '이미지'}
+                      {imageFile?.name || L('이미지', 'Image')}
                     </p>
                     <p className="text-[11px] text-[#787774] font-mono mt-0.5">
                       {imageDimensions.width} × {imageDimensions.height} px · {imageFile ? formatBytes(imageFile.size) : ''}
@@ -1080,7 +1086,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                     }}
                     className="shrink-0 px-2 py-1 rounded text-[11px] text-[#787774] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition"
                   >
-                    닫기
+                    {L('닫기', 'Close')}
                   </button>
                 </div>
 
@@ -1089,14 +1095,14 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-violet-900 dark:text-violet-200 flex items-center gap-1.5">
                       <Wand2 className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" />
-                      스마트 원클릭 자동 누끼
+                      {L('스마트 원클릭 자동 누끼', 'Smart One-Click Cutout')}
                     </span>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950 text-violet-700 dark:text-violet-300 font-semibold font-mono">
-                      100% 로컬
+                      {L('100% 로컬', '100% Local')}
                     </span>
                   </div>
                   <p className="text-[11px] text-[#787774] dark:text-[#a0a0a0] leading-relaxed">
-                    사진 테두리의 배경색을 자동으로 분석하여 원클릭으로 투명 배경(PNG)을 만듭니다.
+                    {L('사진 테두리의 배경색을 자동으로 분석하여 원클릭으로 투명 배경(PNG)을 만듭니다.', 'Automatically analyzes border colors to create a transparent background (PNG) in one click.')}
                   </p>
                   <button
                     disabled={isAutoCutoutProcessing}
@@ -1104,13 +1110,13 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                     className="w-full py-2 px-3 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition disabled:opacity-50"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>{isAutoCutoutProcessing ? '배경 분리 분석 중...' : '✨ 원클릭 자동 누끼 따기'}</span>
+                    <span>{isAutoCutoutProcessing ? L('배경 분리 분석 중...', 'Removing background...') : L('✨ 원클릭 자동 누끼 따기', '✨ One-Click Remove Background')}</span>
                   </button>
 
                   <div className="pt-0.5 space-y-1">
                     <div className="flex justify-between text-[10px] text-[#787774]">
-                      <span>누끼 감도 (오차 범위): {cutoutTolerance}</span>
-                      <span className="font-mono">{cutoutTolerance < 25 ? '정밀' : cutoutTolerance > 50 ? '넓게' : '표준'}</span>
+                      <span>{L(`누끼 감도 (오차 범위): ${cutoutTolerance}`, `Tolerance: ${cutoutTolerance}`)}</span>
+                      <span className="font-mono">{cutoutTolerance < 25 ? L('정밀', 'Precise') : cutoutTolerance > 50 ? L('넓게', 'Wide') : L('표준', 'Standard')}</span>
                     </div>
                     <input
                       type="range"
@@ -1128,7 +1134,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-[#37352f] dark:text-white flex items-center gap-1.5">
                       <Sliders className="w-3.5 h-3.5" />
-                      편집 도구
+                      {L('편집 도구', 'Editing Tools')}
                     </span>
 
                     {/* Undo / Redo Buttons */}
@@ -1136,7 +1142,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                       <button
                         onClick={handleUndo}
                         disabled={history.length === 0}
-                        title="실행 취소 (Ctrl+Z)"
+                        title={L('실행 취소 (Ctrl+Z)', 'Undo (Ctrl+Z)')}
                         className="p-1.5 rounded-md bg-white dark:bg-[#282828] border border-[#e9e9e7] dark:border-[#333] hover:bg-[#efefed] dark:hover:bg-[#333] disabled:opacity-30 disabled:pointer-events-none transition text-[#37352f] dark:text-white"
                       >
                         <Undo2 className="w-3.5 h-3.5" />
@@ -1144,7 +1150,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                       <button
                         onClick={handleRedo}
                         disabled={redoStack.length === 0}
-                        title="다시 실행 (Ctrl+Y)"
+                        title={L('다시 실행 (Ctrl+Y)', 'Redo (Ctrl+Y)')}
                         className="p-1.5 rounded-md bg-white dark:bg-[#282828] border border-[#e9e9e7] dark:border-[#333] hover:bg-[#efefed] dark:hover:bg-[#333] disabled:opacity-30 disabled:pointer-events-none transition text-[#37352f] dark:text-white"
                       >
                         <Redo2 className="w-3.5 h-3.5" />
@@ -1166,7 +1172,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                       }`}
                     >
                       <Edit3 className="w-3.5 h-3.5" />
-                      <span className="text-[10px]">펜 그리기</span>
+                      <span className="text-[10px]">{L('펜 그리기', 'Pen')}</span>
                     </button>
 
                     {/* Highlighter */}
@@ -1182,7 +1188,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                       }`}
                     >
                       <Sparkles className="w-3.5 h-3.5" />
-                      <span className="text-[10px]">형광펜</span>
+                      <span className="text-[10px]">{L('형광펜', 'Highlighter')}</span>
                     </button>
 
                     {/* Eraser (Transparent Eraser) */}
@@ -1198,7 +1204,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                       }`}
                     >
                       <Eraser className="w-3.5 h-3.5" />
-                      <span className="text-[10px]">투명 지우개</span>
+                      <span className="text-[10px]">{L('투명 지우개', 'Alpha Eraser')}</span>
                     </button>
 
                     {/* Magic Wand Cutout */}
@@ -1214,7 +1220,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                       }`}
                     >
                       <Wand2 className="w-3.5 h-3.5" />
-                      <span className="text-[10px]">🪄 마술봉 누끼</span>
+                      <span className="text-[10px]">{L('🪄 마술봉 누끼', '🪄 Magic Wand')}</span>
                     </button>
 
                     {/* Crop */}
@@ -1230,7 +1236,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                       }`}
                     >
                       <Crop className="w-3.5 h-3.5" />
-                      <span className="text-[10px]">자르기</span>
+                      <span className="text-[10px]">{L('자르기', 'Crop')}</span>
                     </button>
 
                     {/* Rectangle Box */}
@@ -1246,7 +1252,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                       }`}
                     >
                       <Square className="w-3.5 h-3.5" />
-                      <span className="text-[10px]">네모 박스</span>
+                      <span className="text-[10px]">{L('네모 박스', 'Rectangle')}</span>
                     </button>
 
                     {/* Arrow */}
@@ -1262,7 +1268,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                       }`}
                     >
                       <ArrowUpRight className="w-3.5 h-3.5" />
-                      <span className="text-[10px]">화살표</span>
+                      <span className="text-[10px]">{L('화살표', 'Arrow')}</span>
                     </button>
 
                     {/* Mosaic / Blur */}
@@ -1278,7 +1284,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                       }`}
                     >
                       <Grid3X3 className="w-3.5 h-3.5" />
-                      <span className="text-[10px]">모자이크</span>
+                      <span className="text-[10px]">{L('모자이크', 'Mosaic')}</span>
                     </button>
 
                     {/* Text */}
@@ -1294,7 +1300,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                       }`}
                     >
                       <Type className="w-3.5 h-3.5" />
-                      <span className="text-[10px]">텍스트</span>
+                      <span className="text-[10px]">{L('텍스트', 'Text')}</span>
                     </button>
                   </div>
                 </div>
@@ -1306,14 +1312,14 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                   <div className="p-4 rounded-xl bg-white dark:bg-[#1f1f1f] border border-violet-200 dark:border-violet-900/40 space-y-3">
                     <span className="text-xs font-bold text-violet-900 dark:text-violet-200 flex items-center gap-1.5">
                       <Wand2 className="w-3.5 h-3.5 text-violet-600" />
-                      마술봉 누끼 도구 활성화
+                      {L('마술봉 누끼 도구 활성화', 'Magic Wand Cutout Active')}
                     </span>
                     <p className="text-[11px] text-[#787774] leading-relaxed">
-                      지우고 싶은 배경 위치를 클릭하면, 연결된 동일한 색상 영역을 즉시 투명하게 제거합니다.
+                      {L('지우고 싶은 배경 위치를 클릭하면, 연결된 동일한 색상 영역을 즉시 투명하게 제거합니다.', 'Click any background area to instantly make connected matching colors transparent.')}
                     </p>
                     <div className="space-y-1">
                       <div className="flex justify-between text-[11px] text-[#787774]">
-                        <span>선택 감도 (오차 허용)</span>
+                        <span>{L('선택 감도 (오차 허용)', 'Selection Tolerance')}</span>
                         <span className="font-mono font-bold text-[#37352f] dark:text-white">{cutoutTolerance}</span>
                       </div>
                       <input
@@ -1331,7 +1337,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                 {/* 1. Crop Ratio Submenu */}
                 {tool === 'crop' && (
                   <div className="p-4 rounded-xl bg-white dark:bg-[#1f1f1f] border border-[#e9e9e7] dark:border-[#2f2f2f] space-y-3">
-                    <span className="text-xs font-bold text-[#37352f] dark:text-white">자르기 비율 프리셋</span>
+                    <span className="text-xs font-bold text-[#37352f] dark:text-white">{L('자르기 비율 프리셋', 'Crop Aspect Ratio')}</span>
                     <div className="grid grid-cols-3 gap-1.5 text-xs">
                       {(['free', '1:1', '4:3', '16:9', '3:4', '9:16'] as CropRatio[]).map((r) => (
                         <button
@@ -1343,7 +1349,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                               : 'bg-[#f7f6f3] dark:bg-[#282828] text-[#787774] hover:text-black dark:hover:text-white'
                           }`}
                         >
-                          {r === 'free' ? '자유' : r}
+                          {r === 'free' ? L('자유', 'Free') : r}
                         </button>
                       ))}
                     </div>
@@ -1352,7 +1358,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                       className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-xs"
                     >
                       <Check className="w-3.5 h-3.5" />
-                      <span>선택 영역 자르기 적용 (투명도 유지)</span>
+                      <span>{L('선택 영역 자르기 적용 (투명도 유지)', 'Apply Crop (Preserve Transparency)')}</span>
                     </button>
                   </div>
                 )}
@@ -1362,7 +1368,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                   <div className="p-4 rounded-xl bg-white dark:bg-[#1f1f1f] border border-[#e9e9e7] dark:border-[#2f2f2f] space-y-3.5">
                     {tool !== 'eraser' && tool !== 'mosaic' && (
                       <div className="space-y-2">
-                        <span className="text-xs font-bold text-[#37352f] dark:text-white">도구 색상</span>
+                        <span className="text-xs font-bold text-[#37352f] dark:text-white">{L('도구 색상', 'Tool Color')}</span>
                         <div className="flex items-center gap-1.5 flex-wrap">
                           {['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899', '#000000', '#FFFFFF'].map((c) => (
                             <button
@@ -1374,7 +1380,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                               }`}
                             />
                           ))}
-                          <label className="w-6 h-6 rounded-full border border-[#e9e9e7] dark:border-[#444] overflow-hidden cursor-pointer relative flex items-center justify-center bg-linear-to-tr from-rose-500 via-amber-400 to-indigo-500" title="직접 색상 선택">
+                          <label className="w-6 h-6 rounded-full border border-[#e9e9e7] dark:border-[#444] overflow-hidden cursor-pointer relative flex items-center justify-center bg-linear-to-tr from-rose-500 via-amber-400 to-indigo-500" title={L('직접 색상 선택', 'Custom Color')}>
                             <input
                               type="color"
                               value={brushColor}
@@ -1389,7 +1395,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                     {/* Thickness / Size Slider */}
                     <div className="space-y-1.5">
                       <div className="flex justify-between text-[11px] text-[#787774]">
-                        <span>{tool === 'eraser' ? '지우개 크기' : tool === 'mosaic' ? '모자이크 범위' : '선 두께'}</span>
+                        <span>{tool === 'eraser' ? L('지우개 크기', 'Eraser Size') : tool === 'mosaic' ? L('모자이크 범위', 'Mosaic Range') : L('선 두께', 'Stroke Width')}</span>
                         <span className="font-mono font-bold text-[#37352f] dark:text-white">{brushSize}px</span>
                       </div>
                       <input
@@ -1402,10 +1408,10 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                       />
                       <div className="flex gap-1.5 pt-1">
                         {[
-                          { label: '얇게', size: 3 },
-                          { label: '보통', size: 8 },
-                          { label: '굵게', size: 18 },
-                          { label: '아주 굵게', size: 32 }
+                          { label: L('얇게', 'Thin'), size: 3 },
+                          { label: L('보통', 'Medium'), size: 8 },
+                          { label: L('굵게', 'Thick'), size: 18 },
+                          { label: L('아주 굵게', 'Extra'), size: 32 }
                         ].map((s) => (
                           <button
                             key={s.label}
@@ -1424,13 +1430,21 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
 
                     {tool === 'eraser' && (
                       <p className="text-[11px] text-[#787774] leading-relaxed bg-[#f7f6f3] dark:bg-[#282828] p-2.5 rounded-lg">
-                        💡 <strong>투명 지우개</strong>: 픽셀을 투명하게 지워 배경을 투명(누끼)으로 만듭니다. PNG 저장 시 투명도가 유지됩니다.
+                        {lang === 'en' ? (
+                          <>💡 <strong>Alpha Eraser</strong>: Erases pixels to transparency for clean cutouts. Transparency is preserved when saving as PNG.</>
+                        ) : (
+                          <>💡 <strong>투명 지우개</strong>: 픽셀을 투명하게 지워 배경을 투명(누끼)으로 만듭니다. PNG 저장 시 투명도가 유지됩니다.</>
+                        )}
                       </p>
                     )}
 
                     {tool === 'mosaic' && (
                       <p className="text-[11px] text-[#787774] leading-relaxed bg-[#f7f6f3] dark:bg-[#282828] p-2.5 rounded-lg">
-                        💡 <strong>모자이크</strong>: 마우스로 문지르거나 클릭하면 개인정보, 얼굴, 계좌번호를 블러 처리합니다.
+                        {lang === 'en' ? (
+                          <>💡 <strong>Mosaic</strong>: Drag or click to pixelate sensitive info, faces, or account numbers.</>
+                        ) : (
+                          <>💡 <strong>모자이크</strong>: 마우스로 문지르거나 클릭하면 개인정보, 얼굴, 계좌번호를 블러 처리합니다.</>
+                        )}
                       </p>
                     )}
                   </div>
@@ -1439,16 +1453,16 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                 {/* 3. Text Settings */}
                 {tool === 'text' && (
                   <div className="p-4 rounded-xl bg-white dark:bg-[#1f1f1f] border border-[#e9e9e7] dark:border-[#2f2f2f] space-y-3">
-                    <span className="text-xs font-bold text-[#37352f] dark:text-white">텍스트 입력</span>
+                    <span className="text-xs font-bold text-[#37352f] dark:text-white">{L('텍스트 입력', 'Text Input')}</span>
                     <input
                       type="text"
                       value={insertText}
                       onChange={(e) => setInsertText(e.target.value)}
-                      placeholder="삽입할 글씨 입력..."
+                      placeholder={L('삽입할 글씨 입력...', 'Enter text to insert...')}
                       className="w-full px-3 py-1.5 text-xs rounded-lg border border-[#e9e9e7] dark:border-[#333] bg-[#faf9f6] dark:bg-[#1b1b1b] text-[#37352f] dark:text-white"
                     />
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-[11px] text-[#787774]">글자 크기: {textSize}px</span>
+                      <span className="text-[11px] text-[#787774]">{L(`글자 크기: ${textSize}px`, `Font Size: ${textSize}px`)}</span>
                       <input
                         type="range"
                         min="12"
@@ -1459,7 +1473,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                       />
                     </div>
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-[11px] text-[#787774]">글자 색상:</span>
+                      <span className="text-[11px] text-[#787774]">{L('글자 색상:', 'Text Color:')}</span>
                       <input
                         type="color"
                         value={textColor}
@@ -1468,7 +1482,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                       />
                     </div>
                     <p className="text-[11px] text-[#787774] bg-[#f7f6f3] dark:bg-[#282828] p-2.5 rounded-lg">
-                      💡 사진에서 글씨를 넣고 싶은 위치를 클릭하세요.
+                      {L('💡 사진에서 글씨를 넣고 싶은 위치를 클릭하세요.', '💡 Click anywhere on the image to place text.')}
                     </p>
                   </div>
                 )}
@@ -1478,7 +1492,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-[#37352f] dark:text-white flex items-center gap-1.5">
                       <Eye className="w-3.5 h-3.5" />
-                      배경 표시 (투명 PNG 확인)
+                      {L('배경 표시 (투명 PNG 확인)', 'Background Preview (PNG)')}
                     </span>
                   </div>
                   <div className="grid grid-cols-3 gap-1.5 text-xs">
@@ -1490,7 +1504,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                           : 'bg-[#f7f6f3] dark:bg-[#282828] text-[#787774]'
                       }`}
                     >
-                      🏁 체커보드 (투명)
+                      {L('🏁 체커보드 (투명)', '🏁 Checkerboard')}
                     </button>
                     <button
                       onClick={() => setBgMode('white')}
@@ -1500,7 +1514,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                           : 'bg-[#f7f6f3] dark:bg-[#282828] text-[#787774]'
                       }`}
                     >
-                      ⚪ 흰색 배경
+                      {L('⚪ 흰색 배경', '⚪ White')}
                     </button>
                     <button
                       onClick={() => setBgMode('dark')}
@@ -1510,61 +1524,61 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                           : 'bg-[#f7f6f3] dark:bg-[#282828] text-[#787774]'
                       }`}
                     >
-                      ⚫ 다크 배경
+                      {L('⚫ 다크 배경', '⚫ Dark')}
                     </button>
                   </div>
                 </div>
 
                 {/* Rotation & Flip */}
                 <div className="p-3.5 rounded-xl bg-white dark:bg-[#1f1f1f] border border-[#e9e9e7] dark:border-[#2f2f2f] space-y-2.5">
-                  <span className="text-xs font-bold text-[#37352f] dark:text-white">회전 및 반전</span>
+                  <span className="text-xs font-bold text-[#37352f] dark:text-white">{L('회전 및 반전', 'Rotate & Flip')}</span>
                   <div className="grid grid-cols-4 gap-1.5 text-xs">
                     <button
                       onClick={() => setRotation((r) => (r - 90 + 360) % 360)}
                       className="py-1.5 rounded-lg bg-[#f7f6f3] dark:bg-[#282828] hover:bg-[#efefed] flex flex-col items-center gap-1 text-[#37352f] dark:text-white"
-                      title="좌로 90도 회전"
+                      title={L('좌로 90도 회전', 'Rotate Left 90°')}
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
-                      <span className="text-[10px]">좌 90°</span>
+                      <span className="text-[10px]">{L('좌 90°', 'Left 90°')}</span>
                     </button>
                     <button
                       onClick={() => setRotation((r) => (r + 90) % 360)}
                       className="py-1.5 rounded-lg bg-[#f7f6f3] dark:bg-[#282828] hover:bg-[#efefed] flex flex-col items-center gap-1 text-[#37352f] dark:text-white"
-                      title="우로 90도 회전"
+                      title={L('우로 90도 회전', 'Rotate Right 90°')}
                     >
                       <RotateCw className="w-3.5 h-3.5" />
-                      <span className="text-[10px]">우 90°</span>
+                      <span className="text-[10px]">{L('우 90°', 'Right 90°')}</span>
                     </button>
                     <button
                       onClick={() => setFlipH((f) => !f)}
                       className={`py-1.5 rounded-lg flex flex-col items-center gap-1 transition ${
                         flipH ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-[#f7f6f3] dark:bg-[#282828] text-[#37352f] dark:text-white'
                       }`}
-                      title="좌우 반전"
+                      title={L('좌우 반전', 'Flip Horizontal')}
                     >
                       <FlipHorizontal className="w-3.5 h-3.5" />
-                      <span className="text-[10px]">좌우반전</span>
+                      <span className="text-[10px]">{L('좌우반전', 'Flip H')}</span>
                     </button>
                     <button
                       onClick={() => setFlipV((f) => !f)}
                       className={`py-1.5 rounded-lg flex flex-col items-center gap-1 transition ${
                         flipV ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-[#f7f6f3] dark:bg-[#282828] text-[#37352f] dark:text-white'
                       }`}
-                      title="상하 반전"
+                      title={L('상하 반전', 'Flip Vertical')}
                     >
                       <FlipVertical className="w-3.5 h-3.5" />
-                      <span className="text-[10px]">상하반전</span>
+                      <span className="text-[10px]">{L('상하반전', 'Flip V')}</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Filters */}
                 <div className="p-3.5 rounded-xl bg-white dark:bg-[#1f1f1f] border border-[#e9e9e7] dark:border-[#2f2f2f] space-y-2.5 text-xs">
-                  <span className="font-bold text-[#37352f] dark:text-white">색상 및 밝기 조절</span>
+                  <span className="font-bold text-[#37352f] dark:text-white">{L('색상 및 밝기 조절', 'Color & Brightness')}</span>
                   <div className="space-y-2">
                     <div className="space-y-1">
                       <div className="flex justify-between text-[11px] text-[#787774]">
-                        <span>밝기</span>
+                        <span>{L('밝기', 'Brightness')}</span>
                         <span>{brightness}%</span>
                       </div>
                       <input
@@ -1578,7 +1592,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                     </div>
                     <div className="space-y-1">
                       <div className="flex justify-between text-[11px] text-[#787774]">
-                        <span>대비</span>
+                        <span>{L('대비', 'Contrast')}</span>
                         <span>{contrast}%</span>
                       </div>
                       <input
@@ -1597,7 +1611,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                           grayscale ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-[#f7f6f3] dark:bg-[#282828] text-[#787774]'
                         }`}
                       >
-                        흑백 모드
+                        {L('흑백 모드', 'Grayscale')}
                       </button>
                       <button
                         onClick={() => setSepia((s) => !s)}
@@ -1605,7 +1619,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                           sepia ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-[#f7f6f3] dark:bg-[#282828] text-[#787774]'
                         }`}
                       >
-                        세피아 톤
+                        {L('세피아 톤', 'Sepia')}
                       </button>
                     </div>
                   </div>
@@ -1614,13 +1628,13 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                 {/* Export Options */}
                 <div className="p-4 rounded-xl bg-[#faf9f6] dark:bg-[#222222] border border-[#e9e9e7] dark:border-[#333] space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#37352f] dark:text-white">편집본 다운로드</span>
+                    <span className="text-xs font-bold text-[#37352f] dark:text-white">{L('편집본 다운로드', 'Download Edited')}</span>
                     <button
                       onClick={handleResetImage}
                       className="text-[11px] text-[#787774] hover:text-red-500 transition flex items-center gap-1"
                     >
                       <RefreshCw className="w-3 h-3" />
-                      <span>초기화</span>
+                      <span>{L('초기화', 'Reset')}</span>
                     </button>
                   </div>
 
@@ -1630,7 +1644,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                     className="w-full py-2.5 rounded-xl bg-black dark:bg-white text-white dark:text-black text-xs font-bold hover:opacity-90 flex items-center justify-center gap-1.5 shadow-sm transition"
                   >
                     <Download className="w-3.5 h-3.5" />
-                    <span>PNG 다운로드 (투명 배경 유지 100%)</span>
+                    <span>{L('PNG 다운로드 (투명 배경 유지 100%)', 'Download PNG (100% Transparent)')}</span>
                   </button>
 
                   <div className="grid grid-cols-2 gap-2">
@@ -1639,14 +1653,14 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                       className="py-2 rounded-lg bg-white dark:bg-[#2a2a2a] hover:bg-[#efefed] dark:hover:bg-[#333] border border-[#e9e9e7] dark:border-[#333] text-[#37352f] dark:text-white text-xs font-semibold flex items-center justify-center gap-1 transition"
                     >
                       <Download className="w-3 h-3" />
-                      <span>JPG로 저장</span>
+                      <span>{L('JPG로 저장', 'Save as JPG')}</span>
                     </button>
                     <button
                       onClick={() => handleExportImage('image/webp')}
                       className="py-2 rounded-lg bg-white dark:bg-[#2a2a2a] hover:bg-[#efefed] dark:hover:bg-[#333] border border-[#e9e9e7] dark:border-[#333] text-[#37352f] dark:text-white text-xs font-semibold flex items-center justify-center gap-1 transition"
                     >
                       <Download className="w-3 h-3" />
-                      <span>WEBP로 저장</span>
+                      <span>{L('WEBP로 저장', 'Save as WEBP')}</span>
                     </button>
                   </div>
                 </div>
@@ -1682,17 +1696,21 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                 <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-xs text-[#787774]">
                   <span className="flex items-center gap-1">
                     <Info className="w-3.5 h-3.5" />
-                    단축키: <strong>Ctrl + Z</strong> (실행 취소) · <strong>Ctrl + Y</strong> (다시 실행)
+                    {lang === 'en' ? (
+                      <>Shortcuts: <strong>Ctrl + Z</strong> (Undo) · <strong>Ctrl + Y</strong> (Redo)</>
+                    ) : (
+                      <>단축키: <strong>Ctrl + Z</strong> (실행 취소) · <strong>Ctrl + Y</strong> (다시 실행)</>
+                    )}
                   </span>
                   <span>·</span>
-                  <span>마우스 드래그로 그리기 및 수정</span>
+                  <span>{L('마우스 드래그로 그리기 및 수정', 'Drag mouse to draw and edit')}</span>
                 </div>
 
                 {/* Crop Box Notice when in crop mode */}
                 {tool === 'crop' && (
                   <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/85 text-white px-5 py-2.5 rounded-full text-xs font-semibold backdrop-blur-md shadow-lg flex items-center gap-2 animate-in fade-in">
                     <Crop className="w-3.5 h-3.5" />
-                    <span>자르기 모드 · 좌측에서 비율을 선택하거나 [선택 영역 자르기 적용]을 클릭하세요</span>
+                    <span>{L('자르기 모드 · 좌측에서 비율을 선택하거나 [선택 영역 자르기 적용]을 클릭하세요', 'Crop Mode · Choose an aspect ratio on the left or click [Apply Crop]')}</span>
                   </div>
                 )}
 
@@ -1700,7 +1718,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                 {tool === 'wand' && (
                   <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-violet-950/90 text-white px-5 py-2.5 rounded-full text-xs font-semibold backdrop-blur-md shadow-lg flex items-center gap-2 animate-in fade-in border border-violet-800">
                     <Wand2 className="w-3.5 h-3.5 text-violet-300" />
-                    <span>마술봉 누끼 모드 · 투명하게 지우고 싶은 배경 영역을 클릭하세요</span>
+                    <span>{L('마술봉 누끼 모드 · 투명하게 지우고 싶은 배경 영역을 클릭하세요', 'Magic Wand Mode · Click any background area to make it transparent')}</span>
                   </div>
                 )}
               </div>
@@ -1717,15 +1735,18 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
         <>
           <NotionPageHeader
             icon="📄"
-            title="PDF 문서 편집기"
-            description="PDF 페이지별 그림판 그리기 & 주석 쓰기, 90도 회전, 불필요한 페이지 삭제, 순서 재배치 및 맞춤 워터마크·머리글 삽입을 브라우저 내에서 100% 안전하게 완결합니다."
+            title={L('PDF 문서 편집기', 'PDF Document Editor')}
+            description={L(
+              'PDF 페이지별 그림판 그리기 & 주석 쓰기, 90도 회전, 불필요한 페이지 삭제, 순서 재배치 및 맞춤 워터마크·머리글 삽입을 브라우저 내에서 100% 안전하게 완결합니다.',
+              'Draw & annotate on any PDF page, rotate 90°, delete unwanted pages, reorder pages, and add custom watermarks or headers 100% locally in your browser.'
+            )}
             tags={[
-              { label: '하위 페이지' },
-              { label: '🎨 페이지별 그림판 & 주석 쓰기' },
-              { label: 'PDF 페이지 90° 회전' },
-              { label: '불필요한 페이지 삭제' },
-              { label: '페이지 순서 재배치' },
-              { label: '워터마크 삽입' },
+              { label: L('하위 페이지', 'Sub-page') },
+              { label: L('🎨 페이지별 그림판 & 주석 쓰기', '🎨 Per-Page Paint & Annotations') },
+              { label: L('PDF 페이지 90° 회전', '90° Page Rotation') },
+              { label: L('불필요한 페이지 삭제', 'Delete Pages') },
+              { label: L('페이지 순서 재배치', 'Reorder Pages') },
+              { label: L('워터마크 삽입', 'Add Watermark') },
             ]}
           />
 
@@ -1755,10 +1776,10 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
               </div>
               <div>
                 <p className="text-sm font-bold text-[#37352f] dark:text-white">
-                  편집할 PDF 문서를 여기에 올려주세요
+                  {L('편집할 PDF 문서를 여기에 올려주세요', 'Drop a PDF document here to edit')}
                 </p>
                 <p className="text-xs text-[#787774] mt-1">
-                  페이지별 그림판 주석 쓰기, 회전, 삭제, 순서 재배치, 워터마크 추가를 한 번에 처리합니다.
+                  {L('페이지별 그림판 주석 쓰기, 회전, 삭제, 순서 재배치, 워터마크 추가를 한 번에 처리합니다.', 'Paint annotations per page, rotate, delete, reorder, and add watermarks all in one place.')}
                 </p>
               </div>
             </div>
@@ -1771,11 +1792,15 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                   <h3 className="font-bold text-[#37352f] dark:text-white flex items-center gap-2">
                     <span>{pdfFile.name}</span>
                     <span className="font-mono text-[11px] text-[#787774]">
-                      ({pdfPages.length}개 페이지 / {formatBytes(pdfFile.size)})
+                      ({lang === 'en' ? `${pdfPages.length} pages` : `${pdfPages.length}개 페이지`} / {formatBytes(pdfFile.size)})
                     </span>
                   </h3>
                   <p className="text-[11px] text-[#787774] mt-0.5">
-                    각 페이지의 <strong>[그림판 / 주석 쓰기]</strong>를 눌러 펜·형광펜·텍스트·화이트를 입력하거나 회전/순서를 변경하세요.
+                    {lang === 'en' ? (
+                      <>Click <strong>[Paint / Annotate]</strong> on any page to draw, highlight, add text/whiteout, or rotate &amp; reorder pages.</>
+                    ) : (
+                      <>각 페이지의 <strong>[그림판 / 주석 쓰기]</strong>를 눌러 펜·형광펜·텍스트·화이트를 입력하거나 회전/순서를 변경하세요.</>
+                    )}
                   </p>
                 </div>
 
@@ -1786,7 +1811,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                     className="px-3 py-1.5 rounded-lg bg-white dark:bg-[#282828] border border-[#e9e9e7] dark:border-[#333] text-[#37352f] dark:text-white font-semibold flex items-center gap-1.5 transition hover:bg-[#efefed]"
                   >
                     <RotateCw className="w-3.5 h-3.5" />
-                    <span>전체 90° 회전</span>
+                    <span>{L('전체 90° 회전', 'Rotate All 90°')}</span>
                   </button>
                   <button
                     onClick={() => {
@@ -1795,7 +1820,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                     }}
                     className="px-3 py-1.5 rounded-lg text-[#787774] hover:text-red-500 font-semibold transition"
                   >
-                    다른 PDF 열기
+                    {L('다른 PDF 열기', 'Open Another PDF')}
                   </button>
                 </div>
               </div>
@@ -1803,32 +1828,32 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
               {/* PDF Settings (Watermark & Headers) */}
               <div className="p-4 rounded-xl bg-white dark:bg-[#1f1f1f] border border-[#e9e9e7] dark:border-[#2f2f2f] grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
                 <div className="space-y-1.5">
-                  <label className="font-bold text-[#37352f] dark:text-white">워터마크 문구 (선택)</label>
+                  <label className="font-bold text-[#37352f] dark:text-white">{L('워터마크 문구 (선택)', 'Watermark Text (Optional)')}</label>
                   <input
                     type="text"
                     value={watermarkText}
                     onChange={(e) => setWatermarkText(e.target.value)}
-                    placeholder="예: CONFIDENTIAL, 기밀문서"
+                    placeholder={L('예: CONFIDENTIAL, 기밀문서', 'e.g. CONFIDENTIAL, DRAFT')}
                     className="w-full px-3 py-1.5 rounded-lg border border-[#e9e9e7] dark:border-[#333] bg-[#faf9f6] dark:bg-[#1b1b1b] text-[#37352f] dark:text-white"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="font-bold text-[#37352f] dark:text-white">상단 머리글 (선택)</label>
+                  <label className="font-bold text-[#37352f] dark:text-white">{L('상단 머리글 (선택)', 'Header Text (Optional)')}</label>
                   <input
                     type="text"
                     value={headerText}
                     onChange={(e) => setHeaderText(e.target.value)}
-                    placeholder="예: 내부 공유용 보고서"
+                    placeholder={L('예: 내부 공유용 보고서', 'e.g. Internal Report')}
                     className="w-full px-3 py-1.5 rounded-lg border border-[#e9e9e7] dark:border-[#333] bg-[#faf9f6] dark:bg-[#1b1b1b] text-[#37352f] dark:text-white"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="font-bold text-[#37352f] dark:text-white">하단 바닥글</label>
+                  <label className="font-bold text-[#37352f] dark:text-white">{L('하단 바닥글', 'Footer Text')}</label>
                   <input
                     type="text"
                     value={footerText}
                     onChange={(e) => setFooterText(e.target.value)}
-                    placeholder="예: AllDesk 문서"
+                    placeholder={L('예: AllDesk 문서', 'e.g. AllDesk Document')}
                     className="w-full px-3 py-1.5 rounded-lg border border-[#e9e9e7] dark:border-[#333] bg-[#faf9f6] dark:bg-[#1b1b1b] text-[#37352f] dark:text-white"
                   />
                 </div>
@@ -1862,7 +1887,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                       {page.annotationDataUrl && (
                         <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-md bg-indigo-600 text-white text-[10px] font-bold shadow-xs flex items-center gap-1">
                           <Sparkles className="w-2.5 h-2.5" />
-                          <span>주석 있음</span>
+                          <span>{L('주석 있음', 'Annotated')}</span>
                         </span>
                       )}
                     </div>
@@ -1881,13 +1906,13 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                         }`}
                       >
                         <Edit3 className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                        <span>{page.annotationDataUrl ? '그림판 / 주석 수정' : '그림판 / 주석 쓰기'}</span>
+                        <span>{page.annotationDataUrl ? L('그림판 / 주석 수정', 'Edit Paint / Notes') : L('그림판 / 주석 쓰기', 'Paint / Annotate')}</span>
                       </button>
 
                       {page.annotationDataUrl && (
                         <button
                           onClick={() => {
-                            if (confirm(`${idx + 1}페이지의 주석을 삭제할까요?`)) {
+                            if (confirm(lang === 'en' ? `Delete annotations on page ${idx + 1}?` : `${idx + 1}페이지의 주석을 삭제할까요?`)) {
                               setPdfPages((prev) =>
                                 prev.map((p) =>
                                   p.id === page.id ? { ...p, annotationDataUrl: undefined } : p
@@ -1897,7 +1922,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                           }}
                           className="w-full py-0.5 text-[10px] text-[#787774] hover:text-red-500 transition text-center"
                         >
-                          주석 지우기
+                          {L('주석 지우기', 'Clear Annotations')}
                         </button>
                       )}
                     </div>
@@ -1910,7 +1935,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                           disabled={idx === 0}
                           onClick={() => movePdfPage(idx, 'left')}
                           className="p-1 rounded hover:bg-[#efefed] dark:hover:bg-[#2c2c2c] disabled:opacity-30"
-                          title="왼쪽(앞)으로 이동"
+                          title={L('왼쪽(앞)으로 이동', 'Move Left (Earlier)')}
                         >
                           <ArrowLeft className="w-3.5 h-3.5" />
                         </button>
@@ -1918,7 +1943,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                           disabled={idx === pdfPages.length - 1}
                           onClick={() => movePdfPage(idx, 'right')}
                           className="p-1 rounded hover:bg-[#efefed] dark:hover:bg-[#2c2c2c] disabled:opacity-30"
-                          title="오른쪽(뒤)으로 이동"
+                          title={L('오른쪽(뒤)으로 이동', 'Move Right (Later)')}
                         >
                           <ArrowRight className="w-3.5 h-3.5" />
                         </button>
@@ -1929,14 +1954,14 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                         <button
                           onClick={() => rotatePdfPage(page.id, 90)}
                           className="p-1 rounded hover:bg-[#efefed] dark:hover:bg-[#2c2c2c]"
-                          title="90도 회전"
+                          title={L('90도 회전', 'Rotate 90°')}
                         >
                           <RotateCw className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => deletePdfPage(page.id)}
                           className="p-1 rounded text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40"
-                          title="페이지 삭제"
+                          title={L('페이지 삭제', 'Delete Page')}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -1949,10 +1974,16 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
               {/* Bottom Export Bar */}
               <div className="sticky bottom-4 z-20 p-4 rounded-2xl bg-white/95 dark:bg-[#1f1f1f]/95 backdrop-blur-md border border-[#e9e9e7] dark:border-[#333] shadow-lg flex items-center justify-between gap-4">
                 <div className="text-xs text-[#787774]">
-                  총 <strong>{pdfPages.length}개</strong>의 페이지가 저장 준비되었습니다.
+                  {lang === 'en' ? (
+                    <><strong>{pdfPages.length}</strong> page(s) ready to save.</>
+                  ) : (
+                    <>총 <strong>{pdfPages.length}개</strong>의 페이지가 저장 준비되었습니다.</>
+                  )}
                   {pdfPages.some((p) => p.annotationDataUrl) && (
                     <span className="ml-2 font-semibold text-indigo-600 dark:text-indigo-400">
-                      (주석 포함 {pdfPages.filter((p) => p.annotationDataUrl).length}장)
+                      {lang === 'en'
+                        ? `(${pdfPages.filter((p) => p.annotationDataUrl).length} annotated)`
+                        : `(주석 포함 ${pdfPages.filter((p) => p.annotationDataUrl).length}장)`}
                     </span>
                   )}
                 </div>
@@ -1962,7 +1993,7 @@ export const FileEditorView: React.FC<FileEditorViewProps> = ({
                   className="px-6 py-2.5 rounded-xl bg-black dark:bg-white text-white dark:text-black font-bold text-xs flex items-center gap-2 transition hover:opacity-90 shadow-sm disabled:opacity-50"
                 >
                   <Download className="w-4 h-4" />
-                  <span>{isExportingPdf ? 'PDF 생성 중...' : '수정된 새 PDF 다운로드'}</span>
+                  <span>{isExportingPdf ? L('PDF 생성 중...', 'Generating PDF...') : L('수정된 새 PDF 다운로드', 'Download Edited PDF')}</span>
                 </button>
               </div>
             </div>

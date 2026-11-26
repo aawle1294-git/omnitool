@@ -28,6 +28,7 @@ import QRCode from 'qrcode';
 import { copyToClipboard } from '../../utils/formatters';
 import { saveAs } from 'file-saver';
 import { NotionPageHeader } from '../NotionLayout/NotionPageHeader';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 type ToolCategory = 'qr' | 'password' | 'text' | 'calc' | 'notes';
 
@@ -40,6 +41,9 @@ interface SavedPassword {
 }
 
 export const ExtraToolsView: React.FC = () => {
+  const { lang } = useLanguage();
+  const L = (ko: string, en: string) => (lang === 'en' ? en : ko);
+
   const [activeTool, setActiveTool] = useState<ToolCategory>('qr');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
@@ -134,12 +138,12 @@ export const ExtraToolsView: React.FC = () => {
 
   const handleSaveCurrentPassword = (customLabel?: string) => {
     if (!generatedPass) return;
-    const label = (customLabel !== undefined ? customLabel : passLabelInput).trim() || `비밀번호 #${savedPasswords.length + 1}`;
+    const label = (customLabel !== undefined ? customLabel : passLabelInput).trim() || L(`비밀번호 #${savedPasswords.length + 1}`, `Password #${savedPasswords.length + 1}`);
     const newEntry: SavedPassword = {
       id: Date.now().toString(),
       password: generatedPass,
       label,
-      createdAt: new Date().toLocaleDateString('ko-KR', {
+      createdAt: new Date().toLocaleDateString(lang === 'en' ? 'en-US' : 'ko-KR', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
@@ -162,7 +166,7 @@ export const ExtraToolsView: React.FC = () => {
       setTimeout(() => setCopiedKey(null), 2000);
 
       if (autoSaveOnCopy) {
-        handleSaveCurrentPassword(passLabelInput.trim() || '클립보드 복사된 비밀번호');
+        handleSaveCurrentPassword(passLabelInput.trim() || L('클립보드 복사된 비밀번호', 'Copied to clipboard'));
       }
     }
   };
@@ -176,7 +180,7 @@ export const ExtraToolsView: React.FC = () => {
   };
 
   const clearAllSavedPasswords = () => {
-    if (window.confirm('저장된 모든 비밀번호를 삭제하시겠습니까?')) {
+    if (window.confirm(L('저장된 모든 비밀번호를 삭제하시겠습니까?', 'Delete all saved passwords?'))) {
       setSavedPasswords([]);
     }
   };
@@ -185,16 +189,16 @@ export const ExtraToolsView: React.FC = () => {
     if (savedPasswords.length === 0) return;
     const lines = [
       '=======================================================',
-      '  AllDesk 기억된 비밀번호 보관함 백업 파일',
-      '  생성일시: ' + new Date().toLocaleString('ko-KR'),
+      L('  AllDesk 기억된 비밀번호 보관함 백업 파일', '  AllDesk Saved Password Vault Backup'),
+      L('  생성일시: ', '  Created: ') + new Date().toLocaleString(lang === 'en' ? 'en-US' : 'ko-KR'),
       '=======================================================\n'
     ];
     savedPasswords.forEach((p, idx) => {
       lines.push(
         `[#${idx + 1}] ${p.label}`,
-        `비밀번호: ${p.password}`,
-        `보안 강도: ${p.strength}`,
-        `저장일시: ${p.createdAt}`,
+        `${L('비밀번호', 'Password')}: ${p.password}`,
+        `${L('보안 강도', 'Strength')}: ${p.strength}`,
+        `${L('저장일시', 'Saved')}: ${p.createdAt}`,
         '-------------------------------------------------------'
       );
     });
@@ -232,15 +236,15 @@ export const ExtraToolsView: React.FC = () => {
     if (/[0-9]/.test(pass)) score++;
     if (/[^A-Za-z0-9]/.test(pass)) score++;
 
-    if (score <= 2) return { label: '보통', color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/60' };
-    if (score <= 4) return { label: '강력함', color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/60' };
-    return { label: '매우 강력함 (해킹 불가)', color: 'text-purple-500 bg-purple-50 dark:bg-purple-950/60' };
+    if (score <= 2) return { label: L('보통', 'Fair'), color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/60' };
+    if (score <= 4) return { label: L('강력함', 'Strong'), color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/60' };
+    return { label: L('매우 강력함 (해킹 불가)', 'Very Strong (Uncrackable)'), color: 'text-purple-500 bg-purple-50 dark:bg-purple-950/60' };
   };
 
   // ==============================================================
   // 3. TEXT & DEV TOOLS STATE
   // ==============================================================
-  const [textInput, setTextInput] = useState('OmniTool은 빠르고 강력한 생산성 도구입니다.');
+  const [textInput, setTextInput] = useState(L('OmniTool은 빠르고 강력한 생산성 도구입니다.', 'AllDesk is a fast and powerful productivity suite.'));
   const [jsonInput, setJsonInput] = useState('{"name":"OmniTool","version":1,"features":["compress","convert"]}');
   const [jsonError, setJsonError] = useState<string | null>(null);
 
@@ -290,7 +294,7 @@ export const ExtraToolsView: React.FC = () => {
     try {
       setTextInput(btoa(unescape(encodeURIComponent(textInput))));
     } catch (err) {
-      alert('인코딩 오류');
+      alert(L('인코딩 오류', 'Encoding error'));
     }
   };
 
@@ -298,7 +302,7 @@ export const ExtraToolsView: React.FC = () => {
     try {
       setTextInput(decodeURIComponent(escape(atob(textInput))));
     } catch (err) {
-      alert('유효한 Base64 형식이 아닙니다.');
+      alert(L('유효한 Base64 형식이 아닙니다.', 'Invalid Base64 format.'));
     }
   };
 
@@ -427,7 +431,7 @@ export const ExtraToolsView: React.FC = () => {
     const fmt = (n: number) => {
       if (Math.abs(n) >= 1e9 || (Math.abs(n) < 1e-4 && n !== 0)) return n.toExponential(4);
       const fixed = n.toPrecision(7).replace(/\.?0+$/, '');
-      return Number(fixed).toLocaleString('ko-KR', { maximumFractionDigits: 6 });
+      return Number(fixed).toLocaleString(lang === 'en' ? 'en-US' : 'ko-KR', { maximumFractionDigits: 6 });
     };
 
     if (unitCategory === 'storage') {
@@ -478,27 +482,27 @@ export const ExtraToolsView: React.FC = () => {
   };
 
   const unitCategoryLabels: { key: UnitCategory; label: string; emoji: string }[] = [
-    { key: 'storage', label: '저장 용량', emoji: '💾' },
-    { key: 'length', label: '길이', emoji: '📏' },
-    { key: 'area', label: '넓이 (m², cm²)', emoji: '🗺️' },
-    { key: 'volume', label: '부피 (m³, cm³)', emoji: '🧊' },
-    { key: 'weight', label: '무게', emoji: '⚖️' },
-    { key: 'temperature', label: '온도', emoji: '🌡️' },
-    { key: 'speed', label: '속도', emoji: '⚡' },
-    { key: 'time', label: '시간', emoji: '⏱️' },
+    { key: 'storage', label: L('저장 용량', 'Storage'), emoji: '💾' },
+    { key: 'length', label: L('길이', 'Length'), emoji: '📏' },
+    { key: 'area', label: L('넓이 (m², cm²)', 'Area (m², cm²)'), emoji: '🗺️' },
+    { key: 'volume', label: L('부피 (m³, cm³)', 'Volume (m³, cm³)'), emoji: '🧊' },
+    { key: 'weight', label: L('무게', 'Weight'), emoji: '⚖️' },
+    { key: 'temperature', label: L('온도', 'Temperature'), emoji: '🌡️' },
+    { key: 'speed', label: L('속도', 'Speed'), emoji: '⚡' },
+    { key: 'time', label: L('시간', 'Time'), emoji: '⏱️' },
   ];
 
   // ==============================================================
   // 5. LOCAL NOTES & TODO STATE
   // ==============================================================
   const [notes, setNotes] = useState<string>(() => {
-    return localStorage.getItem('alldesk_notes') || localStorage.getItem('omnitool_notes') || '# 오늘의 업무 메모\n\n- [ ] 생산성 사이트 완성하기\n- [ ] 즐겨찾기 등록하기';
+    return localStorage.getItem('alldesk_notes') || localStorage.getItem('omnitool_notes') || L('# 오늘의 업무 메모\n\n- [ ] 생산성 사이트 완성하기\n- [ ] 즐겨찾기 등록하기', '# Today\'s Work Notes\n\n- [ ] Finish productivity site\n- [ ] Add to bookmarks');
   });
   const [todos, setTodos] = useState<{ id: string; text: string; done: boolean }[]>(() => {
     const saved = localStorage.getItem('alldesk_todos') || localStorage.getItem('omnitool_todos');
     return saved ? JSON.parse(saved) : [
-      { id: '1', text: 'PDF 용량 줄이기 테스트', done: true },
-      { id: '2', text: '원클릭 인스톨러로 크롬 설치 스크립트 만들기', done: false },
+      { id: '1', text: L('PDF 용량 줄이기 테스트', 'Test PDF compression'), done: true },
+      { id: '2', text: L('원클릭 인스톨러로 크롬 설치 스크립트 만들기', 'Create Chrome install script with One-Click Installer'), done: false },
     ];
   });
   const [newTodoText, setNewTodoText] = useState('');
@@ -530,13 +534,13 @@ export const ExtraToolsView: React.FC = () => {
       {/* Notion Page Header */}
       <NotionPageHeader
         icon="🛠️"
-        title="스마트 생산성 도구함"
-        description="Wi-Fi 바로연결 QR 코드, 강력한 암호화 비밀번호 생성기, 텍스트 분석 및 JSON 정렬기, 실시간 자동 저장 메모장 등 필수 보조 도구 모음입니다."
+        title={L('스마트 생산성 도구함', 'Smart Productivity Toolkit')}
+        description={L('Wi-Fi 바로연결 QR 코드, 강력한 암호화 비밀번호 생성기, 텍스트 분석 및 JSON 정렬기, 실시간 자동 저장 메모장 등 필수 보조 도구 모음입니다.', 'Essential utility suite featuring instant Wi-Fi QR codes, cryptographic password generator, text analyzer & JSON formatter, and auto-saving scratchpad.')}
         tags={[
-          { label: 'Wi-Fi/URL QR 생성' },
-          { label: '엔트로피 비밀번호 생성기' },
-          { label: 'JSON 정렬/압축' },
-          { label: '로컬 자동 저장 메모장' },
+          { label: L('Wi-Fi/URL QR 생성', 'Wi-Fi/URL QR Generator') },
+          { label: L('엔트로피 비밀번호 생성기', 'Entropy Password Generator') },
+          { label: L('JSON 정렬/압축', 'JSON Prettify/Minify') },
+          { label: L('로컬 자동 저장 메모장', 'Local Auto-Save Notes') },
         ]}
       />
 
@@ -551,7 +555,7 @@ export const ExtraToolsView: React.FC = () => {
           }`}
         >
           <QrCode className="w-3.5 h-3.5" />
-          <span>QR 코드 스튜디오</span>
+          <span>{L('QR 코드 스튜디오', 'QR Code Studio')}</span>
         </button>
         <button
           onClick={() => setActiveTool('password')}
@@ -562,7 +566,7 @@ export const ExtraToolsView: React.FC = () => {
           }`}
         >
           <KeyRound className="w-3.5 h-3.5" />
-          <span>비밀번호 생성기</span>
+          <span>{L('비밀번호 생성기', 'Password Generator')}</span>
         </button>
         <button
           onClick={() => setActiveTool('text')}
@@ -573,7 +577,7 @@ export const ExtraToolsView: React.FC = () => {
           }`}
         >
           <Type className="w-3.5 h-3.5" />
-          <span>텍스트 & JSON</span>
+          <span>{L('텍스트 & JSON', 'Text & JSON')}</span>
         </button>
         <button
           onClick={() => setActiveTool('calc')}
@@ -584,7 +588,7 @@ export const ExtraToolsView: React.FC = () => {
           }`}
         >
           <Calculator className="w-3.5 h-3.5" />
-          <span>단위 계산기</span>
+          <span>{L('단위 계산기', 'Unit Converter')}</span>
         </button>
         <button
           onClick={() => setActiveTool('notes')}
@@ -595,7 +599,7 @@ export const ExtraToolsView: React.FC = () => {
           }`}
         >
           <FileText className="w-3.5 h-3.5" />
-          <span>빠른 메모 & 투두</span>
+          <span>{L('빠른 메모 & 투두', 'Quick Notes & Todo')}</span>
         </button>
       </div>
 
@@ -607,7 +611,7 @@ export const ExtraToolsView: React.FC = () => {
           <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-5">
             <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <QrCode className="w-5 h-5 text-brand-600" />
-              QR 코드 옵션 설정
+              {L('QR 코드 옵션 설정', 'QR Code Options')}
             </h3>
 
             {/* Type selector */}
@@ -618,7 +622,7 @@ export const ExtraToolsView: React.FC = () => {
                   qrType === 'url' ? 'bg-white dark:bg-slate-900 text-brand-600 shadow-sm' : 'text-slate-500'
                 }`}
               >
-                웹사이트 URL
+                {L('웹사이트 URL', 'Website URL')}
               </button>
               <button
                 onClick={() => setQrType('wifi')}
@@ -626,7 +630,7 @@ export const ExtraToolsView: React.FC = () => {
                   qrType === 'wifi' ? 'bg-white dark:bg-slate-900 text-brand-600 shadow-sm' : 'text-slate-500'
                 }`}
               >
-                와이파이 바로연결
+                {L('와이파이 바로연결', 'Wi-Fi Connect')}
               </button>
               <button
                 onClick={() => setQrType('text')}
@@ -634,14 +638,14 @@ export const ExtraToolsView: React.FC = () => {
                   qrType === 'text' ? 'bg-white dark:bg-slate-900 text-brand-600 shadow-sm' : 'text-slate-500'
                 }`}
               >
-                일반 텍스트
+                {L('일반 텍스트', 'Plain Text')}
               </button>
             </div>
 
             {/* Inputs based on type */}
             {qrType === 'url' && (
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">웹사이트 링크 (URL)</label>
+                <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">{L('웹사이트 링크 (URL)', 'Website Link (URL)')}</label>
                 <div className="relative">
                   <LinkIcon className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
@@ -658,7 +662,7 @@ export const ExtraToolsView: React.FC = () => {
             {qrType === 'wifi' && (
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">와이파이 이름 (SSID)</label>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">{L('와이파이 이름 (SSID)', 'Wi-Fi Name (SSID)')}</label>
                   <input
                     type="text"
                     value={wifiSsid}
@@ -668,25 +672,25 @@ export const ExtraToolsView: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">비밀번호</label>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">{L('비밀번호', 'Password')}</label>
                   <input
                     type="text"
                     value={wifiPassword}
                     onChange={(e) => setWifiPassword(e.target.value)}
-                    placeholder="WIFI 비밀번호"
+                    placeholder={L('WIFI 비밀번호', 'Wi-Fi Password')}
                     className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">보안 방식</label>
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">{L('보안 방식', 'Security Type')}</label>
                   <select
                     value={wifiAuth}
                     onChange={(e) => setWifiAuth(e.target.value as any)}
                     className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
                   >
-                    <option value="WPA">WPA/WPA2/WPA3 (일반적)</option>
+                    <option value="WPA">{L('WPA/WPA2/WPA3 (일반적)', 'WPA/WPA2/WPA3 (Standard)')}</option>
                     <option value="WEP">WEP</option>
-                    <option value="nopass">비밀번호 없음 (Open)</option>
+                    <option value="nopass">{L('비밀번호 없음 (Open)', 'No Password (Open)')}</option>
                   </select>
                 </div>
               </div>
@@ -694,12 +698,12 @@ export const ExtraToolsView: React.FC = () => {
 
             {qrType === 'text' && (
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">텍스트 내용</label>
+                <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">{L('텍스트 내용', 'Text Content')}</label>
                 <textarea
                   rows={4}
                   value={qrContent}
                   onChange={(e) => setQrContent(e.target.value)}
-                  placeholder="QR 코드로 변환할 내용을 입력하세요"
+                  placeholder={L('QR 코드로 변환할 내용을 입력하세요', 'Enter text to encode into QR code')}
                   className="w-full p-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
                 />
               </div>
@@ -708,7 +712,7 @@ export const ExtraToolsView: React.FC = () => {
             {/* Color customization */}
             <div className="flex items-center gap-6 pt-2">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">QR 색상:</span>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">{L('QR 색상:', 'QR Color:')}</span>
                 <input
                   type="color"
                   value={qrColor}
@@ -717,7 +721,7 @@ export const ExtraToolsView: React.FC = () => {
                 />
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">배경 색상:</span>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">{L('배경 색상:', 'Background:')}</span>
                 <input
                   type="color"
                   value={qrBgColor}
@@ -734,14 +738,14 @@ export const ExtraToolsView: React.FC = () => {
               <canvas ref={qrCanvasRef} className="rounded-lg" />
             </div>
 
-            <p className="text-xs text-slate-500">카메라로 비추면 바로 작동합니다.</p>
+            <p className="text-xs text-slate-500">{L('카메라로 비추면 바로 작동합니다.', 'Point your camera to scan immediately.')}</p>
 
             <button
               onClick={downloadQrCode}
               className="flex items-center gap-2 px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-sm transition shadow-md"
             >
               <Download className="w-4 h-4" />
-              고화질 PNG 다운로드
+              {L('고화질 PNG 다운로드', 'Download High-Res PNG')}
             </button>
           </div>
         </div>
@@ -757,14 +761,14 @@ export const ExtraToolsView: React.FC = () => {
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-sm text-[#37352f] dark:text-white flex items-center gap-2">
                 <KeyRound className="w-4 h-4" />
-                <span>초강력 비밀번호 생성기</span>
+                <span>{L('초강력 비밀번호 생성기', 'Strong Password Generator')}</span>
               </h3>
               <span
                 className={`text-xs font-bold px-3 py-1 rounded-full ${
                   calculatePassStrength(generatedPass).color
                 }`}
               >
-                보안 강도: {calculatePassStrength(generatedPass).label}
+                {L('보안 강도:', 'Strength:')} {calculatePassStrength(generatedPass).label}
               </span>
             </div>
 
@@ -777,7 +781,7 @@ export const ExtraToolsView: React.FC = () => {
                 <button
                   onClick={generatePassword}
                   className="p-2 text-[#787774] hover:text-black dark:hover:text-white rounded-lg hover:bg-[#efefed] dark:hover:bg-[#333] transition"
-                  title="새로운 비밀번호 생성"
+                  title={L('새로운 비밀번호 생성', 'Generate new password')}
                 >
                   <RefreshCw className="w-4 h-4" />
                 </button>
@@ -786,7 +790,7 @@ export const ExtraToolsView: React.FC = () => {
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-black dark:bg-white text-white dark:text-black font-semibold rounded-lg text-xs transition shadow-xs"
                 >
                   {copiedKey === 'password' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedKey === 'password' ? '복사됨!' : '복사'}</span>
+                  <span>{copiedKey === 'password' ? L('복사됨!', 'Copied!') : L('복사', 'Copy')}</span>
                 </button>
               </div>
             </div>
@@ -799,7 +803,7 @@ export const ExtraToolsView: React.FC = () => {
                   value={passLabelInput}
                   onChange={(e) => setPassLabelInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSaveCurrentPassword()}
-                  placeholder="비밀번호 용도 메모 (예: 구글 계정, 네이버, 회사 Wi-Fi...)"
+                  placeholder={L('비밀번호 용도 메모 (예: 구글 계정, 네이버, 회사 Wi-Fi...)', 'Password label (e.g., Google, GitHub, Office Wi-Fi...)')}
                   className="w-full px-3 py-2 text-xs rounded-xl border border-[#e9e9e7] dark:border-[#2f2f2f] bg-[#faf9f6] dark:bg-[#191919] text-[#37352f] dark:text-white focus:outline-none focus:ring-1 focus:ring-black"
                 />
               </div>
@@ -808,14 +812,14 @@ export const ExtraToolsView: React.FC = () => {
                 className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition"
               >
                 <Bookmark className="w-3.5 h-3.5" />
-                <span>📌 비밀번호 기억하기 (보관함 저장)</span>
+                <span>{L('📌 비밀번호 기억하기 (보관함 저장)', '📌 Save Password to Vault')}</span>
               </button>
             </div>
 
             {saveSuccessNotice && (
               <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium animate-in fade-in flex items-center gap-1">
                 <CheckCircle className="w-3.5 h-3.5" />
-                <span>비밀번호가 안전하게 보관함에 기억되었습니다! 아래 보관함에서 언제든 확인하세요.</span>
+                <span>{L('비밀번호가 안전하게 보관함에 기억되었습니다! 아래 보관함에서 언제든 확인하세요.', 'Password safely saved to your vault! View it anytime below.')}</span>
               </p>
             )}
 
@@ -823,8 +827,8 @@ export const ExtraToolsView: React.FC = () => {
             <div className="space-y-3 pt-3 border-t border-[#f0f0ee] dark:border-[#282828] text-xs">
               <div>
                 <div className="flex justify-between font-bold mb-1.5">
-                  <span className="text-[#787774]">비밀번호 길이</span>
-                  <span className="font-mono text-black dark:text-white">{passLength}자리</span>
+                  <span className="text-[#787774]">{L('비밀번호 길이', 'Password Length')}</span>
+                  <span className="font-mono text-black dark:text-white">{L(`${passLength}자리`, `${passLength} chars`)}</span>
                 </div>
                 <input
                   type="range"
@@ -844,7 +848,7 @@ export const ExtraToolsView: React.FC = () => {
                     onChange={(e) => setIncludeUpper(e.target.checked)}
                     className="rounded text-black"
                   />
-                  대문자 (A-Z)
+                  {L('대문자 (A-Z)', 'Uppercase (A-Z)')}
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer font-medium text-[#787774]">
                   <input
@@ -853,7 +857,7 @@ export const ExtraToolsView: React.FC = () => {
                     onChange={(e) => setIncludeLower(e.target.checked)}
                     className="rounded text-black"
                   />
-                  소문자 (a-z)
+                  {L('소문자 (a-z)', 'Lowercase (a-z)')}
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer font-medium text-[#787774]">
                   <input
@@ -862,7 +866,7 @@ export const ExtraToolsView: React.FC = () => {
                     onChange={(e) => setIncludeNumbers(e.target.checked)}
                     className="rounded text-black"
                   />
-                  숫자 (0-9)
+                  {L('숫자 (0-9)', 'Numbers (0-9)')}
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer font-medium text-[#787774]">
                   <input
@@ -871,7 +875,7 @@ export const ExtraToolsView: React.FC = () => {
                     onChange={(e) => setIncludeSymbols(e.target.checked)}
                     className="rounded text-black"
                   />
-                  특수기호 (!@#$)
+                  {L('특수기호 (!@#$)', 'Symbols (!@#$)')}
                 </label>
               </div>
 
@@ -883,7 +887,7 @@ export const ExtraToolsView: React.FC = () => {
                     onChange={(e) => setAutoSaveOnCopy(e.target.checked)}
                     className="rounded text-black"
                   />
-                  <span>[복사] 버튼을 누를 때 자동으로 보관함에 기억하기</span>
+                  <span>{L('[복사] 버튼을 누를 때 자동으로 보관함에 기억하기', 'Automatically save to vault when clicking [Copy]')}</span>
                 </label>
               </div>
             </div>
@@ -897,10 +901,10 @@ export const ExtraToolsView: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Lock className="w-4 h-4 text-emerald-600" />
                 <h3 className="font-bold text-sm text-[#37352f] dark:text-white">
-                  기억된 비밀번호 보관함
+                  {L('기억된 비밀번호 보관함', 'Saved Password Vault')}
                 </h3>
                 <span className="px-2 py-0.5 rounded-full bg-[#f0f0ee] dark:bg-[#2a2a2a] text-[11px] font-bold text-[#787774]">
-                  {savedPasswords.length}개 저장됨
+                  {L(`${savedPasswords.length}개 저장됨`, `${savedPasswords.length} saved`)}
                 </span>
               </div>
 
@@ -912,13 +916,13 @@ export const ExtraToolsView: React.FC = () => {
                       className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[#e9e9e7] dark:border-[#2f2f2f] hover:bg-[#efefed] dark:hover:bg-[#2c2c2c] text-[#787774]"
                     >
                       <Download className="w-3.5 h-3.5" />
-                      <span>보관함 백업 (.txt)</span>
+                      <span>{L('보관함 백업 (.txt)', 'Backup Vault (.txt)')}</span>
                     </button>
                     <button
                       onClick={clearAllSavedPasswords}
                       className="px-2.5 py-1.5 text-red-500 hover:underline"
                     >
-                      전체 비우기
+                      {L('전체 비우기', 'Clear All')}
                     </button>
                   </>
                 )}
@@ -933,7 +937,7 @@ export const ExtraToolsView: React.FC = () => {
                   type="text"
                   value={searchPassQuery}
                   onChange={(e) => setSearchPassQuery(e.target.value)}
-                  placeholder="저장된 비밀번호 용도 검색 (예: 구글, 네이버...)"
+                  placeholder={L('저장된 비밀번호 용도 검색 (예: 구글, 네이버...)', 'Search saved passwords (e.g., Google, GitHub...)')}
                   className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-[#e9e9e7] dark:border-[#2f2f2f] bg-[#faf9f6] dark:bg-[#191919] text-xs text-[#37352f] dark:text-white focus:outline-none"
                 />
               </div>
@@ -944,10 +948,10 @@ export const ExtraToolsView: React.FC = () => {
               <div className="p-8 text-center rounded-xl bg-[#faf9f6] dark:bg-[#191919] border border-dashed border-[#e9e9e7] dark:border-[#2f2f2f] space-y-2">
                 <Bookmark className="w-8 h-8 text-[#aaa] mx-auto" />
                 <p className="text-xs font-bold text-[#37352f] dark:text-white">
-                  아직 기억된 비밀번호가 없습니다
+                  {L('아직 기억된 비밀번호가 없습니다', 'No saved passwords yet')}
                 </p>
                 <p className="text-[11px] text-[#787774]">
-                  위 생성기에서 비밀번호를 만든 후 [📌 비밀번호 기억하기]를 누르면 브라우저에 안전하게 영구 저장됩니다.
+                  {L('위 생성기에서 비밀번호를 만든 후 [📌 비밀번호 기억하기]를 누르면 브라우저에 안전하게 영구 저장됩니다.', 'Generate a password above and click [📌 Save Password to Vault] to store it securely in your browser.')}
                 </p>
               </div>
             ) : (
@@ -984,13 +988,13 @@ export const ExtraToolsView: React.FC = () => {
                             <button
                               onClick={() => togglePasswordVisibility(item.id)}
                               className="text-[#aaa] hover:text-black dark:hover:text-white p-0.5"
-                              title={isVisible ? '비밀번호 가리기' : '비밀번호 보기'}
+                              title={isVisible ? L('비밀번호 가리기', 'Hide password') : L('비밀번호 보기', 'Show password')}
                             >
                               {isVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                             </button>
                           </div>
 
-                          <p className="text-[10px] text-[#aaa]">저장일시: {item.createdAt}</p>
+                          <p className="text-[10px] text-[#aaa]">{L('저장일시:', 'Saved:')} {item.createdAt}</p>
                         </div>
 
                         <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0">
@@ -1003,13 +1007,13 @@ export const ExtraToolsView: React.FC = () => {
                             ) : (
                               <Copy className="w-3 h-3" />
                             )}
-                            <span>{copiedKey === `saved-${item.id}` ? '복사됨!' : '복사'}</span>
+                            <span>{copiedKey === `saved-${item.id}` ? L('복사됨!', 'Copied!') : L('복사', 'Copy')}</span>
                           </button>
 
                           <button
                             onClick={() => deleteSavedPassword(item.id)}
                             className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 text-[#aaa] hover:text-red-500 transition"
-                            title="삭제"
+                            title={L('삭제', 'Delete')}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -1024,7 +1028,7 @@ export const ExtraToolsView: React.FC = () => {
             <div className="pt-2 flex items-center gap-2 text-[11px] text-[#787774]">
               <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>
-                모든 비밀번호는 사용자의 컴퓨터 브라우저 로컬 저장소(localStorage)에만 안전하게 보관되며, 외부 서버로 전송되지 않습니다.
+                {L('모든 비밀번호는 사용자의 컴퓨터 브라우저 로컬 저장소(localStorage)에만 안전하게 보관되며, 외부 서버로 전송되지 않습니다.', 'All passwords are stored locally in your browser (localStorage) and are never sent to any external server.')}
               </span>
             </div>
           </div>
@@ -1041,13 +1045,13 @@ export const ExtraToolsView: React.FC = () => {
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Type className="w-5 h-5 text-brand-600" />
-                텍스트 분석 및 케이스 변환
+                {L('텍스트 분석 및 케이스 변환', 'Text Analyzer & Case Converter')}
               </h3>
               <button
                 onClick={() => handleCopy('text', textInput)}
                 className="text-xs text-brand-600 hover:underline flex items-center gap-1"
               >
-                {copiedKey === 'text' ? '복사됨!' : '전체 복사'}
+                {copiedKey === 'text' ? L('복사됨!', 'Copied!') : L('전체 복사', 'Copy All')}
               </button>
             </div>
 
@@ -1055,26 +1059,26 @@ export const ExtraToolsView: React.FC = () => {
               rows={6}
               value={textInput}
               onChange={(e) => setTextInput(e.target.value)}
-              placeholder="텍스트를 입력하세요..."
+              placeholder={L('텍스트를 입력하세요...', 'Enter text...')}
               className="w-full p-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
             />
 
             {/* Statistics */}
             <div className="grid grid-cols-4 gap-2 text-center py-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl">
               <div>
-                <p className="text-xs text-slate-400">글자수</p>
+                <p className="text-xs text-slate-400">{L('글자수', 'Chars')}</p>
                 <p className="font-bold text-sm text-slate-800 dark:text-slate-200">{textStats.chars}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">공백제외</p>
+                <p className="text-xs text-slate-400">{L('공백제외', 'No Spaces')}</p>
                 <p className="font-bold text-sm text-slate-800 dark:text-slate-200">{textStats.charsNoSpaces}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">단어수</p>
+                <p className="text-xs text-slate-400">{L('단어수', 'Words')}</p>
                 <p className="font-bold text-sm text-slate-800 dark:text-slate-200">{textStats.words}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">바이트</p>
+                <p className="text-xs text-slate-400">{L('바이트', 'Bytes')}</p>
                 <p className="font-bold text-sm text-brand-600">{textStats.bytes}B</p>
               </div>
             </div>
@@ -1115,13 +1119,13 @@ export const ExtraToolsView: React.FC = () => {
                 onClick={encodeBase64}
                 className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-950"
               >
-                Base64 인코딩
+                {L('Base64 인코딩', 'Base64 Encode')}
               </button>
               <button
                 onClick={decodeBase64}
                 className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-950"
               >
-                Base64 디코딩
+                {L('Base64 디코딩', 'Base64 Decode')}
               </button>
             </div>
           </div>
@@ -1131,20 +1135,20 @@ export const ExtraToolsView: React.FC = () => {
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-indigo-600" />
-                JSON 정렬 & 유효성 검사
+                {L('JSON 정렬 & 유효성 검사', 'JSON Formatter & Validator')}
               </h3>
               <div className="flex gap-2">
                 <button
                   onClick={() => formatJson(false)}
                   className="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-600"
                 >
-                  정렬 (Prettify)
+                  {L('정렬 (Prettify)', 'Prettify')}
                 </button>
                 <button
                   onClick={() => formatJson(true)}
                   className="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
                 >
-                  압축 (Minify)
+                  {L('압축 (Minify)', 'Minify')}
                 </button>
               </div>
             </div>
@@ -1157,7 +1161,7 @@ export const ExtraToolsView: React.FC = () => {
             />
 
             {jsonError && (
-              <p className="text-xs text-red-500 font-medium">유효하지 않은 JSON: {jsonError}</p>
+              <p className="text-xs text-red-500 font-medium">{L('유효하지 않은 JSON:', 'Invalid JSON:')} {jsonError}</p>
             )}
           </div>
         </div>
@@ -1250,10 +1254,10 @@ export const ExtraToolsView: React.FC = () => {
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <FileText className="w-5 h-5 text-brand-600" />
-                자동 저장 메모장 (Scratchpad)
+                {L('자동 저장 메모장 (Scratchpad)', 'Auto-Save Scratchpad')}
               </h3>
               <span className="text-[11px] text-emerald-500 font-semibold flex items-center gap-1">
-                ● 실시간 자동 저장
+                {L('● 실시간 자동 저장', '● Auto-saving')}
               </span>
             </div>
 
@@ -1261,7 +1265,7 @@ export const ExtraToolsView: React.FC = () => {
               rows={12}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="내용을 자유롭게 적으세요. 브라우저에 항상 안전하게 자동 저장됩니다."
+              placeholder={L('내용을 자유롭게 적으세요. 브라우저에 항상 안전하게 자동 저장됩니다.', 'Write freely. Your notes are automatically saved in your browser.')}
               className="w-full p-4 text-sm font-sans rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 leading-relaxed"
             />
           </div>
@@ -1270,7 +1274,7 @@ export const ExtraToolsView: React.FC = () => {
           <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4">
             <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <CheckCircle className="w-5 h-5 text-emerald-600" />
-              오늘의 할 일 (Quick Todo)
+              {L('오늘의 할 일 (Quick Todo)', 'Quick Todo')}
             </h3>
 
             <div className="flex gap-2">
@@ -1279,7 +1283,7 @@ export const ExtraToolsView: React.FC = () => {
                 value={newTodoText}
                 onChange={(e) => setNewTodoText(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addTodo()}
-                placeholder="새로운 할 일 입력 후 Enter..."
+                placeholder={L('새로운 할 일 입력 후 Enter...', 'Add a new task and press Enter...')}
                 className="flex-1 px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
               />
               <button

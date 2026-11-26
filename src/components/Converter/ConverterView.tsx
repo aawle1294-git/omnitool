@@ -30,6 +30,7 @@ import { formatBytes, copyToClipboard } from '../../utils/formatters';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { NotionPageHeader } from '../NotionLayout/NotionPageHeader';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 type ConverterMode = 'pdf-to-any' | 'img-to-pdf' | 'img-to-img' | 'text-to-pdf' | 'pdf-merge-split';
 
@@ -43,6 +44,8 @@ interface ImageConvertItem {
 }
 
 export const ConverterView: React.FC = () => {
+  const { lang } = useLanguage();
+  const L = (ko: string, en: string) => (lang === 'en' ? en : ko);
   const [mode, setMode] = useState<ConverterMode>('pdf-to-any');
 
   // --- 1. PDF to Any Format state ---
@@ -69,8 +72,8 @@ export const ConverterView: React.FC = () => {
   const imgInputRef = useRef<HTMLInputElement>(null);
 
   // --- 4. Text to PDF state ---
-  const [textContent, setTextContent] = useState<string>('AllDesk를 사용하여 작성된 텍스트 문서입니다.\n\n- 손쉬운 문서 PDF 변환\n- 브라우저 로컬 안전 처리');
-  const [textDocTitle, setTextDocTitle] = useState<string>('내 문서');
+  const [textContent, setTextContent] = useState<string>(L('AllDesk를 사용하여 작성된 텍스트 문서입니다.\n\n- 손쉬운 문서 PDF 변환\n- 브라우저 로컬 안전 처리', 'Text document created using AllDesk.\n\n- Easy document to PDF conversion\n- Safe local browser processing'));
+  const [textDocTitle, setTextDocTitle] = useState<string>(L('내 문서', 'My Document'));
   const [isConvertingTextPdf, setIsConvertingTextPdf] = useState<boolean>(false);
 
   // --- 5. PDF Merge & Split state ---
@@ -89,7 +92,7 @@ export const ConverterView: React.FC = () => {
     if (!files || files.length === 0) return;
     const file = files[0];
     if (file.type !== 'application/pdf' && !file.name.endsWith('.pdf')) {
-      alert('PDF 파일만 선택해주세요.');
+      alert(L('PDF 파일만 선택해주세요.', 'Please select PDF files only.'));
       return;
     }
     setPdfFile(file);
@@ -114,7 +117,7 @@ export const ConverterView: React.FC = () => {
         setPdfPages(pages);
       }
     } catch (err: any) {
-      alert('변환 중 오류: ' + err.message);
+      alert(L('변환 중 오류: ', 'Conversion error: ') + err.message);
     } finally {
       setIsConvertingPdf(false);
     }
@@ -165,7 +168,7 @@ export const ConverterView: React.FC = () => {
       const pdfBlob = await convertImagesToPdf(files, fitA4);
       saveAs(pdfBlob, 'converted_images.pdf');
     } catch (err: any) {
-      alert('PDF 생성 오류: ' + err.message);
+      alert(L('PDF 생성 오류: ', 'PDF creation error: ') + err.message);
     } finally {
       setIsGeneratingPdf(false);
     }
@@ -235,7 +238,7 @@ export const ConverterView: React.FC = () => {
       const blob = await convertTextToPdf(textContent, textDocTitle);
       saveAs(blob, `${textDocTitle || 'document'}.pdf`);
     } catch (err: any) {
-      alert('PDF 생성 오류: ' + err.message);
+      alert(L('PDF 생성 오류: ', 'PDF creation error: ') + err.message);
     } finally {
       setIsConvertingTextPdf(false);
     }
@@ -259,7 +262,7 @@ export const ConverterView: React.FC = () => {
       const mergedBlob = await mergePdfFiles(mergeFiles);
       saveAs(mergedBlob, 'merged_document.pdf');
     } catch (err: any) {
-      alert('PDF 병합 오류: ' + err.message);
+      alert(L('PDF 병합 오류: ', 'PDF merge error: ') + err.message);
     } finally {
       setIsMergingPdfs(false);
     }
@@ -273,7 +276,7 @@ export const ConverterView: React.FC = () => {
       const name = splitFile.name.replace(/\.pdf$/i, '');
       saveAs(splitBlob, `${name}_extracted.pdf`);
     } catch (err: any) {
-      alert('페이지 추출 오류: ' + err.message);
+      alert(L('페이지 추출 오류: ', 'Page extraction error: ') + err.message);
     } finally {
       setIsSplittingPdf(false);
     }
@@ -284,13 +287,13 @@ export const ConverterView: React.FC = () => {
       {/* Notion Page Header */}
       <NotionPageHeader
         icon="🔄"
-        title="파일 형식 변환기"
-        description="PDF를 PNG, JPG, WebP 이미지나 TXT 텍스트로 자유롭게 변환하고, 이미지를 A4 PDF로 병합하거나 포맷을 상호 변환합니다."
+        title={L('파일 형식 변환기', 'File Format Converter')}
+        description={L('PDF를 PNG, JPG, WebP 이미지나 TXT 텍스트로 자유롭게 변환하고, 이미지를 A4 PDF로 병합하거나 포맷을 상호 변환합니다.', 'Convert PDFs to PNG, JPG, WebP images or TXT text, merge images into A4 PDFs, or convert between image formats.')}
         tags={[
           { label: 'PDF ➔ PNG / JPG / WEBP / TXT' },
-          { label: '이미지 ➔ PDF 병합' },
-          { label: '이미지 ➔ ICO 파비콘 / BMP 변환' },
-          { label: '텍스트 ➔ PDF 변환' },
+          { label: L('이미지 ➔ PDF 병합', 'Images ➔ Merge PDF') },
+          { label: L('이미지 ➔ ICO 파비콘 / BMP 변환', 'Images ➔ ICO Favicon / BMP') },
+          { label: L('텍스트 ➔ PDF 변환', 'Text ➔ PDF') },
         ]}
       />
 
@@ -305,7 +308,7 @@ export const ConverterView: React.FC = () => {
           }`}
         >
           <FileText className="w-3.5 h-3.5 shrink-0" />
-          <span>PDF ➔ 이미지 / 텍스트 변환</span>
+          <span>{L('PDF ➔ 이미지 / 텍스트 변환', 'PDF ➔ Image / Text')}</span>
         </button>
 
         <button
@@ -317,7 +320,7 @@ export const ConverterView: React.FC = () => {
           }`}
         >
           <ImageIcon className="w-3.5 h-3.5 shrink-0" />
-          <span>이미지 ➔ PDF 병합</span>
+          <span>{L('이미지 ➔ PDF 병합', 'Images ➔ Merge PDF')}</span>
         </button>
 
         <button
@@ -329,7 +332,7 @@ export const ConverterView: React.FC = () => {
           }`}
         >
           <RefreshCw className="w-3.5 h-3.5 shrink-0" />
-          <span>이미지 포맷 변환 (ICO / WEBP / PNG)</span>
+          <span>{L('이미지 포맷 변환 (ICO / WEBP / PNG)', 'Image Format Converter (ICO / WEBP / PNG)')}</span>
         </button>
 
         <button
@@ -341,7 +344,7 @@ export const ConverterView: React.FC = () => {
           }`}
         >
           <FileCode className="w-3.5 h-3.5 shrink-0" />
-          <span>텍스트 ➔ PDF 변환</span>
+          <span>{L('텍스트 ➔ PDF 변환', 'Text ➔ PDF')}</span>
         </button>
 
         <button
@@ -353,7 +356,7 @@ export const ConverterView: React.FC = () => {
           }`}
         >
           <Layers className="w-3.5 h-3.5 shrink-0" />
-          <span>PDF 병합 / 분할</span>
+          <span>{L('PDF 병합 / 분할', 'PDF Merge / Split')}</span>
         </button>
       </div>
 
@@ -365,36 +368,36 @@ export const ConverterView: React.FC = () => {
           {/* Options Bar */}
           <div className="p-4 rounded-xl bg-[#f7f6f3] dark:bg-[#202020] border border-[#e9e9e7] dark:border-[#2f2f2f] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
             <div>
-              <h3 className="font-bold text-[#37352f] dark:text-white">PDF 변환 출력 확장자 선택</h3>
-              <p className="text-[11px] text-[#787774] mt-0.5">원하는 이미지 규격(PNG, JPG, WebP)이나 텍스트(TXT)를 선택하세요.</p>
+              <h3 className="font-bold text-[#37352f] dark:text-white">{L('PDF 변환 출력 확장자 선택', 'Select PDF Output Format')}</h3>
+              <p className="text-[11px] text-[#787774] mt-0.5">{L('원하는 이미지 규격(PNG, JPG, WebP)이나 텍스트(TXT)를 선택하세요.', 'Choose your desired image format (PNG, JPG, WebP) or plain text (TXT).')}</p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-1.5">
-                <span className="font-semibold text-[#787774]">목표 확장자:</span>
+                <span className="font-semibold text-[#787774]">{L('목표 확장자:', 'Target Format:')}</span>
                 <select
                   value={pdfOutputFormat}
                   onChange={(e) => setPdfOutputFormat(e.target.value as any)}
                   className="px-2.5 py-1.5 rounded-lg border border-[#e9e9e7] dark:border-[#2f2f2f] bg-white dark:bg-[#191919] font-bold text-xs"
                 >
-                  <option value="image/png">PNG (.png) - 무손실 고화질 투명도</option>
-                  <option value="image/jpeg">JPG (.jpg) - 표준 압축 사진</option>
-                  <option value="image/webp">WEBP (.webp) - 차세대 초경량 이미지</option>
-                  <option value="txt">TXT (.txt) - PDF 본문 텍스트 전문 추출</option>
+                  <option value="image/png">{L('PNG (.png) - 무손실 고화질 투명도', 'PNG (.png) - Lossless Transparency')}</option>
+                  <option value="image/jpeg">{L('JPG (.jpg) - 표준 압축 사진', 'JPG (.jpg) - Standard Compressed Photo')}</option>
+                  <option value="image/webp">{L('WEBP (.webp) - 차세대 초경량 이미지', 'WEBP (.webp) - Next-gen Ultra-light Image')}</option>
+                  <option value="txt">{L('TXT (.txt) - PDF 본문 텍스트 전문 추출', 'TXT (.txt) - Extract Full Body Text')}</option>
                 </select>
               </div>
 
               {pdfOutputFormat !== 'txt' && (
                 <div className="flex items-center gap-1.5">
-                  <span className="font-semibold text-[#787774]">해상도 배율:</span>
+                  <span className="font-semibold text-[#787774]">{L('해상도 배율:', 'Resolution Scale:')}</span>
                   <select
                     value={pdfDpiScale}
                     onChange={(e) => setPdfDpiScale(Number(e.target.value))}
                     className="px-2 py-1.5 rounded-lg border border-[#e9e9e7] dark:border-[#2f2f2f] bg-white dark:bg-[#191919] text-xs"
                   >
-                    <option value={1.0}>1.0x (웹 표준 해상도)</option>
-                    <option value={2.0}>2.0x (선명한 2배 고화질, 추천)</option>
-                    <option value={3.0}>3.0x (초고해상도 3배)</option>
+                    <option value={1.0}>{L('1.0x (웹 표준 해상도)', '1.0x (Standard Web)')}</option>
+                    <option value={2.0}>{L('2.0x (선명한 2배 고화질, 추천)', '2.0x (Sharp 2x HD, Recommended)')}</option>
+                    <option value={3.0}>{L('3.0x (초고해상도 3배)', '3.0x (Ultra HD 3x)')}</option>
                   </select>
                 </div>
               )}
@@ -422,10 +425,10 @@ export const ConverterView: React.FC = () => {
               <FileText className="w-6 h-6" />
             </div>
             <h3 className="text-sm font-bold text-[#37352f] dark:text-white">
-              {pdfFile ? pdfFile.name : '변환할 PDF 문서를 선택하거나 드래그하세요'}
+              {pdfFile ? pdfFile.name : L('변환할 PDF 문서를 선택하거나 드래그하세요', 'Select or drag a PDF document to convert')}
             </h3>
             <p className="text-xs text-[#787774] mt-1">
-              {pdfFile ? `파일 크기: ${formatBytes(pdfFile.size)}` : '선택한 PDF의 모든 페이지를 지정한 확장자로 즉시 변환합니다.'}
+              {pdfFile ? L(`파일 크기: ${formatBytes(pdfFile.size)}`, `File size: ${formatBytes(pdfFile.size)}`) : L('선택한 PDF의 모든 페이지를 지정한 확장자로 즉시 변환합니다.', 'Instantly converts all pages of the selected PDF to your chosen format.')}
             </p>
           </div>
 
@@ -436,12 +439,12 @@ export const ConverterView: React.FC = () => {
                 <span className="font-bold text-[#37352f] dark:text-white">{pdfFile.name}</span>
                 {pdfPages.length > 0 && (
                   <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold text-[11px]">
-                    총 {pdfPages.length}페이지 변환 완료
+                    {L(`총 ${pdfPages.length}페이지 변환 완료`, `${pdfPages.length} Pages Converted`)}
                   </span>
                 )}
                 {extractedText && (
                   <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold text-[11px]">
-                    텍스트 추출 완료 ({extractedText.length.toLocaleString()} 자)
+                    {L(`텍스트 추출 완료 (${extractedText.length.toLocaleString()} 자)`, `Text Extracted (${extractedText.length.toLocaleString()} chars)`)}
                   </span>
                 )}
               </div>
@@ -453,7 +456,7 @@ export const ConverterView: React.FC = () => {
                   className="flex items-center gap-1.5 px-4 py-2 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg shadow-xs hover:opacity-90 disabled:opacity-50 transition"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isConvertingPdf ? 'animate-spin' : ''}`} />
-                  <span>{isConvertingPdf ? `변환 처리 중 (${pdfProgress}%)...` : '변환 시작'}</span>
+                  <span>{isConvertingPdf ? L(`변환 처리 중 (${pdfProgress}%)...`, `Converting (${pdfProgress}%)...`) : L('변환 시작', 'Start Conversion')}</span>
                 </button>
 
                 {pdfPages.length > 0 && (
@@ -462,7 +465,7 @@ export const ConverterView: React.FC = () => {
                     className="flex items-center gap-1.5 px-4 py-2 border border-[#e9e9e7] dark:border-[#2f2f2f] bg-white dark:bg-[#191919] font-bold rounded-lg hover:bg-[#efefed] transition"
                   >
                     <Package className="w-3.5 h-3.5" />
-                    <span>전체 이미지 ZIP 다운로드</span>
+                    <span>{L('전체 이미지 ZIP 다운로드', 'Download All Images ZIP')}</span>
                   </button>
                 )}
 
@@ -472,7 +475,7 @@ export const ConverterView: React.FC = () => {
                     className="flex items-center gap-1.5 px-4 py-2 border border-[#e9e9e7] dark:border-[#2f2f2f] bg-white dark:bg-[#191919] font-bold rounded-lg hover:bg-[#efefed] transition"
                   >
                     <Download className="w-3.5 h-3.5" />
-                    <span>추출 텍스트 (.txt) 다운로드</span>
+                    <span>{L('추출 텍스트 (.txt) 다운로드', 'Download Extracted Text (.txt)')}</span>
                   </button>
                 )}
               </div>
@@ -483,7 +486,7 @@ export const ConverterView: React.FC = () => {
           {extractedText && (
             <div className="p-4 rounded-xl border border-[#e9e9e7] dark:border-[#2f2f2f] bg-white dark:bg-[#191919] space-y-3">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-[#37352f] dark:text-white">추출된 본문 텍스트:</span>
+                <span className="font-bold text-[#37352f] dark:text-white">{L('추출된 본문 텍스트:', 'Extracted Body Text:')}</span>
                 <button
                   onClick={async () => {
                     await copyToClipboard(extractedText);
@@ -493,7 +496,7 @@ export const ConverterView: React.FC = () => {
                   className="flex items-center gap-1 text-[#787774] hover:text-black dark:hover:text-white"
                 >
                   {copiedText ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedText ? '복사됨!' : '전체 텍스트 복사'}</span>
+                  <span>{copiedText ? L('복사됨!', 'Copied!') : L('전체 텍스트 복사', 'Copy All Text')}</span>
                 </button>
               </div>
 
@@ -522,7 +525,7 @@ export const ConverterView: React.FC = () => {
                     />
                     <div className="flex items-center justify-between mt-2 text-[11px]">
                       <span className="font-bold text-[#37352f] dark:text-white">
-                        {page.pageNum} 페이지
+                        {L(`${page.pageNum} 페이지`, `Page ${page.pageNum}`)}
                       </span>
                       <span className="text-[#888]">{formatBytes(page.blob.size)}</span>
                     </div>
@@ -536,7 +539,7 @@ export const ConverterView: React.FC = () => {
                     className="mt-2.5 w-full py-1 flex items-center justify-center gap-1 bg-[#f0f0ee] dark:bg-[#2a2a2a] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded text-[11px] font-semibold transition"
                   >
                     <Download className="w-3 h-3" />
-                    다운로드
+                    {L('다운로드', 'Download')}
                   </button>
                 </div>
               ))}
@@ -552,8 +555,8 @@ export const ConverterView: React.FC = () => {
         <div className="space-y-6">
           <div className="p-4 rounded-xl bg-[#f7f6f3] dark:bg-[#202020] border border-[#e9e9e7] dark:border-[#2f2f2f] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
             <div>
-              <h3 className="font-bold text-[#37352f] dark:text-white">여러 이미지를 하나의 PDF 문서로 병합</h3>
-              <p className="text-[11px] text-[#787774] mt-0.5">PNG, JPG, WEBP 사진들을 표준 A4 규격에 맞춰 단일 PDF로 정돈합니다.</p>
+              <h3 className="font-bold text-[#37352f] dark:text-white">{L('여러 이미지를 하나의 PDF 문서로 병합', 'Merge Multiple Images into One PDF')}</h3>
+              <p className="text-[11px] text-[#787774] mt-0.5">{L('PNG, JPG, WEBP 사진들을 표준 A4 규격에 맞춰 단일 PDF로 정돈합니다.', 'Arranges PNG, JPG, and WEBP images into a single A4 PDF document.')}</p>
             </div>
 
             <div className="flex items-center gap-3">
@@ -564,7 +567,7 @@ export const ConverterView: React.FC = () => {
                   onChange={(e) => setFitA4(e.target.checked)}
                   className="rounded"
                 />
-                A4 규격 자동 맞춤
+                {L('A4 규격 자동 맞춤', 'Auto-fit to A4')}
               </label>
 
               {imagesForPdf.length > 0 && (
@@ -574,7 +577,7 @@ export const ConverterView: React.FC = () => {
                   className="flex items-center gap-1.5 px-4 py-1.5 bg-black dark:bg-white text-white dark:text-black rounded-lg font-bold shadow-xs hover:opacity-90 disabled:opacity-50 transition"
                 >
                   <FileCheck className="w-3.5 h-3.5" />
-                  <span>{isGeneratingPdf ? 'PDF 생성 중...' : 'PDF로 병합 저장'}</span>
+                  <span>{isGeneratingPdf ? L('PDF 생성 중...', 'Creating PDF...') : L('PDF로 병합 저장', 'Save Merged PDF')}</span>
                 </button>
               )}
             </div>
@@ -602,9 +605,9 @@ export const ConverterView: React.FC = () => {
               <ImageIcon className="w-6 h-6" />
             </div>
             <h3 className="text-sm font-bold text-[#37352f] dark:text-white">
-              PDF로 합칠 이미지들을 드래그하거나 선택하세요
+              {L('PDF로 합칠 이미지들을 드래그하거나 선택하세요', 'Drag and drop or select images to merge into PDF')}
             </h3>
-            <p className="text-xs text-[#787774] mt-1">PNG, JPG, WEBP 다중 이미지 선택 지원</p>
+            <p className="text-xs text-[#787774] mt-1">{L('PNG, JPG, WEBP 다중 이미지 선택 지원', 'Supports multiple PNG, JPG, WEBP images')}</p>
           </div>
 
           {/* Thumbnails */}
@@ -612,14 +615,14 @@ export const ConverterView: React.FC = () => {
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold text-[#37352f] dark:text-white">
-                  포함될 이미지 ({imagesForPdf.length}장)
+                  {L(`포함될 이미지 (${imagesForPdf.length}장)`, `Images Included (${imagesForPdf.length})`)}
                 </span>
                 <button
                   onClick={() => setImagesForPdf([])}
                   className="text-red-500 hover:underline flex items-center gap-1"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  전체 삭제
+                  {L('전체 삭제', 'Clear All')}
                 </button>
               </div>
 
@@ -659,12 +662,12 @@ export const ConverterView: React.FC = () => {
         <div className="space-y-6">
           <div className="p-4 rounded-xl bg-[#f7f6f3] dark:bg-[#202020] border border-[#e9e9e7] dark:border-[#2f2f2f] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
             <div>
-              <h3 className="font-bold text-[#37352f] dark:text-white">이미지 포맷 상호 변환 (파비콘 ICO 지원)</h3>
-              <p className="text-[11px] text-[#787774] mt-0.5">PNG, JPG, WEBP, BMP와 웹사이트/윈도우 파비콘 아이콘(ICO)으로 변환합니다.</p>
+              <h3 className="font-bold text-[#37352f] dark:text-white">{L('이미지 포맷 상호 변환 (파비콘 ICO 지원)', 'Image Format Converter (ICO Favicon Supported)')}</h3>
+              <p className="text-[11px] text-[#787774] mt-0.5">{L('PNG, JPG, WEBP, BMP와 웹사이트/윈도우 파비콘 아이콘(ICO)으로 변환합니다.', 'Converts between PNG, JPG, WEBP, BMP, and website/Windows favicon icons (ICO).')}</p>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-[#787774]">변환할 포맷:</span>
+              <span className="font-semibold text-[#787774]">{L('변환할 포맷:', 'Target Format:')}</span>
               <select
                 value={globalTargetFormat}
                 onChange={(e) => {
@@ -674,11 +677,11 @@ export const ConverterView: React.FC = () => {
                 }}
                 className="px-2.5 py-1.5 rounded-lg border border-[#e9e9e7] dark:border-[#2f2f2f] bg-white dark:bg-[#191919] font-bold text-xs"
               >
-                <option value="image/png">PNG (.png) - 무손실 투명도</option>
-                <option value="image/webp">WEBP (.webp) - 초경량 웹 포맷</option>
-                <option value="image/jpeg">JPEG (.jpg) - 표준 사진</option>
-                <option value="ico">ICO (.ico) - 윈도우 아이콘 & 웹 파비콘</option>
-                <option value="bmp">BMP (.bmp) - 윈도우 비트맵</option>
+                <option value="image/png">{L('PNG (.png) - 무손실 투명도', 'PNG (.png) - Lossless Transparency')}</option>
+                <option value="image/webp">{L('WEBP (.webp) - 초경량 웹 포맷', 'WEBP (.webp) - Ultra-light Web Format')}</option>
+                <option value="image/jpeg">{L('JPEG (.jpg) - 표준 사진', 'JPEG (.jpg) - Standard Photo')}</option>
+                <option value="ico">{L('ICO (.ico) - 윈도우 아이콘 & 웹 파비콘', 'ICO (.ico) - Windows Icon & Web Favicon')}</option>
+                <option value="bmp">{L('BMP (.bmp) - 윈도우 비트맵', 'BMP (.bmp) - Windows Bitmap')}</option>
               </select>
             </div>
           </div>
@@ -705,27 +708,27 @@ export const ConverterView: React.FC = () => {
               <RefreshCw className="w-6 h-6" />
             </div>
             <h3 className="text-sm font-bold text-[#37352f] dark:text-white">
-              변환할 이미지를 선택하거나 드래그하세요
+              {L('변환할 이미지를 선택하거나 드래그하세요', 'Select or drag images to convert')}
             </h3>
-            <p className="text-xs text-[#787774] mt-1">다중 파일 선택 지원</p>
+            <p className="text-xs text-[#787774] mt-1">{L('다중 파일 선택 지원', 'Multiple files supported')}</p>
           </div>
 
           {imageItems.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold text-[#37352f] dark:text-white">
-                  등록된 이미지: {imageItems.length}개
+                  {L(`등록된 이미지: ${imageItems.length}개`, `Queued Images: ${imageItems.length}`)}
                 </span>
                 <div className="flex items-center gap-2">
                   <button onClick={() => setImageItems([])} className="text-[#787774] hover:text-red-500">
-                    비우기
+                    {L('비우기', 'Clear')}
                   </button>
                   <button
                     onClick={handleConvertAllImages}
                     disabled={isConvertingImages}
                     className="px-4 py-1.5 bg-black dark:bg-white text-white dark:text-black rounded-lg font-bold shadow-xs hover:opacity-90 disabled:opacity-50 transition"
                   >
-                    {isConvertingImages ? '변환 중...' : '전체 변환 실행'}
+                    {isConvertingImages ? L('변환 중...', 'Converting...') : L('전체 변환 실행', 'Convert All')}
                   </button>
                 </div>
               </div>
@@ -766,7 +769,7 @@ export const ConverterView: React.FC = () => {
                           className="flex items-center gap-1 px-3 py-1 bg-black dark:bg-white text-white dark:text-black rounded font-semibold transition"
                         >
                           <Download className="w-3 h-3" />
-                          다운로드
+                          {L('다운로드', 'Download')}
                         </button>
                       )}
                       <button
@@ -791,8 +794,8 @@ export const ConverterView: React.FC = () => {
         <div className="space-y-4">
           <div className="p-4 rounded-xl bg-[#f7f6f3] dark:bg-[#202020] border border-[#e9e9e7] dark:border-[#2f2f2f] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
             <div>
-              <h3 className="font-bold text-[#37352f] dark:text-white">텍스트 문서를 PDF 파일로 즉시 변환</h3>
-              <p className="text-[11px] text-[#787774] mt-0.5">메모나 글을 작성하고 버튼 하나로 깔끔한 PDF 문서 파일로 출력합니다.</p>
+              <h3 className="font-bold text-[#37352f] dark:text-white">{L('텍스트 문서를 PDF 파일로 즉시 변환', 'Convert Text Document to PDF Instantly')}</h3>
+              <p className="text-[11px] text-[#787774] mt-0.5">{L('메모나 글을 작성하고 버튼 하나로 깔끔한 PDF 문서 파일로 출력합니다.', 'Write notes or text and export them as a clean PDF document with one click.')}</p>
             </div>
 
             <button
@@ -801,29 +804,29 @@ export const ConverterView: React.FC = () => {
               className="flex items-center gap-1.5 px-4 py-2 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg shadow-xs hover:opacity-90 disabled:opacity-50 transition"
             >
               <FileText className="w-3.5 h-3.5" />
-              <span>{isConvertingTextPdf ? '생성 중...' : 'PDF로 변환 다운로드'}</span>
+              <span>{isConvertingTextPdf ? L('생성 중...', 'Creating...') : L('PDF로 변환 다운로드', 'Convert & Download PDF')}</span>
             </button>
           </div>
 
           <div className="space-y-3 text-xs">
             <div>
-              <label className="font-bold text-[#787774] block mb-1">문서 제목</label>
+              <label className="font-bold text-[#787774] block mb-1">{L('문서 제목', 'Document Title')}</label>
               <input
                 type="text"
                 value={textDocTitle}
                 onChange={(e) => setTextDocTitle(e.target.value)}
-                placeholder="문서 제목 입력..."
+                placeholder={L('문서 제목 입력...', 'Enter document title...')}
                 className="w-full px-3 py-2 rounded-lg border border-[#e9e9e7] dark:border-[#2f2f2f] bg-white dark:bg-[#191919] font-bold"
               />
             </div>
 
             <div>
-              <label className="font-bold text-[#787774] block mb-1">문서 본문 내용</label>
+              <label className="font-bold text-[#787774] block mb-1">{L('문서 본문 내용', 'Document Body')}</label>
               <textarea
                 rows={12}
                 value={textContent}
                 onChange={(e) => setTextContent(e.target.value)}
-                placeholder="PDF로 변환할 내용을 입력하세요..."
+                placeholder={L('PDF로 변환할 내용을 입력하세요...', 'Enter text to convert to PDF...')}
                 className="w-full p-3 font-mono rounded-lg border border-[#e9e9e7] dark:border-[#2f2f2f] bg-white dark:bg-[#191919] leading-relaxed"
               />
             </div>
@@ -840,9 +843,9 @@ export const ConverterView: React.FC = () => {
           <div className="p-5 rounded-xl border border-[#e9e9e7] dark:border-[#2f2f2f] bg-white dark:bg-[#191919] space-y-3">
             <h3 className="font-bold text-[#37352f] dark:text-white flex items-center gap-2">
               <Layers className="w-4 h-4" />
-              PDF 병합 (Merge)
+              {L('PDF 병합 (Merge)', 'Merge PDFs')}
             </h3>
-            <p className="text-[11px] text-[#787774]">여러 PDF 문서를 하나의 파일로 합칩니다.</p>
+            <p className="text-[11px] text-[#787774]">{L('여러 PDF 문서를 하나의 파일로 합칩니다.', 'Combine multiple PDF documents into a single file.')}</p>
 
             <div
               onClick={() => mergeInputRef.current?.click()}
@@ -857,15 +860,15 @@ export const ConverterView: React.FC = () => {
                 onChange={(e) => handleMergeFilesUpload(e.target.files)}
               />
               <UploadCloud className="w-6 h-6 text-[#787774] mx-auto mb-1.5" />
-              <p className="font-bold text-[#37352f] dark:text-white">합칠 PDF들을 선택하세요</p>
+              <p className="font-bold text-[#37352f] dark:text-white">{L('합칠 PDF들을 선택하세요', 'Select PDFs to merge')}</p>
             </div>
 
             {mergeFiles.length > 0 && (
               <div className="space-y-2 pt-2">
                 <div className="flex justify-between font-bold">
-                  <span>선택된 PDF: {mergeFiles.length}개</span>
+                  <span>{L(`선택된 PDF: ${mergeFiles.length}개`, `Selected PDFs: ${mergeFiles.length}`)}</span>
                   <button onClick={() => setMergeFiles([])} className="text-red-500 hover:underline">
-                    비우기
+                    {L('비우기', 'Clear')}
                   </button>
                 </div>
                 <button
@@ -873,7 +876,7 @@ export const ConverterView: React.FC = () => {
                   disabled={mergeFiles.length < 2 || isMergingPdfs}
                   className="w-full py-2 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg shadow-xs hover:opacity-90 disabled:opacity-50 transition"
                 >
-                  {isMergingPdfs ? '병합 중...' : '하나의 PDF로 병합'}
+                  {isMergingPdfs ? L('병합 중...', 'Merging...') : L('하나의 PDF로 병합', 'Merge into Single PDF')}
                 </button>
               </div>
             )}
@@ -883,9 +886,9 @@ export const ConverterView: React.FC = () => {
           <div className="p-5 rounded-xl border border-[#e9e9e7] dark:border-[#2f2f2f] bg-white dark:bg-[#191919] space-y-3">
             <h3 className="font-bold text-[#37352f] dark:text-white flex items-center gap-2">
               <Scissors className="w-4 h-4" />
-              PDF 분할 & 페이지 추출 (Split)
+              {L('PDF 분할 & 페이지 추출 (Split)', 'Split PDF & Extract Pages')}
             </h3>
-            <p className="text-[11px] text-[#787774]">원하는 페이지만 골라서 새로운 PDF로 저장합니다.</p>
+            <p className="text-[11px] text-[#787774]">{L('원하는 페이지만 골라서 새로운 PDF로 저장합니다.', 'Select specific pages and save them as a new PDF.')}</p>
 
             <div
               onClick={() => splitInputRef.current?.click()}
@@ -902,7 +905,7 @@ export const ConverterView: React.FC = () => {
               />
               <Scissors className="w-6 h-6 text-[#787774] mx-auto mb-1.5" />
               <p className="font-bold text-[#37352f] dark:text-white">
-                {splitFile ? splitFile.name : '분할할 PDF 파일 선택'}
+                {splitFile ? splitFile.name : L('분할할 PDF 파일 선택', 'Select PDF file to split')}
               </p>
             </div>
 
@@ -912,7 +915,7 @@ export const ConverterView: React.FC = () => {
                   type="text"
                   value={pageRange}
                   onChange={(e) => setPageRange(e.target.value)}
-                  placeholder="예: 1-3, 5, 8"
+                  placeholder={L('예: 1-3, 5, 8', 'e.g., 1-3, 5, 8')}
                   className="w-full px-2.5 py-1.5 rounded-lg border border-[#e9e9e7] dark:border-[#2f2f2f] bg-[#faf9f6] dark:bg-[#202020] text-xs font-mono"
                 />
                 <button
@@ -920,7 +923,7 @@ export const ConverterView: React.FC = () => {
                   disabled={!pageRange || isSplittingPdf}
                   className="w-full py-2 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg shadow-xs hover:opacity-90 disabled:opacity-50 transition"
                 >
-                  {isSplittingPdf ? '추출 중...' : '선택한 페이지만 추출 저장'}
+                  {isSplittingPdf ? L('추출 중...', 'Extracting...') : L('선택한 페이지만 추출 저장', 'Extract & Save Selected Pages')}
                 </button>
               </div>
             )}

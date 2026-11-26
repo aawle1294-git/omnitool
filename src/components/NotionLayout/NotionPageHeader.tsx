@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface NotionPageHeaderProps {
   icon: string;
@@ -15,6 +16,7 @@ export const NotionPageHeader: React.FC<NotionPageHeaderProps> = ({
   coverGradient = 'from-stone-100 via-neutral-100 to-stone-200 dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900',
   tags = [],
 }) => {
+  const { lang } = useLanguage();
   return (
     <div className="mb-8 select-none">
       {/* Cover Header */}
@@ -42,7 +44,7 @@ export const NotionPageHeader: React.FC<NotionPageHeaderProps> = ({
         {/* Notion Properties Block */}
         {tags.length > 0 && (
           <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-            <span className="text-[#9b9a97]">속성:</span>
+            <span className="text-[#9b9a97]">{lang === 'en' ? 'Properties:' : '속성:'}</span>
             {tags.map((tag, idx) => (
               <span
                 key={idx}

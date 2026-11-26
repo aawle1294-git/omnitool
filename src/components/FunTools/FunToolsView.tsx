@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { NotionPageHeader } from '../NotionLayout/NotionPageHeader';
 import { saveAs } from 'file-saver';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Authentic PetPet Constants & Algorithm (by benisland)
@@ -45,6 +46,9 @@ const FRAME_OFFSETS = [
 ];
 
 export const FunToolsView: React.FC = () => {
+  const { lang } = useLanguage();
+  const L = (ko: string, en: string) => (lang === 'en' ? en : ko);
+
   // Hand Sprite Image
   const handRef = useRef<HTMLImageElement | null>(null);
   const [handLoaded, setHandLoaded] = useState(false);
@@ -291,7 +295,7 @@ export const FunToolsView: React.FC = () => {
       const resUrl = URL.createObjectURL(blob);
       setExportedUrl(resUrl);
     } catch (err: any) {
-      alert('GIF 생성 실패: ' + err.message);
+      alert(L('GIF 생성 실패: ', 'GIF generation failed: ') + err.message);
     } finally {
       setExporting(false);
     }
@@ -301,13 +305,13 @@ export const FunToolsView: React.FC = () => {
     <div className="space-y-6 pb-20">
       <NotionPageHeader
         icon="🐾"
-        title="PetPet GIF 생성기"
-        description="사진이나 일러스트를 업로드하면 귀엽게 쓰다듬는 오리지널 PetPet 밈 GIF를 생성합니다. 위치, 크기, 눌림 강도, 속도를 자유롭게 조절할 수 있습니다."
+        title={L('PetPet GIF 생성기', 'PetPet GIF Generator')}
+        description={L('사진이나 일러스트를 업로드하면 귀엽게 쓰다듬는 오리지널 PetPet 밈 GIF를 생성합니다. 위치, 크기, 눌림 강도, 속도를 자유롭게 조절할 수 있습니다.', 'Upload a photo or illustration to generate the classic cute head-patting PetPet meme GIF. Freely adjust position, size, squish intensity, and speed.')}
         tags={[
-          { label: '오리지널 손 스프라이트 (5 Frames)' },
-          { label: '실시간 드래그 위치 조정' },
-          { label: 'Flip / Squish / Speed 정밀 제어' },
-          { label: '100% 브라우저 로컬 처리' },
+          { label: L('오리지널 손 스프라이트 (5 Frames)', 'Original Hand Sprite (5 Frames)') },
+          { label: L('실시간 드래그 위치 조정', 'Real-time Drag Positioning') },
+          { label: L('Flip / Squish / Speed 정밀 제어', 'Precise Flip / Squish / Speed Control') },
+          { label: L('100% 브라우저 로컬 처리', '100% Local Browser Processing') },
         ]}
       />
 
@@ -323,7 +327,7 @@ export const FunToolsView: React.FC = () => {
             <div className="flex items-center justify-between border-b border-[#f0f0ee] dark:border-[#2a2a2a] pb-3">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <h3 className="font-bold text-sm text-[#37352f] dark:text-white">실시간 미리보기</h3>
+                <h3 className="font-bold text-sm text-[#37352f] dark:text-white">{L('실시간 미리보기', 'Live Preview')}</h3>
               </div>
               <span className="text-xs text-[#787774] font-mono">
                 Frame {currentFrame + 1} / {MAX_FRAME}
@@ -364,7 +368,7 @@ export const FunToolsView: React.FC = () => {
                 {adjustMode && (
                   <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-blue-600 text-white text-[10px] font-bold tracking-wider shadow-sm flex items-center gap-1 pointer-events-none">
                     <Move className="w-3 h-3" />
-                    <span>드래그하여 위치 이동</span>
+                    <span>{L('드래그하여 위치 이동', 'Drag to move position')}</span>
                   </div>
                 )}
               </div>
@@ -374,7 +378,7 @@ export const FunToolsView: React.FC = () => {
                 <button
                   onClick={() => setCurrentFrame((prev) => (prev - 1 + MAX_FRAME) % MAX_FRAME)}
                   className="p-1.5 rounded-lg text-[#787774] hover:text-[#37352f] dark:hover:text-white hover:bg-[#efefed] dark:hover:bg-[#333] transition"
-                  title="이전 프레임"
+                  title={L('이전 프레임', 'Previous frame')}
                 >
                   <SkipBack className="w-3.5 h-3.5" />
                 </button>
@@ -385,19 +389,19 @@ export const FunToolsView: React.FC = () => {
                   {isPlaying ? (
                     <>
                       <Pause className="w-3.5 h-3.5 fill-current" />
-                      <span>일시정지</span>
+                      <span>{L('일시정지', 'Pause')}</span>
                     </>
                   ) : (
                     <>
                       <Play className="w-3.5 h-3.5 fill-current" />
-                      <span>재생</span>
+                      <span>{L('재생', 'Play')}</span>
                     </>
                   )}
                 </button>
                 <button
                   onClick={() => setCurrentFrame((prev) => (prev + 1) % MAX_FRAME)}
                   className="p-1.5 rounded-lg text-[#787774] hover:text-[#37352f] dark:hover:text-white hover:bg-[#efefed] dark:hover:bg-[#333] transition"
-                  title="다음 프레임"
+                  title={L('다음 프레임', 'Next frame')}
                 >
                   <SkipForward className="w-3.5 h-3.5" />
                 </button>
@@ -412,10 +416,10 @@ export const FunToolsView: React.FC = () => {
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-1.5">
                     <Move className="w-3.5 h-3.5 text-[#37352f] dark:text-white" />
-                    <span className="font-bold text-[#37352f] dark:text-white">캔버스 직접 드래그 모드</span>
+                    <span className="font-bold text-[#37352f] dark:text-white">{L('캔버스 직접 드래그 모드', 'Direct Canvas Drag Mode')}</span>
                   </div>
                   <p className="text-[11px] text-[#787774]">
-                    활성화 시 마우스로 미리보기 안의 이미지를 원하는 위치로 드래그합니다.
+                    {L('활성화 시 마우스로 미리보기 안의 이미지를 원하는 위치로 드래그합니다.', 'When enabled, drag the image inside the preview to your desired position.')}
                   </p>
                 </div>
                 <button
@@ -434,7 +438,7 @@ export const FunToolsView: React.FC = () => {
 
               {/* Flip toggle */}
               <div className="flex items-center justify-between px-1">
-                <span className="font-semibold text-[#37352f] dark:text-white">좌우 반전 (Flip)</span>
+                <span className="font-semibold text-[#37352f] dark:text-white">{L('좌우 반전 (Flip)', 'Flip Horizontal')}</span>
                 <button
                   onClick={() => setFlip(!flip)}
                   className={`w-11 h-6 flex items-center rounded-full p-1 transition shrink-0 ${
@@ -454,7 +458,7 @@ export const FunToolsView: React.FC = () => {
                 {/* Size */}
                 <div className="space-y-1.5">
                   <div className="flex justify-between font-semibold">
-                    <span className="text-[#787774]">크기 (Size)</span>
+                    <span className="text-[#787774]">{L('크기 (Size)', 'Size')}</span>
                     <span className="font-mono text-[#37352f] dark:text-white">{(scale * 100).toFixed(0)}%</span>
                   </div>
                   <input
@@ -471,7 +475,7 @@ export const FunToolsView: React.FC = () => {
                 {/* Squish */}
                 <div className="space-y-1.5">
                   <div className="flex justify-between font-semibold">
-                    <span className="text-[#787774]">눌림 강도 (Squish)</span>
+                    <span className="text-[#787774]">{L('눌림 강도 (Squish)', 'Squish')}</span>
                     <span className="font-mono text-[#37352f] dark:text-white">{squish.toFixed(2)}x</span>
                   </div>
                   <input
@@ -488,7 +492,7 @@ export const FunToolsView: React.FC = () => {
                 {/* Speed */}
                 <div className="space-y-1.5">
                   <div className="flex justify-between font-semibold">
-                    <span className="text-[#787774]">속도 (FPS)</span>
+                    <span className="text-[#787774]">{L('속도 (FPS)', 'Speed (FPS)')}</span>
                     <span className="font-mono text-[#37352f] dark:text-white">{speed} fps</span>
                   </div>
                   <input
@@ -510,7 +514,7 @@ export const FunToolsView: React.FC = () => {
                   className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-[#e9e9e7] dark:border-[#2f2f2f] bg-white dark:bg-[#282828] text-[#37352f] dark:text-white font-semibold text-xs hover:bg-[#efefed] dark:hover:bg-[#333] transition"
                 >
                   <RotateCcw className="w-3.5 h-3.5 text-[#787774]" />
-                  <span>설정 초기화</span>
+                  <span>{L('설정 초기화', 'Reset Settings')}</span>
                 </button>
                 <button
                   onClick={handleExport}
@@ -520,12 +524,12 @@ export const FunToolsView: React.FC = () => {
                   {exporting ? (
                     <>
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>GIF 인코딩 중...</span>
+                      <span>{L('GIF 인코딩 중...', 'Encoding GIF...')}</span>
                     </>
                   ) : (
                     <>
                       <Sparkles className="w-3.5 h-3.5" />
-                      <span>PetPet GIF 생성하기</span>
+                      <span>{L('PetPet GIF 생성하기', 'Generate PetPet GIF')}</span>
                     </>
                   )}
                 </button>
@@ -544,7 +548,7 @@ export const FunToolsView: React.FC = () => {
           <div className="p-6 rounded-2xl bg-white dark:bg-[#1f1f1f] border border-[#e9e9e7] dark:border-[#2f2f2f] shadow-xs space-y-4">
             <h3 className="font-bold text-sm text-[#37352f] dark:text-white flex items-center gap-2">
               <Upload className="w-4 h-4 text-[#787774]" />
-              <span>대상 이미지 등록</span>
+              <span>{L('대상 이미지 등록', 'Upload Target Image')}</span>
             </h3>
 
             {/* Current Target Thumbnail */}
@@ -556,10 +560,10 @@ export const FunToolsView: React.FC = () => {
               />
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-bold text-[#37352f] dark:text-white truncate">
-                  현재 쓰다듬을 이미지
+                  {L('현재 쓰다듬을 이미지', 'Current image to pet')}
                 </p>
                 <p className="text-[11px] text-[#787774]">
-                  PNG, JPG, WEBP, 투명 배경 지원
+                  {L('PNG, JPG, WEBP, 투명 배경 지원', 'Supports PNG, JPG, WEBP & transparent backgrounds')}
                 </p>
               </div>
             </div>
@@ -591,17 +595,17 @@ export const FunToolsView: React.FC = () => {
               </div>
               <div>
                 <p className="text-xs font-bold text-[#37352f] dark:text-white">
-                  컴퓨터에서 사진 선택
+                  {L('컴퓨터에서 사진 선택', 'Select image from computer')}
                 </p>
                 <p className="text-[11px] text-[#787774]">
-                  또는 이미지를 여기로 드래그 & 드롭
+                  {L('또는 이미지를 여기로 드래그 & 드롭', 'Or drag & drop an image here')}
                 </p>
               </div>
             </div>
 
             {/* URL Upload Box */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-[#787774]">웹 링크(URL)로 불러오기</label>
+              <label className="text-[11px] font-semibold text-[#787774]">{L('웹 링크(URL)로 불러오기', 'Load from Web URL')}</label>
               <div className="flex items-center gap-1.5">
                 <div className="relative flex-1">
                   <LinkIcon className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#787774]" />
@@ -610,7 +614,7 @@ export const FunToolsView: React.FC = () => {
                     value={urlInput}
                     onChange={(e) => setUrlInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleUrlLoad()}
-                    placeholder="https://... 이미지 링크 입력"
+                    placeholder={L('https://... 이미지 링크 입력', 'https://... Enter image URL')}
                     className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-[#e9e9e7] dark:border-[#2f2f2f] bg-[#faf9f6] dark:bg-[#191919] text-[#37352f] dark:text-white focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white"
                   />
                 </div>
@@ -618,7 +622,7 @@ export const FunToolsView: React.FC = () => {
                   onClick={handleUrlLoad}
                   className="px-3 py-2 rounded-xl bg-[#efefed] dark:bg-[#2c2c2c] hover:bg-[#e3e2e0] dark:hover:bg-[#383838] text-xs font-semibold text-[#37352f] dark:text-white transition"
                 >
-                  적용
+                  {L('적용', 'Apply')}
                 </button>
               </div>
             </div>
@@ -629,7 +633,7 @@ export const FunToolsView: React.FC = () => {
           <div className="p-6 rounded-2xl bg-white dark:bg-[#1f1f1f] border border-[#e9e9e7] dark:border-[#2f2f2f] shadow-xs space-y-4">
             <h3 className="font-bold text-sm text-[#37352f] dark:text-white flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-emerald-600" />
-              <span>완성된 PetPet GIF</span>
+              <span>{L('완성된 PetPet GIF', 'Generated PetPet GIF')}</span>
             </h3>
 
             {exportedUrl ? (
@@ -643,10 +647,10 @@ export const FunToolsView: React.FC = () => {
                 <div className="space-y-0.5">
                   <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center justify-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>GIF 생성이 완료되었습니다!</span>
+                    <span>{L('GIF 생성이 완료되었습니다!', 'GIF generation complete!')}</span>
                   </p>
                   <p className="text-[11px] text-[#787774]">
-                    투명 배경이 지원되는 애니메이션 GIF 파일입니다.
+                    {L('투명 배경이 지원되는 애니메이션 GIF 파일입니다.', 'Animated GIF with transparent background support.')}
                   </p>
                 </div>
                 <button
@@ -654,17 +658,17 @@ export const FunToolsView: React.FC = () => {
                   className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-sm w-full justify-center"
                 >
                   <Download className="w-4 h-4" />
-                  <span>petpet.gif 다운로드</span>
+                  <span>{L('petpet.gif 다운로드', 'Download petpet.gif')}</span>
                 </button>
               </div>
             ) : (
               <div className="p-8 rounded-2xl bg-[#faf9f6] dark:bg-[#191919] border border-dashed border-[#e9e9e7] dark:border-[#333] text-center space-y-2">
                 <Sparkles className="w-7 h-7 text-[#aaa] mx-auto" />
                 <p className="text-xs font-semibold text-[#37352f] dark:text-white">
-                  아직 생성된 GIF가 없습니다
+                  {L('아직 생성된 GIF가 없습니다', 'No GIF generated yet')}
                 </p>
                 <p className="text-[11px] text-[#787774]">
-                  왼쪽에서 옵션을 조절한 후 [PetPet GIF 생성하기] 버튼을 누르면 다운로드할 수 있습니다.
+                  {L('왼쪽에서 옵션을 조절한 후 [PetPet GIF 생성하기] 버튼을 누르면 다운로드할 수 있습니다.', 'Adjust the options on the left and click [Generate PetPet GIF] to download.')}
                 </p>
               </div>
             )}
@@ -674,10 +678,10 @@ export const FunToolsView: React.FC = () => {
               <Info className="w-4 h-4 text-[#787774] shrink-0 mt-0.5" />
               <div className="space-y-1">
                 <p>
-                  • 생성된 GIF는 브라우저 메모리에 저장되므로 바로 다운로드해 보관하세요.
+                  {L('• 생성된 GIF는 브라우저 메모리에 저장되므로 바로 다운로드해 보관하세요.', '• Generated GIFs are stored in browser memory—download and save them right away.')}
                 </p>
                 <p>
-                  • 디스코드, 슬랙, 카카오톡 등에 이모지나 움짤로 바로 첨부할 수 있습니다.
+                  {L('• 디스코드, 슬랙, 카카오톡 등에 이모지나 움짤로 바로 첨부할 수 있습니다.', '• Ready to attach as an emoji or animated sticker on Discord, Slack, KakaoTalk, etc.')}
                 </p>
               </div>
             </div>
