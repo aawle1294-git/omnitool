@@ -104,8 +104,8 @@ export const AppInstallerView: React.FC<AppInstallerViewProps> = ({
                     'A native Windows setup wizard pops up separately from the browser to install all selected apps in one click.'
                   )
                 : L(
-                    '이 기능은 로컬 PC에서 실행하기.bat으로 구동할 때만 사용 가능합니다. 아래 웹 마법사 모드로도 winget 명령어를 복사해 직접 설치하실 수 있습니다.',
-                    'Available when running locally via 실행하기.bat. You can also use Web Wizard mode below to copy winget commands and install directly.'
+                    '아래 웹 마법사 모드에서 원하는 프로그램을 선택해 winget 명령어를 복사하거나 일괄 설치 스크립트를 다운로드할 수 있습니다.',
+                    'Use Web Wizard mode below to select apps, copy winget commands, or download a batch install script.'
                   )}
             </p>
           </div>

@@ -120,9 +120,9 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
     const lines = [
       '@echo off',
       'chcp 65001 > nul',
-      'title Notion Style Software Installer',
+      'title AllDesk Software Installer',
       'echo =======================================================',
-      `echo   ${L('AllDesk 노션 소프트웨어 설치 마법사', 'AllDesk Notion Software Setup Wizard')}`,
+      `echo   ${L('AllDesk 소프트웨어 설치 마법사', 'AllDesk Software Setup Wizard')}`,
       'echo =======================================================',
       'echo.',
     ];
@@ -145,7 +145,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
   const downloadBat = () => {
     const script = generateBatScript();
     const blob = new Blob([script], { type: 'application/bat;charset=utf-8' });
-    saveAs(blob, 'Notion_Auto_Install.bat');
+    saveAs(blob, 'AllDesk_Auto_Install.bat');
   };
 
   const handleCopyCmd = async () => {
@@ -230,7 +230,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
             <span className="w-3 h-3 rounded-full bg-[#27c93f] inline-block border border-[#1aab29]/40" />
           </div>
           <span className="text-xs font-semibold text-[#37352f] dark:text-[#d3d3d3] flex items-center gap-1.5">
-            <span>📦</span> {L('AllDesk 설치 마법사 (Notion Edition)', 'AllDesk Install Wizard (Notion Edition)')}
+            <span>📦</span> {L('AllDesk 설치 마법사', 'AllDesk Install Wizard')}
           </span>
         </div>
 
@@ -256,7 +256,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
           <div className="space-y-6">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-sm shadow-sm">
-                N
+                A
               </div>
               <div>
                 <h4 className="text-xs font-bold text-[#37352f] dark:text-[#e3e2e0]">Setup Wizard</h4>
@@ -330,7 +330,7 @@ export const NotionInstallerWizard: React.FC<NotionInstallerWizardProps> = ({
                     {L('AllDesk 소프트웨어 설치 마법사', 'AllDesk Software Install Wizard')}
                   </h2>
                   <p className="text-xs text-[#787774] mt-1">
-                    {L('노션 스타일의 심플하고 안전한 원클릭 프로그램 무인 인스톨러입니다.', 'A simple, safe Notion-style one-click unattended app installer.')}
+                    {L('심플하고 안전한 원클릭 프로그램 무인 인스톨러입니다.', 'A simple, safe one-click unattended app installer.')}
                   </p>
                 </div>
               </div>

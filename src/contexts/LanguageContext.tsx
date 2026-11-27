@@ -37,7 +37,7 @@ const dict: Record<Lang, Record<string, string>> = {
     // ── Sidebar UI ──
     'sidebar.workspace': '워크스페이스 페이지',
     'sidebar.subpages': '하위 페이지',
-    'sidebar.callout.title': '📁 진짜 노션 하위 페이지',
+    'sidebar.callout.title': '📁 하위 페이지 구조',
     'sidebar.callout.desc': '하위 페이지를 누르면 해당 기능 전용 화면으로 전환됩니다.',
     'sidebar.open': '사이드바 열기',
     'sidebar.close': '사이드바 접기',
@@ -66,7 +66,7 @@ const dict: Record<Lang, Record<string, string>> = {
     'footer.safe': '100% 브라우저 로컬 안전 처리',
 
     // ── Document Titles ──
-    'title.home': 'AllDesk - 올인원 노션 데스크',
+    'title.home': 'AllDesk - 올인원 데스크',
     'title.editor': '파일 편집소 - AllDesk',
     'title.editor-image': 'PNG & 사진 편집기 - AllDesk',
     'title.editor-pdf': 'PDF 문서 편집기 - AllDesk',
@@ -94,7 +94,7 @@ const dict: Record<Lang, Record<string, string>> = {
     'updatelog.updatelog.title': '업데이트 로그 보기',
 
     // ── Home ──
-    'home.hero.title': 'AllDesk 올인원 노션 데스크',
+    'home.hero.title': 'AllDesk 올인원 데스크',
     'home.hero.desc': '파일 압축, 형식 변환, 프로그램 원클릭 설치 마법사를 100% 브라우저 내에서 안전하게 제공합니다.',
     'home.hero.tag1': '상태: 운영중',
     'home.hero.tag2': '보안: 100% 브라우저 처리',
@@ -164,7 +164,7 @@ const dict: Record<Lang, Record<string, string>> = {
     // ── Sidebar UI ──
     'sidebar.workspace': 'Workspace Pages',
     'sidebar.subpages': 'Sub-pages',
-    'sidebar.callout.title': '📁 Real Notion Sub-pages',
+    'sidebar.callout.title': '📁 Sub-page Structure',
     'sidebar.callout.desc': 'Click a sub-page to switch to its dedicated tool view.',
     'sidebar.open': 'Open sidebar',
     'sidebar.close': 'Close sidebar',
@@ -193,7 +193,7 @@ const dict: Record<Lang, Record<string, string>> = {
     'footer.safe': '100% browser-local processing',
 
     // ── Document Titles ──
-    'title.home': 'AllDesk - All-in-one Notion Desk',
+    'title.home': 'AllDesk - All-in-one Desk',
     'title.editor': 'File Editor - AllDesk',
     'title.editor-image': 'PNG & Photo Editor - AllDesk',
     'title.editor-pdf': 'PDF Document Editor - AllDesk',
@@ -221,7 +221,7 @@ const dict: Record<Lang, Record<string, string>> = {
     'updatelog.updatelog.title': 'View Update Log',
 
     // ── Home ──
-    'home.hero.title': 'AllDesk All-in-one Notion Desk',
+    'home.hero.title': 'AllDesk All-in-one Desk',
     'home.hero.desc': 'File compression, format conversion, and one-click app install wizard — all running 100% safely in your browser.',
     'home.hero.tag1': 'Status: Live',
     'home.hero.tag2': 'Security: 100% Browser Processing',

@@ -29,12 +29,12 @@ export const AboutView: React.FC<AboutViewProps> = ({ setActiveTab }) => {
         icon="✨"
         title={L('AllDesk 소개 (About Us)', 'About AllDesk')}
         description={L(
-          '노션(Notion)의 심플하고 직관적인 감성으로 완성된 차세대 올인원 데스크 생산성 워크스페이스입니다.',
-          'A next-generation all-in-one desk productivity workspace crafted with Notion’s simple and intuitive design philosophy.'
+          '심플하고 직관적인 인터페이스로 완성된 차세대 올인원 데스크 생산성 워크스페이스입니다.',
+          'A next-generation all-in-one desk productivity workspace crafted with a simple and intuitive design philosophy.'
         )}
         tags={[
           { label: L('AllDesk (올데스크)', 'AllDesk') },
-          { label: 'Notion Minimalist Design' },
+          { label: 'Minimalist Design' },
           { label: L('100% 로컬 프라이버시', '100% Local Privacy') },
           { label: L('무료 생산성 도구', 'Free Productivity Suite') },
         ]}

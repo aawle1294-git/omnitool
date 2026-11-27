@@ -52,8 +52,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="text-xs text-[#37352f] dark:text-[#d3d3d3] leading-relaxed min-w-0">
             <p className="font-bold text-sm text-[#37352f] dark:text-white">
               {L(
-                '노션 스타일의 설치 마법사와 로컬 파일 도구를 경험해보세요',
-                'Experience the Notion-style Install Wizard and local file tools'
+                '원클릭 설치 마법사와 브라우저 파일 도구를 경험해보세요',
+                'Experience the one-click Install Wizard and browser file tools'
               )}
             </p>
             <p className="text-[#787774] dark:text-[#9b9a97] mt-1">

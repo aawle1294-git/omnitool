@@ -196,10 +196,10 @@ export const App: React.FC = () => {
           <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <span className="w-5 h-5 rounded bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-[10px]">
-                N
+                A
               </span>
               <span className="font-semibold text-[#37352f] dark:text-white">
-                AllDesk (Notion Edition)
+                AllDesk
               </span>
               <span>— {t('footer.subtitle').replace('— ', '')}</span>
             </div>

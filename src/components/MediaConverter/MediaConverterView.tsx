@@ -426,17 +426,15 @@ export const MediaConverterView: React.FC = () => {
             <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-start gap-3">
               <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <div className="text-xs text-amber-800 dark:text-amber-300 space-y-1">
-                <p className="font-bold">{L('URL 다운로드는 로컬 PC 실행 전용 기능입니다', 'URL Download is available only when running locally on PC')}</p>
+                <p className="font-bold">{L('URL 다운로드는 웹 정적 호스팅 환경에서 지원되지 않습니다', 'URL Download is not supported in static web hosting')}</p>
                 <p className="text-amber-700 dark:text-amber-400">
                   {lang === 'en' ? (
                     <>
-                      This feature is only available when running the local server via <strong>실행하기.bat</strong> on your PC.
-                      Video &amp; audio <strong>file conversion</strong> works directly in your browser using the tabs above without a cloud server.
+                      Video &amp; audio <strong>file conversion</strong> works directly in your browser using the tabs above without any server.
                     </>
                   ) : (
                     <>
-                      이 기능은 PC에서 <strong>실행하기.bat</strong>으로 로컬 서버를 구동할 때만 사용 가능합니다.
-                      영상·오디오 <strong>파일 변환</strong>은 위 탭(영상/오디오 변환기)에서 클라우드 없이 브라우저만으로 사용하실 수 있습니다.
+                      영상·오디오 <strong>파일 변환</strong>은 위 탭(영상/오디오 변환기)에서 서버 전송 없이 브라우저만으로 바로 사용하실 수 있습니다.
                     </>
                   )}
                 </p>

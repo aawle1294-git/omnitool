@@ -108,11 +108,11 @@ export const NotionSidebar: React.FC<NotionSidebarProps> = ({
             {isOpen ? (
               <div className="flex items-center gap-2.5 overflow-hidden">
                 <div className="w-6 h-6 rounded bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
-                  N
+                  A
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs font-bold truncate text-[#37352f] dark:text-white flex items-center gap-1">
-                    <span>AllDesk's Notion</span>
+                    <span>AllDesk</span>
                     <ChevronDown className="w-3 h-3 text-[#787774]" />
                   </p>
                   <p className="text-[10px] text-[#787774] truncate">{t('sidebar.workspace.sub')}</p>
