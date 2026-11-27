@@ -4,7 +4,9 @@
   "version": "2.0.0",
   "type": "module",
   "scripts": {
+    "predev": "node scripts/generate-update-logs.mjs",
     "dev": "vite",
+    "prebuild": "node scripts/generate-update-logs.mjs",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },

@@ -1,0 +1,87 @@
+[
+  {
+    "version": "v2.2.1",
+    "title": "update domain references to omnitool.aawle1294.workers.dev",
+    "releaseDate": "2026-11-27",
+    "isLatest": true,
+    "tag": "버그 수정",
+    "tagColor": "rose",
+    "summary": "2026-11-27에 반영된 1건의 자동 업데이트 내역입니다.",
+    "highlights": [
+      "update domain references to omnitool.aawle1294.workers.dev (b2a9461)"
+    ],
+    "details": [
+      {
+        "category": "🛠️ 버그 수정",
+        "items": [
+          "update domain references to omnitool.aawle1294.workers.dev [b2a9461]"
+        ]
+      }
+    ]
+  },
+  {
+    "version": "v2.2.0",
+    "title": "translate all page bodies and tool views to support KO/EN 외 3건",
+    "releaseDate": "2026-11-26",
+    "isLatest": false,
+    "tag": "기능 추가",
+    "tagColor": "emerald",
+    "summary": "2026-11-26에 반영된 4건의 자동 업데이트 내역입니다.",
+    "highlights": [
+      "translate all page bodies and tool views to support KO/EN (bd8c2fb)",
+      "prepare repo for Cloudflare Pages deployment (.nvmrc + clean _redirects) (76d7473)",
+      "add wrangler.jsonc for Cloudflare static assets SPA deploy (a1a4b43)",
+      "remove _redirects (handled by wrangler single-page-application) (41367a5)"
+    ],
+    "details": [
+      {
+        "category": "✨ 신규 기능",
+        "items": [
+          "translate all page bodies and tool views to support KO/EN [bd8c2fb]"
+        ]
+      },
+      {
+        "category": "🛠️ 버그 수정",
+        "items": [
+          "remove _redirects (handled by wrangler single-page-application) [41367a5]"
+        ]
+      },
+      {
+        "category": "⚙️ 인프라 및 개선",
+        "items": [
+          "prepare repo for Cloudflare Pages deployment (.nvmrc + clean _redirects) [76d7473]",
+          "add wrangler.jsonc for Cloudflare static assets SPA deploy [a1a4b43]"
+        ]
+      }
+    ]
+  },
+  {
+    "version": "v2.1.0",
+    "title": "add KO/EN language toggle with full translation system (LanguageContext + t()) 외 2건",
+    "releaseDate": "2026-11-25",
+    "isLatest": false,
+    "tag": "기능 추가",
+    "tagColor": "emerald",
+    "summary": "2026-11-25에 반영된 3건의 자동 업데이트 내역입니다.",
+    "highlights": [
+      "PDF rotation safe extraction + stronger Netlify badge blocker (d8b848a)",
+      "add KO/EN language toggle with full translation system (LanguageContext + t()) (6ecf81b)",
+      "prevent Netlify badge MutationObserver from removing app script on netlify.app domain (8108587)"
+    ],
+    "details": [
+      {
+        "category": "✨ 신규 기능",
+        "items": [
+          "add KO/EN language toggle with full translation system (LanguageContext + t()) [6ecf81b]"
+        ]
+      },
+      {
+        "category": "🛠️ 버그 수정",
+        "items": [
+          "PDF rotation safe extraction + stronger Netlify badge blocker [d8b848a]",
+          "prevent Netlify badge MutationObserver from removing app script on netlify.app domain [8108587]"
+        ]
+      }
+    ]
+  }
+]

@@ -1,3 +1,5 @@
+import generatedLogs from './generatedLogs.json';
+
 export interface UpdateChangeItem {
   category: string;
   items: string[];
@@ -15,14 +17,12 @@ export interface UpdateLog {
   details: UpdateChangeItem[];
 }
 
-export const CURRENT_VERSION = 'v2.0.0';
-
-export const ALL_UPDATE_LOGS: UpdateLog[] = [
+const MANUAL_UPDATE_LOGS: UpdateLog[] = [
   {
     version: 'v2.0.0',
     title: 'AllDesk 2.0 정식 릴리즈 & 실시간 업데이트 알림 센터 구축',
     releaseDate: '2026-11-25',
-    isLatest: true,
+    isLatest: (generatedLogs as UpdateLog[]).length === 0,
     tag: '대규모 업데이트',
     tagColor: 'violet',
     summary: '파일편집소(자동 누끼 따기, PDF 그림판 주석) 완성 기념 정식 2.0 버전 출시 및 버전 업데이트 알림 센터가 도입되었습니다.',
@@ -305,3 +305,10 @@ export const ALL_UPDATE_LOGS: UpdateLog[] = [
     ]
   }
 ];
+
+export const ALL_UPDATE_LOGS: UpdateLog[] = [
+  ...(generatedLogs as UpdateLog[]),
+  ...MANUAL_UPDATE_LOGS,
+];
+
+export const CURRENT_VERSION = ALL_UPDATE_LOGS[0]?.version ?? 'v2.0.0';
