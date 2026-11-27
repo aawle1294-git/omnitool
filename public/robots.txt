@@ -9,4 +9,4 @@ Allow: /
 User-agent: Googlebot
 Allow: /
 
-Sitemap: https://alldesk.netlify.app/sitemap.xml
+Sitemap: https://omnitool.aawle1294.workers.dev/sitemap.xml

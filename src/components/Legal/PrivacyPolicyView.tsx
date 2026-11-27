@@ -142,8 +142,8 @@ export const PrivacyPolicyView: React.FC<PrivacyPolicyViewProps> = ({ setActiveT
           <div className="p-3 rounded-xl bg-[#faf9f6] dark:bg-[#282828] border border-[#efefed] dark:border-[#333] font-mono text-[11px]">
             <p>• {L('서비스명', 'Service')}: AllDesk</p>
             <p>• {L('운영자 / 관리자', 'Operator')}: AllDesk Team</p>
-            <p>• {L('공식 웹사이트', 'Website')}: https://alldesk.netlify.app</p>
-            <p>• {L('문의 이메일', 'Email')}: support@alldesk.netlify.app</p>
+            <p>• {L('공식 웹사이트', 'Website')}: https://omnitool.aawle1294.workers.dev</p>
+            <p>• {L('문의 이메일', 'Email')}: support@omnitool.aawle1294.workers.dev</p>
           </div>
         </section>
       </div>

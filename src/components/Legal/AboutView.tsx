@@ -87,9 +87,9 @@ export const AboutView: React.FC<AboutViewProps> = ({ setActiveTab }) => {
           )}
         </p>
         <div className="font-mono text-[11px] text-[#37352f] dark:text-[#e0e0e0] space-y-1 pt-1">
-          <p>• {L('이메일', 'Email')}: <strong>support@alldesk.netlify.app</strong></p>
+          <p>• {L('이메일', 'Email')}: <strong>support@omnitool.aawle1294.workers.dev</strong></p>
           <p>• {L('깃허브 저장소', 'GitHub')}: <strong>github.com/aawle1294-git/omnitool</strong></p>
-          <p>• {L('배포 도메인', 'Website')}: <strong>https://alldesk.netlify.app</strong></p>
+          <p>• {L('배포 도메인', 'Website')}: <strong>https://omnitool.aawle1294.workers.dev</strong></p>
         </div>
       </div>
     </div>

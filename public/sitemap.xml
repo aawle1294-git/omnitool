@@ -1,68 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://alldesk.netlify.app/</loc>
+    <loc>https://omnitool.aawle1294.workers.dev/</loc>
     <priority>1.0</priority>
     <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://alldesk.netlify.app/editor</loc>
+    <loc>https://omnitool.aawle1294.workers.dev/editor</loc>
     <priority>0.9</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://alldesk.netlify.app/editor/image</loc>
+    <loc>https://omnitool.aawle1294.workers.dev/editor/image</loc>
     <priority>0.9</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://alldesk.netlify.app/editor/pdf</loc>
+    <loc>https://omnitool.aawle1294.workers.dev/editor/pdf</loc>
     <priority>0.9</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://alldesk.netlify.app/compressor</loc>
+    <loc>https://omnitool.aawle1294.workers.dev/compressor</loc>
     <priority>0.8</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://alldesk.netlify.app/converter</loc>
+    <loc>https://omnitool.aawle1294.workers.dev/converter</loc>
     <priority>0.8</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://alldesk.netlify.app/media</loc>
+    <loc>https://omnitool.aawle1294.workers.dev/media</loc>
     <priority>0.8</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://alldesk.netlify.app/tools</loc>
+    <loc>https://omnitool.aawle1294.workers.dev/tools</loc>
     <priority>0.7</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://alldesk.netlify.app/fun</loc>
+    <loc>https://omnitool.aawle1294.workers.dev/fun</loc>
     <priority>0.6</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://alldesk.netlify.app/installer</loc>
+    <loc>https://omnitool.aawle1294.workers.dev/installer</loc>
     <priority>0.8</priority>
     <changefreq>weekly</changefreq>
   </url>
   <!-- Mandatory Policy & Legal Pages for Google AdSense -->
   <url>
-    <loc>https://alldesk.netlify.app/privacy</loc>
+    <loc>https://omnitool.aawle1294.workers.dev/privacy</loc>
     <priority>0.5</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://alldesk.netlify.app/terms</loc>
+    <loc>https://omnitool.aawle1294.workers.dev/terms</loc>
     <priority>0.5</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://alldesk.netlify.app/about</loc>
+    <loc>https://omnitool.aawle1294.workers.dev/about</loc>
     <priority>0.5</priority>
     <changefreq>monthly</changefreq>
   </url>
