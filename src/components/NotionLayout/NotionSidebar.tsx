@@ -252,17 +252,6 @@ export const NotionSidebar: React.FC<NotionSidebarProps> = ({
               })}
             </nav>
 
-            {/* Notion Style Callout Hint */}
-            {isOpen && (
-              <div className="pt-2">
-                <div className="p-3 rounded-xl bg-[#efefed]/80 dark:bg-[#282828] border border-[#e3e2e0] dark:border-[#333] text-[11px] leading-relaxed text-[#787774]">
-                  <p className="font-semibold text-[#37352f] dark:text-[#e3e2e0] flex items-center gap-1 mb-1">
-                    {t('sidebar.callout.title')}
-                  </p>
-                  {t('sidebar.callout.desc')}
-                </div>
-              </div>
-            )}
           </div>
         </div>
 

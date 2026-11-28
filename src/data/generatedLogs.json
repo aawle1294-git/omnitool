@@ -1,9 +1,29 @@
 [
   {
+    "version": "v2.3.1",
+    "title": "add Google Search Console verification meta tag",
+    "releaseDate": "2026-11-28",
+    "isLatest": true,
+    "tag": "최적화 및 보안",
+    "tagColor": "blue",
+    "summary": "2026-11-28에 반영된 1건의 자동 업데이트 내역입니다.",
+    "highlights": [
+      "add Google Search Console verification meta tag (2cdf673)"
+    ],
+    "details": [
+      {
+        "category": "⚙️ 인프라 및 개선",
+        "items": [
+          "add Google Search Console verification meta tag [2cdf673]"
+        ]
+      }
+    ]
+  },
+  {
     "version": "v2.3.0",
     "title": "automate update logs from git commit history on build 외 2건",
     "releaseDate": "2026-11-27",
-    "isLatest": true,
+    "isLatest": false,
     "tag": "기능 추가",
     "tagColor": "emerald",
     "summary": "2026-11-27에 반영된 3건의 자동 업데이트 내역입니다.",
