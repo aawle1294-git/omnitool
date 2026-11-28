@@ -1,15 +1,16 @@
 [
   {
     "version": "v2.3.0",
-    "title": "automate update logs from git commit history on build 외 1건",
+    "title": "automate update logs from git commit history on build 외 2건",
     "releaseDate": "2026-11-27",
     "isLatest": true,
     "tag": "기능 추가",
     "tagColor": "emerald",
-    "summary": "2026-11-27에 반영된 2건의 자동 업데이트 내역입니다.",
+    "summary": "2026-11-27에 반영된 3건의 자동 업데이트 내역입니다.",
     "highlights": [
       "update domain references to omnitool.aawle1294.workers.dev (b2a9461)",
-      "automate update logs from git commit history on build (bd2e548)"
+      "automate update logs from git commit history on build (bd2e548)",
+      "remove Notion branding and local-run references (30da7e8)"
     ],
     "details": [
       {
@@ -22,6 +23,12 @@
         "category": "🛠️ 버그 수정",
         "items": [
           "update domain references to omnitool.aawle1294.workers.dev [b2a9461]"
+        ]
+      },
+      {
+        "category": "⚙️ 인프라 및 개선",
+        "items": [
+          "remove Notion branding and local-run references [30da7e8]"
         ]
       }
     ]
