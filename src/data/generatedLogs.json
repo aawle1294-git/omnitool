@@ -1,20 +1,22 @@
 [
   {
     "version": "v2.3.1",
-    "title": "add Google Search Console verification meta tag",
+    "title": "add Google Search Console verification meta tag 외 1건",
     "releaseDate": "2026-11-28",
     "isLatest": true,
     "tag": "최적화 및 보안",
     "tagColor": "blue",
-    "summary": "2026-11-28에 반영된 1건의 자동 업데이트 내역입니다.",
+    "summary": "2026-11-28에 반영된 2건의 자동 업데이트 내역입니다.",
     "highlights": [
-      "add Google Search Console verification meta tag (2cdf673)"
+      "add Google Search Console verification meta tag (2cdf673)",
+      "remove sidebar sub-page callout box (dbae4a1)"
     ],
     "details": [
       {
         "category": "⚙️ 인프라 및 개선",
         "items": [
-          "add Google Search Console verification meta tag [2cdf673]"
+          "add Google Search Console verification meta tag [2cdf673]",
+          "remove sidebar sub-page callout box [dbae4a1]"
         ]
       }
     ]
